@@ -1,0 +1,122 @@
+from pathlib import Path
+
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from xtra.models import (
+    BBox,
+    Document,
+    DocumentMetadata,
+    FontInfo,
+    Page,
+    PdfObjectInfo,
+    SourceType,
+    TextBlock,
+)
+
+
+def test_bbox_creation() -> None:
+    bbox = BBox(x0=0.0, y0=0.0, x1=100.0, y1=50.0)
+    assert bbox.x0 == 0.0
+    assert bbox.y0 == 0.0
+    assert bbox.x1 == 100.0
+    assert bbox.y1 == 50.0
+
+
+def test_font_info_defaults() -> None:
+    font = FontInfo()
+    assert font.name is None
+    assert font.size is None
+    assert font.flags is None
+    assert font.weight is None
+    assert font.is_italic is None
+    assert font.is_bold is None
+
+
+def test_font_info_with_values() -> None:
+    font = FontInfo(name="Helvetica", size=12.0, weight=400)
+    assert font.name == "Helvetica"
+    assert font.size == 12.0
+    assert font.weight == 400
+
+
+def test_text_block_creation() -> None:
+    bbox = BBox(x0=0.0, y0=0.0, x1=100.0, y1=20.0)
+    block = TextBlock(text="Hello", bbox=bbox)
+    assert block.text == "Hello"
+    assert block.rotation == 0.0
+    assert block.confidence is None
+    assert block.font_info is None
+
+
+def test_text_block_with_confidence() -> None:
+    bbox = BBox(x0=0.0, y0=0.0, x1=100.0, y1=20.0)
+    block = TextBlock(text="Hello", bbox=bbox, confidence=0.95, rotation=5.0)
+    assert block.confidence == 0.95
+    assert block.rotation == 5.0
+
+
+def test_page_creation() -> None:
+    page = Page(page_number=0, width=595.0, height=842.0)
+    assert page.page_number == 0
+    assert page.width == 595.0
+    assert page.height == 842.0
+    assert page.texts == []
+
+
+def test_page_with_texts() -> None:
+    bbox = BBox(x0=0.0, y0=0.0, x1=100.0, y1=20.0)
+    block = TextBlock(text="Test", bbox=bbox)
+    page = Page(page_number=0, width=595.0, height=842.0, texts=[block])
+    assert len(page.texts) == 1
+    assert page.texts[0].text == "Test"
+
+
+def test_pdf_object_info() -> None:
+    obj = PdfObjectInfo(obj_id=123, obj_type="PdfObject")
+    assert obj.obj_id == 123
+    assert obj.obj_type == "PdfObject"
+    assert obj.generation == 0
+    assert obj.raw is None
+
+
+def test_document_metadata_pdf() -> None:
+    meta = DocumentMetadata(source_type=SourceType.PDF, creator="Test")
+    assert meta.source_type == SourceType.PDF
+    assert meta.creator == "Test"
+    assert meta.fonts == []
+    assert meta.pdf_objects == []
+
+
+def test_document_metadata_ocr() -> None:
+    meta = DocumentMetadata(
+        source_type=SourceType.OCR,
+        extra={"ocr_engine": "easyocr"},
+    )
+    assert meta.source_type == SourceType.OCR
+    assert meta.extra["ocr_engine"] == "easyocr"
+
+
+def test_document_creation() -> None:
+    path = Path("/tmp/test.pdf")
+    doc = Document(path=path)
+    assert doc.path == path
+    assert doc.pages == []
+    assert doc.metadata is None
+
+
+def test_document_with_pages() -> None:
+    path = Path("/tmp/test.pdf")
+    page = Page(page_number=0, width=595.0, height=842.0)
+    meta = DocumentMetadata(source_type=SourceType.PDF)
+    doc = Document(path=path, pages=[page], metadata=meta)
+    assert len(doc.pages) == 1
+    assert doc.metadata is not None
+
+
+def test_source_type_enum() -> None:
+    assert SourceType.PDF == "pdf"
+    assert SourceType.OCR == "ocr"
+    assert SourceType.PDF_OCR == "pdf-ocr"
+    assert SourceType.AZURE_DI == "azure-di"
