@@ -1,11 +1,6 @@
 """Tests for coordinate conversion utilities."""
 
-import sys
-from pathlib import Path
-
 import pytest
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from xtra.coordinates import POINTS_PER_INCH, CoordinateConverter
 from xtra.models import BBox, CoordinateUnit, Page, TextBlock

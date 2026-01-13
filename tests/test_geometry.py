@@ -1,11 +1,5 @@
 """Tests for geometry utilities."""
 
-import sys
-from pathlib import Path
-
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 

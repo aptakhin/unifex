@@ -84,3 +84,16 @@ from .base import BaseExtractor
 - Use real files for extractor tests (integration tests)
 - If mocks seem necessary, discuss first - we may need to refactor the design
 - Prefer testing pure functions and data transformations without mocking
+
+## Testing: No sys.path Manipulation
+
+**Never use `sys.path.insert` in tests.** Poetry handles the Python path correctly.
+
+```python
+# Bad - don't do this
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Good - just import directly
+from xtra.models import BBox
+```
