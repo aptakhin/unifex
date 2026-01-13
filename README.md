@@ -370,6 +370,23 @@ Pydantic models for type-safe document representation:
 - `BBox` - Bounding box coordinates
 - `DocumentMetadata` - Source type, fonts, PDF objects
 
+## Work test times
+
+Please keep in mind EasyOCR solution performance slows downs with bigger images and scale. The current overview for small PDF and images with dpi=100 (lower faster).
+
+```bash
+11.84s call     tests/test_integration.py::test_ocr_extract_pdf[easyocr]
+4.79s call     tests/test_integration.py::test_ocr_extract_pdf[google]
+3.64s call     tests/test_integration.py::test_ocr_extract_pdf[azure]
+3.58s call     tests/test_integration.py::test_ocr_extract_image[easyocr]
+3.01s call     tests/test_integration.py::test_ocr_extract_pdf[paddle]
+1.20s call     tests/test_integration.py::test_ocr_extract_image[paddle]
+0.94s call     tests/test_factory.py::TestCreateExtractorWithRealFiles::test_creates_paddle_with_gpu_flag
+0.94s call     tests/test_factory.py::TestCreateExtractorWithRealFiles::test_creates_paddle_extractor
+0.48s call     tests/test_integration.py::test_ocr_extract_pdf[tesseract]
+0.15s call     tests/test_integration.py::test_ocr_extract_image[tesseract]
+```
+
 ## License
 
 MIT
