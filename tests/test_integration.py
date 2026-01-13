@@ -106,7 +106,7 @@ def test_ocr_extract_pdf(extractor_type: ExtractorType, ocr_engine: str) -> None
         TEST_DATA_DIR / "test_pdf_2p_text.pdf",
         extractor_type,
         languages=["en"],
-        dpi=150,
+        dpi=100,
     ) as extractor:
         doc = extractor.extract()
 
