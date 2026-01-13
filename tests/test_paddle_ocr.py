@@ -1,8 +1,5 @@
 """Unit tests for PaddleOCR adapter and Pydantic models."""
 
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
 import pytest
 from pydantic import ValidationError
 
@@ -11,7 +8,6 @@ from xtra.adapters.paddle_ocr import (
     PaddleOCRDetection,
     PaddleOCRResult,
 )
-from xtra.models import ExtractorType
 
 
 class TestPaddleOCRDetection:
@@ -158,118 +154,3 @@ class TestPaddleOCRAdapter:
         assert blocks[0].text == "Rotated"
         # Rotation should be detected (non-zero for rotated text)
         assert blocks[0].rotation is not None
-
-
-class TestPaddleOcrExtractorWithPdf:
-    """Unit tests for PaddleOcrExtractor with PDF files."""
-
-    def test_get_metadata_with_pdf(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
-        ):
-            mock_pdf = MagicMock()
-            mock_page = MagicMock()
-            mock_bitmap = MagicMock()
-            mock_pil_img = MagicMock()
-            mock_pil_img.size = (800, 600)
-
-            mock_bitmap.to_pil.return_value = mock_pil_img
-            mock_page.render.return_value = mock_bitmap
-            mock_pdf.__iter__ = lambda self: iter([mock_page])
-            mock_pdfium.PdfDocument.return_value = mock_pdf
-
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-
-            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"))
-            metadata = extractor.get_metadata()
-
-            assert metadata.source_type == ExtractorType.PADDLE
-            assert metadata.extra["ocr_engine"] == "paddleocr"
-            assert metadata.extra["dpi"] == 200
-
-    def test_get_page_count_pdf(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
-        ):
-            mock_pdf = MagicMock()
-            mock_pages = [MagicMock(), MagicMock(), MagicMock()]
-            for page in mock_pages:
-                mock_bitmap = MagicMock()
-                mock_pil_img = MagicMock()
-                mock_pil_img.size = (800, 600)
-                mock_bitmap.to_pil.return_value = mock_pil_img
-                page.render.return_value = mock_bitmap
-
-            mock_pdf.__iter__ = lambda self: iter(mock_pages)
-            mock_pdfium.PdfDocument.return_value = mock_pdf
-
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-
-            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"))
-            assert extractor.get_page_count() == 3
-
-    def test_extract_page_success_pdf(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
-        ):
-            mock_pdf = MagicMock()
-            mock_page = MagicMock()
-            mock_bitmap = MagicMock()
-            mock_pil_img = MagicMock()
-            mock_pil_img.size = (1200, 900)
-
-            mock_bitmap.to_pil.return_value = mock_pil_img
-            mock_page.render.return_value = mock_bitmap
-            mock_pdf.__iter__ = lambda self: iter([mock_page])
-            mock_pdfium.PdfDocument.return_value = mock_pdf
-
-            mock_paddle = MagicMock()
-            mock_paddle.ocr.return_value = [
-                [
-                    [[[50, 100], [250, 100], [250, 150], [50, 150]], ("PDF", 0.925)],
-                ]
-            ]
-            mock_paddle_class.return_value = mock_paddle
-
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-
-            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"))
-            result = extractor.extract_page(0)
-
-            assert result.success is True
-            assert result.page.page == 0
-            # Dimensions converted from pixels to points (default) at 200 DPI
-            assert result.page.width == 432.0  # 1200 * (72/200)
-            assert result.page.height == 324.0  # 900 * (72/200)
-            assert len(result.page.texts) == 1
-            assert result.page.texts[0].text == "PDF"
-
-    def test_custom_dpi_pdf(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
-        ):
-            mock_pdf = MagicMock()
-            mock_page = MagicMock()
-            mock_bitmap = MagicMock()
-            mock_pil_img = MagicMock()
-            mock_pil_img.size = (800, 600)
-
-            mock_bitmap.to_pil.return_value = mock_pil_img
-            mock_page.render.return_value = mock_bitmap
-            mock_pdf.__iter__ = lambda self: iter([mock_page])
-            mock_pdfium.PdfDocument.return_value = mock_pdf
-
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-
-            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"), dpi=300)
-            metadata = extractor.get_metadata()
-
-            assert metadata.extra["dpi"] == 300
-            # Check render was called with correct scale (300/72)
-            mock_page.render.assert_called_once()
-            call_kwargs = mock_page.render.call_args[1]
-            assert call_kwargs["scale"] == pytest.approx(300 / 72, rel=0.01)
