@@ -124,7 +124,7 @@ class TestCreateExtractorPaddle:
     def test_creates_paddle_extractor(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -139,7 +139,7 @@ class TestCreateExtractorPaddle:
     def test_creates_paddle_with_gpu(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -153,7 +153,7 @@ class TestCreateExtractorPaddle:
     def test_creates_paddle_extractor_with_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_page = MagicMock()

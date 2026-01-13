@@ -14,7 +14,7 @@ class TestPaddleOcrExtractor:
     def test_get_metadata(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -32,7 +32,7 @@ class TestPaddleOcrExtractor:
     def test_get_page_count(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -46,7 +46,7 @@ class TestPaddleOcrExtractor:
     def test_extract_page_success(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (800, 600)
@@ -90,7 +90,7 @@ class TestPaddleOcrExtractor:
     def test_extract_page_out_of_range(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -108,7 +108,7 @@ class TestPaddleOcrExtractor:
     def test_extract_page_handles_none_result(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (800, 600)
@@ -130,7 +130,7 @@ class TestPaddleOcrExtractor:
     def test_extract_page_handles_empty_result(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (800, 600)
@@ -151,7 +151,7 @@ class TestPaddleOcrExtractor:
     def test_custom_languages(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -175,7 +175,7 @@ class TestPaddleOcrExtractor:
     def test_close(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -190,7 +190,7 @@ class TestPaddleOcrExtractor:
     def test_init_with_dpi(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -209,7 +209,7 @@ class TestPaddleOcrExtractorWithPdf:
     def test_get_metadata_with_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_page = MagicMock()
@@ -234,7 +234,7 @@ class TestPaddleOcrExtractorWithPdf:
     def test_get_page_count_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_pages = [MagicMock(), MagicMock(), MagicMock()]
@@ -256,7 +256,7 @@ class TestPaddleOcrExtractorWithPdf:
     def test_extract_page_success_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_page = MagicMock()
@@ -293,7 +293,7 @@ class TestPaddleOcrExtractorWithPdf:
     def test_custom_dpi_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_page = MagicMock()

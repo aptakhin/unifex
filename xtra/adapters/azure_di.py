@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import math
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional
 
-from ..models import BBox, DocumentMetadata, Page, ExtractorType, TextBlock
+from ..models import DocumentMetadata, Page, ExtractorType, TextBlock
+from ..utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
     from azure.ai.documentintelligence.models import AnalyzeResult, DocumentPage
@@ -84,7 +84,8 @@ class AzureDocumentIntelligenceAdapter:
             if word.content is None or word.polygon is None:
                 continue
 
-            bbox, rotation = self._polygon_to_bbox_and_rotation(word.polygon)
+            # Azure polygon is flat: [x0, y0, x1, y1, x2, y2, x3, y3]
+            bbox, rotation = polygon_to_bbox_and_rotation(word.polygon, flat=True)
             confidence = word.confidence if word.confidence is not None else None
 
             blocks.append(
@@ -97,26 +98,3 @@ class AzureDocumentIntelligenceAdapter:
             )
 
         return blocks
-
-    @staticmethod
-    def _polygon_to_bbox_and_rotation(polygon: List[float]) -> Tuple[BBox, float]:
-        """Convert Azure polygon (flat list of x,y pairs) to BBox and rotation.
-
-        Azure returns polygon as [x0,y0, x1,y1, x2,y2, x3,y3] for 4 corners.
-        """
-        if len(polygon) < 8:
-            return BBox(x0=0, y0=0, x1=0, y1=0), 0.0
-
-        points = [(polygon[i], polygon[i + 1]) for i in range(0, 8, 2)]
-
-        xs = [p[0] for p in points]
-        ys = [p[1] for p in points]
-
-        bbox = BBox(x0=min(xs), y0=min(ys), x1=max(xs), y1=max(ys))
-
-        # Calculate rotation from first edge (top-left to top-right)
-        dx = points[1][0] - points[0][0]
-        dy = points[1][1] - points[0][1]
-        rotation = math.degrees(math.atan2(dy, dx))
-
-        return bbox, rotation

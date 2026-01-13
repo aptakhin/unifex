@@ -14,7 +14,7 @@ class TestTesseractOcrExtractor:
     def test_get_metadata(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -32,7 +32,7 @@ class TestTesseractOcrExtractor:
     def test_get_page_count(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -46,7 +46,7 @@ class TestTesseractOcrExtractor:
     def test_extract_page_success(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract") as mock_pytesseract,
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (800, 600)
@@ -96,7 +96,7 @@ class TestTesseractOcrExtractor:
     def test_extract_page_out_of_range(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -114,7 +114,7 @@ class TestTesseractOcrExtractor:
     def test_extract_page_filters_empty_text(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract") as mock_pytesseract,
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (800, 600)
@@ -152,7 +152,7 @@ class TestTesseractOcrExtractor:
     def test_extract_page_filters_low_confidence(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract") as mock_pytesseract,
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (800, 600)
@@ -188,7 +188,7 @@ class TestTesseractOcrExtractor:
     def test_custom_languages(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract") as mock_pytesseract,
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -222,7 +222,7 @@ class TestTesseractOcrExtractor:
     def test_close(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -237,7 +237,7 @@ class TestTesseractOcrExtractor:
     def test_init_with_dpi(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.Image") as mock_image,
+            patch("xtra.extractors._image_loader.Image") as mock_image,
         ):
             mock_img = MagicMock()
             mock_img.size = (100, 100)
@@ -256,7 +256,7 @@ class TestTesseractOcrExtractorWithPdf:
     def test_get_metadata_with_pdf(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_page = MagicMock()
@@ -281,7 +281,7 @@ class TestTesseractOcrExtractorWithPdf:
     def test_get_page_count_pdf(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_pages = [MagicMock(), MagicMock(), MagicMock()]
@@ -303,7 +303,7 @@ class TestTesseractOcrExtractorWithPdf:
     def test_extract_page_success_pdf(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract") as mock_pytesseract,
-            patch("xtra.extractors.tesseract_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_page = MagicMock()
@@ -348,7 +348,7 @@ class TestTesseractOcrExtractorWithPdf:
     def test_custom_dpi_pdf(self) -> None:
         with (
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
-            patch("xtra.extractors.tesseract_ocr.pdfium") as mock_pdfium,
+            patch("xtra.extractors._image_loader.pdfium") as mock_pdfium,
         ):
             mock_pdf = MagicMock()
             mock_page = MagicMock()

@@ -230,28 +230,6 @@ class TestAzureDocumentIntelligenceExtractor:
 
 
 class TestAzureDocumentIntelligenceAdapter:
-    def test_polygon_to_bbox_and_rotation_horizontal(self) -> None:
-        # Horizontal text polygon
-        polygon = [10.0, 10.0, 110.0, 10.0, 110.0, 30.0, 10.0, 30.0]
-        bbox, rotation = AzureDocumentIntelligenceAdapter._polygon_to_bbox_and_rotation(polygon)
-
-        assert bbox.x0 == 10.0
-        assert bbox.y0 == 10.0
-        assert bbox.x1 == 110.0
-        assert bbox.y1 == 30.0
-        assert rotation == 0.0
-
-    def test_polygon_to_bbox_and_rotation_short_polygon(self) -> None:
-        # Too short polygon
-        polygon = [10.0, 10.0]
-        bbox, rotation = AzureDocumentIntelligenceAdapter._polygon_to_bbox_and_rotation(polygon)
-
-        assert bbox.x0 == 0
-        assert bbox.y0 == 0
-        assert bbox.x1 == 0
-        assert bbox.y1 == 0
-        assert rotation == 0.0
-
     def test_convert_page_to_blocks_empty_words(self) -> None:
         adapter = AzureDocumentIntelligenceAdapter(None)
 

@@ -2,25 +2,20 @@
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 from typing import List, Optional
 
-import pypdfium2 as pdfium
 import pytesseract
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 
 from ..models import (
     BBox,
     CoordinateUnit,
     DocumentMetadata,
-    Page,
     ExtractorType,
     TextBlock,
 )
-from .base import BaseExtractor, ExtractionResult
-
-logger = logging.getLogger(__name__)
+from ._ocr_base import ImageBasedExtractor
 
 # ISO 639-1 (2-letter) to Tesseract (3-letter) language code mapping
 # Users provide 2-letter codes, we convert internally for Tesseract
@@ -71,7 +66,7 @@ def _convert_lang_code(code: str) -> str:
     return LANG_CODE_MAP.get(code, code)
 
 
-class TesseractOcrExtractor(BaseExtractor):
+class TesseractOcrExtractor(ImageBasedExtractor):
     """Extract text from images or PDFs using Tesseract OCR.
 
     Automatically detects file type and handles PDF-to-image conversion internally.
@@ -93,68 +88,22 @@ class TesseractOcrExtractor(BaseExtractor):
             dpi: DPI for PDF-to-image conversion. Default 200.
             output_unit: Coordinate unit for output. Default POINTS.
         """
-        super().__init__(path, output_unit)
         input_languages = languages or ["en"]
         # Store original 2-letter codes for metadata
         self.languages = input_languages
         # Convert to Tesseract format for internal use
         self._tesseract_languages = [_convert_lang_code(lang) for lang in input_languages]
-        self.dpi = dpi
-        self._images: List[Image.Image] = []
-        self._is_pdf = path.suffix.lower() == ".pdf"
-        self._load_images()
+        super().__init__(path, dpi, output_unit)
 
-    def _load_images(self) -> None:
-        """Load image(s) from path. Auto-detects PDF vs image."""
-        if self._is_pdf:
-            pdf = pdfium.PdfDocument(self.path)
-            scale = self.dpi / 72.0
-            for page in pdf:
-                bitmap = page.render(scale=scale)
-                self._images.append(bitmap.to_pil())
-            pdf.close()
-        else:
-            img = Image.open(self.path)
-            self._images = [img]
+    def _do_ocr(self, img: Image.Image) -> List[TextBlock]:
+        """Perform OCR using Tesseract."""
+        # Build language string for Tesseract (e.g., "eng+fra+deu")
+        lang_str = "+".join(self._tesseract_languages)
 
-    def get_page_count(self) -> int:
-        return len(self._images)
+        # Get detailed OCR data with bounding boxes
+        data = pytesseract.image_to_data(img, lang=lang_str, output_type=pytesseract.Output.DICT)
 
-    def extract_page(self, page: int) -> ExtractionResult:
-        """Extract text from a single image/page using Tesseract."""
-        try:
-            if page >= len(self._images):
-                raise IndexError(f"Page {page} out of range")
-
-            img = self._images[page]
-            width, height = img.size
-
-            # Build language string for Tesseract (e.g., "eng+fra+deu")
-            lang_str = "+".join(self._tesseract_languages)
-
-            # Get detailed OCR data with bounding boxes
-            data = pytesseract.image_to_data(
-                img, lang=lang_str, output_type=pytesseract.Output.DICT
-            )
-
-            text_blocks = self._convert_results(data)
-
-            result_page = Page(
-                page=page,
-                width=float(width),
-                height=float(height),
-                texts=text_blocks,
-            )
-            # Convert from native PIXELS to output_unit
-            result_page = self._convert_page(result_page, CoordinateUnit.PIXELS, self.dpi)
-            return ExtractionResult(page=result_page, success=True)
-        except (IndexError, UnidentifiedImageError, OSError, RuntimeError) as e:
-            logger.warning("Failed to extract page %d with Tesseract: %s", page, e)
-            return ExtractionResult(
-                page=Page(page=page, width=0, height=0, texts=[]),
-                success=False,
-                error=str(e),
-            )
+        return self._convert_results(data)
 
     def get_metadata(self) -> DocumentMetadata:
         extra = {"ocr_engine": "tesseract", "languages": self.languages}
@@ -203,12 +152,3 @@ class TesseractOcrExtractor(BaseExtractor):
             )
 
         return blocks
-
-    def close(self) -> None:
-        """Close image handles."""
-        for img in self._images:
-            try:
-                img.close()
-            except Exception:  # noqa: S110
-                pass
-        self._images = []
