@@ -72,7 +72,9 @@ class TestCreateExtractorEasyOcr:
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
 
-            extractor = create_extractor(Path("/fake/image.png"), ExtractorType.EASYOCR, use_gpu=True)
+            extractor = create_extractor(
+                Path("/fake/image.png"), ExtractorType.EASYOCR, use_gpu=True
+            )
             assert extractor.gpu is True  # type: ignore[attr-defined]
 
     def test_creates_easyocr_extractor_with_pdf(self) -> None:
@@ -143,7 +145,9 @@ class TestCreateExtractorPaddle:
             mock_img.size = (100, 100)
             mock_image.open.return_value = mock_img
 
-            extractor = create_extractor(Path("/fake/image.png"), ExtractorType.PADDLE, use_gpu=True)
+            extractor = create_extractor(
+                Path("/fake/image.png"), ExtractorType.PADDLE, use_gpu=True
+            )
             assert extractor.use_gpu is True  # type: ignore[attr-defined]
 
     def test_creates_paddle_extractor_with_pdf(self) -> None:

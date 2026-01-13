@@ -101,6 +101,7 @@ class TestPaddleOcrExtractor:
             result = extractor.extract_page(5)
 
             assert result.success is False
+            assert result.error is not None
             assert "out of range" in result.error.lower()
 
     def test_extract_page_handles_none_result(self) -> None:

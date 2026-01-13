@@ -340,5 +340,5 @@ MIT
 
 ## Future plans
 
-- Table extraction for pdf (tabule) and cloud OCR's
+- Table extraction for pdf (tabula) and cloud OCR's
 - LLM-chat free format result extraction through one interface
