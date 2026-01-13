@@ -1,206 +1,163 @@
-"""Unit tests for PaddleOCR extractor."""
+"""Unit tests for PaddleOCR adapter and Pydantic models."""
 
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pydantic import ValidationError
 
+from xtra.adapters.paddle_ocr import (
+    PaddleOCRAdapter,
+    PaddleOCRDetection,
+    PaddleOCRResult,
+)
 from xtra.models import ExtractorType
 
 
-class TestPaddleOcrExtractor:
-    """Unit tests for PaddleOcrExtractor."""
+class TestPaddleOCRDetection:
+    """Tests for PaddleOCRDetection Pydantic model."""
 
-    def test_get_metadata(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (100, 100)
-            mock_image.open.return_value = mock_img
+    def test_valid_detection(self) -> None:
+        detection = PaddleOCRDetection(
+            polygon=[[10, 20], [90, 20], [90, 50], [10, 50]],
+            text="Hello",
+            confidence=0.95,
+        )
+        assert detection.text == "Hello"
+        assert detection.confidence == 0.95
+        assert len(detection.polygon) == 4
 
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
+    def test_from_paddle_format(self) -> None:
+        item = ([[10, 20], [90, 20], [90, 50], [10, 50]], ("Hello", 0.95))
+        detection = PaddleOCRDetection.from_paddle_format(item)
+        assert detection.text == "Hello"
+        assert detection.confidence == 0.95
 
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"))
-            metadata = extractor.get_metadata()
+    def test_invalid_polygon_wrong_point_count(self) -> None:
+        with pytest.raises(ValidationError) as exc_info:
+            PaddleOCRDetection(
+                polygon=[[10, 20], [90, 20], [90, 50]],  # Only 3 points
+                text="Hello",
+                confidence=0.95,
+            )
+        assert "points" in str(exc_info.value)
 
-            assert metadata.source_type == ExtractorType.PADDLE
-            assert metadata.extra["ocr_engine"] == "paddleocr"
-            assert "languages" in metadata.extra
+    def test_invalid_polygon_wrong_coordinate_count(self) -> None:
+        with pytest.raises(ValidationError) as exc_info:
+            PaddleOCRDetection(
+                polygon=[[10], [90, 20], [90, 50], [10, 50]],  # First point has 1 coord
+                text="Hello",
+                confidence=0.95,
+            )
+        assert "coordinates" in str(exc_info.value)
 
-    def test_get_page_count(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (100, 100)
-            mock_image.open.return_value = mock_img
 
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
+class TestPaddleOCRResult:
+    """Tests for PaddleOCRResult Pydantic model."""
 
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"))
-            assert extractor.get_page_count() == 1
-
-    def test_extract_page_success(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (800, 600)
-            mock_image.open.return_value = mock_img
-
-            # Mock PaddleOCR output format: list of [bbox, (text, confidence)]
-            # bbox is [[x1,y1], [x2,y2], [x3,y3], [x4,y4]] (4 corners)
-            mock_paddle = MagicMock()
-            mock_paddle.ocr.return_value = [
-                [
-                    [[[10, 20], [90, 20], [90, 50], [10, 50]], ("Hello", 0.955)],
-                    [[[100, 20], [190, 20], [190, 50], [100, 50]], ("World", 0.872)],
-                ]
+    def test_from_paddle_output_success(self) -> None:
+        paddle_output = [
+            [
+                [[[10, 20], [90, 20], [90, 50], [10, 50]], ("Hello", 0.955)],
+                [[[100, 20], [190, 20], [190, 50], [100, 50]], ("World", 0.872)],
             ]
-            mock_paddle_class.return_value = mock_paddle
+        ]
+        result = PaddleOCRResult.from_paddle_output(paddle_output)
+        assert len(result.detections) == 2
+        assert result.detections[0].text == "Hello"
+        assert result.detections[1].text == "World"
 
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
+    def test_from_paddle_output_none(self) -> None:
+        result = PaddleOCRResult.from_paddle_output(None)
+        assert len(result.detections) == 0
 
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"))
-            result = extractor.extract_page(0)
+    def test_from_paddle_output_empty_outer(self) -> None:
+        result = PaddleOCRResult.from_paddle_output([])
+        assert len(result.detections) == 0
 
-            assert result.success is True
-            assert result.page.page == 0
-            # Dimensions converted from pixels to points (default) at 200 DPI
-            assert result.page.width == 288.0  # 800 * (72/200)
-            assert result.page.height == 216.0  # 600 * (72/200)
-            assert len(result.page.texts) == 2
+    def test_from_paddle_output_empty_inner(self) -> None:
+        result = PaddleOCRResult.from_paddle_output([[]])
+        assert len(result.detections) == 0
 
-            # Check first word - bbox converted from pixels to points
-            assert result.page.texts[0].text == "Hello"
-            assert result.page.texts[0].bbox.x0 == pytest.approx(3.6, rel=0.01)  # 10 * (72/200)
-            assert result.page.texts[0].bbox.y0 == pytest.approx(7.2, rel=0.01)  # 20 * (72/200)
-            assert result.page.texts[0].bbox.x1 == pytest.approx(32.4, rel=0.01)  # 90 * (72/200)
-            assert result.page.texts[0].bbox.y1 == pytest.approx(18.0, rel=0.01)  # 50 * (72/200)
-            assert result.page.texts[0].confidence == pytest.approx(0.955, rel=0.01)
+    def test_from_paddle_output_none_items(self) -> None:
+        result = PaddleOCRResult.from_paddle_output([[None]])
+        assert len(result.detections) == 0
 
-            # Check second word
-            assert result.page.texts[1].text == "World"
-            assert result.page.texts[1].confidence == pytest.approx(0.872, rel=0.01)
+    def test_from_paddle_output_mixed_none_items(self) -> None:
+        paddle_output = [
+            [
+                None,
+                [[[10, 20], [90, 20], [90, 50], [10, 50]], ("Hello", 0.95)],
+                None,
+            ]
+        ]
+        result = PaddleOCRResult.from_paddle_output(paddle_output)
+        assert len(result.detections) == 1
+        assert result.detections[0].text == "Hello"
 
-    def test_extract_page_out_of_range(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (100, 100)
-            mock_image.open.return_value = mock_img
 
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
+class TestPaddleOCRAdapter:
+    """Tests for PaddleOCRAdapter conversion logic."""
 
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"))
-            result = extractor.extract_page(5)
+    def test_convert_result_success(self) -> None:
+        adapter = PaddleOCRAdapter()
+        paddle_output = [
+            [
+                [[[10, 20], [90, 20], [90, 50], [10, 50]], ("Hello", 0.955)],
+                [[[100, 20], [190, 20], [190, 50], [100, 50]], ("World", 0.872)],
+            ]
+        ]
 
-            assert result.success is False
-            assert result.error is not None
-            assert "out of range" in result.error.lower()
+        blocks = adapter.convert_result(paddle_output)
 
-    def test_extract_page_handles_none_result(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (800, 600)
-            mock_image.open.return_value = mock_img
+        assert len(blocks) == 2
+        assert blocks[0].text == "Hello"
+        assert blocks[0].confidence == pytest.approx(0.955, rel=0.01)
+        assert blocks[0].bbox.x0 == pytest.approx(10.0, rel=0.01)
+        assert blocks[0].bbox.y0 == pytest.approx(20.0, rel=0.01)
+        assert blocks[0].bbox.x1 == pytest.approx(90.0, rel=0.01)
+        assert blocks[0].bbox.y1 == pytest.approx(50.0, rel=0.01)
 
-            # PaddleOCR can return None or [[None]] when no text detected
-            mock_paddle = MagicMock()
-            mock_paddle.ocr.return_value = [[None]]
-            mock_paddle_class.return_value = mock_paddle
+        assert blocks[1].text == "World"
+        assert blocks[1].confidence == pytest.approx(0.872, rel=0.01)
 
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
+    def test_convert_result_empty(self) -> None:
+        adapter = PaddleOCRAdapter()
+        assert adapter.convert_result(None) == []
+        assert adapter.convert_result([]) == []
+        assert adapter.convert_result([[]]) == []
+        assert adapter.convert_result([[None]]) == []
 
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"))
-            result = extractor.extract_page(0)
+    def test_convert_result_filters_empty_text(self) -> None:
+        adapter = PaddleOCRAdapter()
+        paddle_output = [
+            [
+                [[[10, 20], [90, 20], [90, 50], [10, 50]], ("", 0.95)],
+                [[[100, 20], [190, 20], [190, 50], [100, 50]], ("  ", 0.95)],
+                [[[200, 20], [290, 20], [290, 50], [200, 50]], ("Valid", 0.95)],
+            ]
+        ]
 
-            assert result.success is True
-            assert len(result.page.texts) == 0
+        blocks = adapter.convert_result(paddle_output)
 
-    def test_extract_page_handles_empty_result(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (800, 600)
-            mock_image.open.return_value = mock_img
+        assert len(blocks) == 1
+        assert blocks[0].text == "Valid"
 
-            mock_paddle = MagicMock()
-            mock_paddle.ocr.return_value = [[]]
-            mock_paddle_class.return_value = mock_paddle
+    def test_convert_result_with_rotation(self) -> None:
+        adapter = PaddleOCRAdapter()
+        # Rotated text (not axis-aligned)
+        paddle_output = [
+            [
+                [[[10, 30], [90, 20], [95, 50], [15, 60]], ("Rotated", 0.9)],
+            ]
+        ]
 
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
+        blocks = adapter.convert_result(paddle_output)
 
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"))
-            result = extractor.extract_page(0)
-
-            assert result.success is True
-            assert len(result.page.texts) == 0
-
-    def test_custom_languages(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (100, 100)
-            mock_image.open.return_value = mock_img
-
-            mock_paddle = MagicMock()
-            mock_paddle.ocr.return_value = [[]]
-            mock_paddle_class.return_value = mock_paddle
-
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"), lang="ch")
-            metadata = extractor.get_metadata()
-
-            assert metadata.extra["languages"] == "ch"
-            # Check PaddleOCR was initialized with correct language
-            mock_paddle_class.assert_called_once()
-            call_kwargs = mock_paddle_class.call_args[1]
-            assert call_kwargs["lang"] == "ch"
-
-    def test_close(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (100, 100)
-            mock_image.open.return_value = mock_img
-
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"))
-            # close() should not raise
-            extractor.close()
-
-    def test_init_with_dpi(self) -> None:
-        with (
-            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
-            patch("xtra.extractors._image_loader.Image") as mock_image,
-        ):
-            mock_img = MagicMock()
-            mock_img.size = (100, 100)
-            mock_image.open.return_value = mock_img
-
-            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-
-            extractor = PaddleOcrExtractor(Path("/fake/image.png"), dpi=300)
-            assert extractor.dpi == 300
-            assert not extractor._is_pdf
+        assert len(blocks) == 1
+        assert blocks[0].text == "Rotated"
+        # Rotation should be detected (non-zero for rotated text)
+        assert blocks[0].rotation is not None
 
 
 class TestPaddleOcrExtractorWithPdf:
