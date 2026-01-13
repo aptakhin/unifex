@@ -4,7 +4,7 @@ A Python library for document text extraction with local and cloud OCR solutions
 
 ## Features
 
-- **Multiple OCR Backends**: Local (EasyOCR) and cloud (Azure Document Intelligence) OCR support
+- **Multiple OCR Backends**: Local (EasyOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
 - **PDF Text Extraction**: Native PDF text extraction using pypdfium2
 - **Schema Adapters**: Clean separation of external API schemas from internal models
 - **Pydantic Models**: Type-safe document representation with pydantic v1/v2 compatibility
@@ -55,6 +55,20 @@ with AzureDocumentIntelligenceExtractor(
     Path("document.pdf"),
     endpoint="https://your-resource.cognitiveservices.azure.com",
     key="your-api-key",
+) as extractor:
+    doc = extractor.extract()
+```
+
+### OCR Extraction (Cloud - Google Document AI)
+
+```python
+from pathlib import Path
+from xtra.extractors.google_docai import GoogleDocumentAIExtractor
+
+with GoogleDocumentAIExtractor(
+    Path("document.pdf"),
+    processor_name="projects/your-project/locations/us/processors/your-processor-id",
+    credentials_path="/path/to/service-account.json",
 ) as extractor:
     doc = extractor.extract()
 ```
@@ -122,6 +136,7 @@ Integration tests run against real files and services without mocking. They are 
 
 **Cloud extractors** (require credentials):
 - `AzureDocumentIntelligenceExtractor` - Tests Azure Document Intelligence
+- `GoogleDocumentAIExtractor` - Tests Google Document AI
 
 #### Azure Credentials Setup
 
@@ -148,6 +163,21 @@ Integration tests run against real files and services without mocking. They are 
 
 Azure integration tests are automatically skipped if credentials are not configured.
 
+#### Google Document AI Credentials Setup
+
+1. Create a Google Cloud project and enable the Document AI API
+2. Create a Document AI processor in the Google Cloud Console
+3. Create a service account with Document AI permissions
+4. Download the service account JSON key file
+
+5. Edit `.env` with your Google Document AI credentials:
+   ```
+   GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/your-processor-id
+   GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/your/service-account.json
+   ```
+
+Google Document AI integration tests are automatically skipped if credentials are not configured.
+
 ### Pre-commit Checks
 
 The pre-commit hook runs automatically on `git commit`. To run manually:
@@ -167,9 +197,11 @@ This runs:
 ```
 xtra/
 ├── adapters/           # Schema transformation
-│   └── azure_di.py     # Azure AnalyzeResult → internal models
+│   ├── azure_di.py     # Azure AnalyzeResult → internal models
+│   └── google_docai.py # Google Document → internal models
 ├── extractors/         # Document extraction
 │   ├── azure_di.py     # Azure Document Intelligence
+│   ├── google_docai.py # Google Document AI
 │   ├── ocr.py          # EasyOCR (local)
 │   └── pdf.py          # Native PDF extraction
 └── models.py           # Internal data models
@@ -182,11 +214,13 @@ Low-level document extraction:
 - `OcrExtractor` - Image OCR via EasyOCR
 - `PdfToImageOcrExtractor` - PDF to image + OCR
 - `AzureDocumentIntelligenceExtractor` - Azure cloud OCR
+- `GoogleDocumentAIExtractor` - Google Cloud Document AI
 
 ### Adapters
 
 Schema transformation from external APIs to internal models:
 - `AzureDocumentIntelligenceAdapter` - Converts Azure `AnalyzeResult` to `Page`/`TextBlock`
+- `GoogleDocumentAIAdapter` - Converts Google `Document` to `Page`/`TextBlock`
 
 ### Models
 

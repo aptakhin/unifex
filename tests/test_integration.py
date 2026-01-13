@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from xtra.extractors import PdfExtractor
 from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
+from xtra.extractors.google_docai import GoogleDocumentAIExtractor
 from xtra.extractors.ocr import OcrExtractor, PdfToImageOcrExtractor
 from xtra.models import SourceType
 
@@ -178,6 +179,68 @@ class TestAzureDocumentIntelligenceExtractorIntegration:
                 assert 0.0 <= text.confidence <= 1.0
 
         # Check page 1 detected key words (fuzzy - Azure models may change)
+        page1_text = " ".join(t.text for t in doc.pages[0].texts).lower()
+        assert "first" in page1_text or "page" in page1_text or "text" in page1_text
+
+        # Check page 2 detected key words
+        page2_text = " ".join(t.text for t in doc.pages[1].texts).lower()
+        assert "second" in page2_text or "third" in page2_text or "page" in page2_text
+
+
+class TestGoogleDocumentAIExtractorIntegration:
+    """Integration tests for Google Document AI extractor.
+
+    These tests require Google Cloud credentials:
+    - GOOGLE_DOCAI_PROCESSOR_NAME: Full processor resource name
+    - GOOGLE_DOCAI_CREDENTIALS_PATH: Path to service account JSON file
+
+    See .env.example for details.
+    """
+
+    @pytest.fixture
+    def google_credentials(self) -> tuple[str, str]:
+        """Get Google credentials from environment or skip test."""
+        processor_name = os.environ.get("GOOGLE_DOCAI_PROCESSOR_NAME", "")
+        credentials_path = os.environ.get("GOOGLE_DOCAI_CREDENTIALS_PATH", "")
+
+        if not processor_name or not credentials_path:
+            pytest.skip(
+                "Google credentials not configured "
+                "(GOOGLE_DOCAI_PROCESSOR_NAME, GOOGLE_DOCAI_CREDENTIALS_PATH)"
+            )
+
+        return processor_name, credentials_path
+
+    def test_extract_pdf_with_google_docai(self, google_credentials: tuple[str, str]) -> None:
+        """Extract text from a PDF using Google Document AI."""
+        processor_name, credentials_path = google_credentials
+
+        with GoogleDocumentAIExtractor(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+            processor_name=processor_name,
+            credentials_path=credentials_path,
+        ) as extractor:
+            doc = extractor.extract()
+
+        assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
+        assert len(doc.pages) == 2
+        assert doc.metadata is not None
+        assert doc.metadata.source_type == SourceType.GOOGLE_DOCAI
+        assert doc.metadata.extra["ocr_engine"] == "google_document_ai"
+
+        # Verify pages have content
+        for page in doc.pages:
+            assert page.width > 0
+            assert page.height > 0
+            assert len(page.texts) > 0
+
+            # Verify text blocks have valid structure
+            for text in page.texts:
+                assert text.bbox is not None
+                assert text.confidence is not None
+                assert 0.0 <= text.confidence <= 1.0
+
+        # Check page 1 detected key words (fuzzy - models may change)
         page1_text = " ".join(t.text for t in doc.pages[0].texts).lower()
         assert "first" in page1_text or "page" in page1_text or "text" in page1_text
 

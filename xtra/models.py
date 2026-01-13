@@ -19,6 +19,7 @@ class SourceType(StrEnum):
     OCR = "ocr"
     PDF_OCR = "pdf-ocr"
     AZURE_DI = "azure-di"
+    GOOGLE_DOCAI = "google-docai"
 
 
 class BBox(BaseModel):
