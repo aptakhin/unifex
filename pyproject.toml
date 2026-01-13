@@ -12,6 +12,8 @@ easyocr = "^1.7.2"
 azure-ai-documentintelligence = "^1.0.2"
 google-cloud-documentai = "^3.0.0"
 pytesseract = "^0.3.13"
+paddleocr = "^2.9.1"
+paddlepaddle = "^3.0.0"
 pydantic = "^2.10.0"
 Pillow = "^11.0.0"
 
@@ -66,6 +68,9 @@ select = [
    "ERA001",  # Format documentation in docstrings
 ]
 "**/extractors/ocr.py" = [
+   "PLC0415", # Import not at top-level (lazy loading)
+]
+"**/extractors/paddle_ocr.py" = [
    "PLC0415", # Import not at top-level (lazy loading)
 ]
 
