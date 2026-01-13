@@ -20,12 +20,24 @@ from xtra.models import (
 
 logger = logging.getLogger(__name__)
 
+_ocr_cache: dict[tuple, PaddleOCR] = {}
+
+
+def get_paddle_ocr(lang: str, use_gpu: bool) -> PaddleOCR:
+    """Get or create a cached PaddleOCR instance."""
+    key = (lang, use_gpu)
+    if key not in _ocr_cache:
+        _ocr_cache[key] = PaddleOCR(use_angle_cls=True, lang=lang, use_gpu=use_gpu, show_log=False)
+    return _ocr_cache[key]
+
 
 class PaddleOcrExtractor(BaseExtractor):
     """Extract text from images or PDFs using PaddleOCR.
 
     Composes ImageLoader for image handling, PaddleOCR for OCR,
     and PaddleOCRAdapter for result conversion.
+
+    PaddleOCR model is loaded lazily on first extraction and cached globally.
     """
 
     def __init__(
@@ -57,9 +69,8 @@ class PaddleOcrExtractor(BaseExtractor):
         self.use_gpu = use_gpu
         self.dpi = dpi
 
-        # Compose components
+        # Compose components (lazy - OCR loaded on first use)
         self._images = ImageLoader(path, dpi)
-        self._ocr = PaddleOCR(use_angle_cls=True, lang=lang, use_gpu=use_gpu, show_log=False)
         self._adapter = PaddleOCRAdapter()
 
     def get_page_count(self) -> int:
@@ -72,8 +83,9 @@ class PaddleOcrExtractor(BaseExtractor):
             img = self._images.get_page(page)
             width, height = img.size
 
-            # Run OCR pipeline
-            result = self._ocr.ocr(np.array(img), cls=True)
+            # Run OCR pipeline (lazy load model)
+            ocr = get_paddle_ocr(self.lang, self.use_gpu)
+            result = ocr.ocr(np.array(img), cls=True)
             text_blocks = self._adapter.convert_result(result)
 
             result_page = Page(
