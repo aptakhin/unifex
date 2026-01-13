@@ -26,11 +26,11 @@ class PdfExtractor(BaseExtractor):
 
     def __init__(
         self,
-        path: Path,
+        path: Path | str,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
         super().__init__(path, output_unit)
-        self._pdf = pdfium.PdfDocument(path)
+        self._pdf = pdfium.PdfDocument(self.path)
 
     def get_page_count(self) -> int:
         return len(self._pdf)

@@ -137,6 +137,25 @@ class TestCreateExtractorDefaults:
         extractor.close()
 
 
+class TestStringPathSupport:
+    """Tests for string path support in create_extractor."""
+
+    def test_accepts_string_path(self) -> None:
+        """Verify create_extractor accepts string paths."""
+        str_path = str(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
+        extractor = create_extractor(str_path, ExtractorType.PDF)
+        assert extractor.path == Path(str_path)
+        assert extractor.get_page_count() == 2
+        extractor.close()
+
+    def test_string_path_converts_to_path_object(self) -> None:
+        """Verify string path is converted to Path internally."""
+        str_path = str(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
+        extractor = create_extractor(str_path, ExtractorType.PDF)
+        assert isinstance(extractor.path, Path)
+        extractor.close()
+
+
 class TestCreateExtractorCredentialValidation:
     """Tests for credential validation in cloud extractors."""
 

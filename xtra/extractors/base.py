@@ -23,10 +23,10 @@ class BaseExtractor(ABC):
 
     def __init__(
         self,
-        path: Path,
+        path: Path | str,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
-        self.path = path
+        self.path = Path(path) if isinstance(path, str) else path
         self.output_unit = output_unit
 
     @abstractmethod

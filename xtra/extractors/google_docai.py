@@ -24,7 +24,7 @@ class GoogleDocumentAIExtractor(BaseExtractor):
 
     def __init__(
         self,
-        path: Path,
+        path: Path | str,
         processor_name: str,
         credentials_path: str,
         mime_type: Optional[str] = None,

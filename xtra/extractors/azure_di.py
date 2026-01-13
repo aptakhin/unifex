@@ -22,7 +22,7 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
 
     def __init__(
         self,
-        path: Path,
+        path: Path | str,
         endpoint: str,
         key: str,
         model_id: str = "prebuilt-read",

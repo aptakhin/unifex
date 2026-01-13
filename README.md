@@ -20,26 +20,30 @@ poetry install
 
 ### Factory Interface (Recommended)
 
-The simplest way to use xtra is via the factory interface:
+The simplest way to use xtra is via the factory interface. Both string paths and `Path` objects are accepted:
 
 ```python
-from pathlib import Path
 from xtra import create_extractor, ExtractorType
 
-# PDF extraction (native text)
-with create_extractor(Path("document.pdf"), ExtractorType.PDF) as extractor:
+# PDF extraction (native text) - string path
+with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     doc = extractor.extract()
 
 # EasyOCR for images
-with create_extractor(Path("image.png"), ExtractorType.EASYOCR, languages=["en"]) as extractor:
+with create_extractor("image.png", ExtractorType.EASYOCR, languages=["en"]) as extractor:
     doc = extractor.extract()
 
 # EasyOCR for PDFs (auto-converts to images internally)
-with create_extractor(Path("scanned.pdf"), ExtractorType.EASYOCR, dpi=200) as extractor:
+with create_extractor("scanned.pdf", ExtractorType.EASYOCR, dpi=200) as extractor:
     doc = extractor.extract()
 
 # Azure Document Intelligence (credentials from env vars)
-with create_extractor(Path("document.pdf"), ExtractorType.AZURE_DI) as extractor:
+with create_extractor("document.pdf", ExtractorType.AZURE_DI) as extractor:
+    doc = extractor.extract()
+
+# Path objects also work
+from pathlib import Path
+with create_extractor(Path("document.pdf"), ExtractorType.PDF) as extractor:
     doc = extractor.extract()
 ```
 
@@ -48,10 +52,9 @@ with create_extractor(Path("document.pdf"), ExtractorType.AZURE_DI) as extractor
 The `extract()` method returns a `Document` object with pages and text blocks:
 
 ```python
-from pathlib import Path
 from xtra import create_extractor, ExtractorType
 
-with create_extractor(Path("document.pdf"), ExtractorType.PDF) as extractor:
+with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     doc = extractor.extract()
 
 # Access extracted data
@@ -82,10 +85,10 @@ Page 2 (595x842):
 ### PDF Text Extraction
 
 ```python
-from pathlib import Path
 from xtra import PdfExtractor
 
-with PdfExtractor(Path("document.pdf")) as extractor:
+# String paths work directly
+with PdfExtractor("document.pdf") as extractor:
     doc = extractor.extract()
     for page in doc.pages:
         for text in page.texts:
@@ -100,15 +103,14 @@ Extractors that require different formats (like Tesseract) convert internally.
 ### OCR Extraction (Local - EasyOCR)
 
 ```python
-from pathlib import Path
 from xtra import EasyOcrExtractor
 
 # For images
-with EasyOcrExtractor(Path("image.png"), languages=["en"]) as extractor:
+with EasyOcrExtractor("image.png", languages=["en"]) as extractor:
     doc = extractor.extract()
 
 # For PDFs (auto-converts to images)
-with EasyOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
+with EasyOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extractor:
     doc = extractor.extract()
 ```
 
@@ -120,15 +122,14 @@ Requires Tesseract to be installed on the system:
 - Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
 
 ```python
-from pathlib import Path
 from xtra import TesseractOcrExtractor
 
 # For images
-with TesseractOcrExtractor(Path("image.png"), languages=["en"]) as extractor:
+with TesseractOcrExtractor("image.png", languages=["en"]) as extractor:
     doc = extractor.extract()
 
 # For PDFs (auto-converts to images)
-with TesseractOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
+with TesseractOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extractor:
     doc = extractor.extract()
 ```
 
@@ -137,30 +138,28 @@ with TesseractOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as ex
 PaddleOCR provides excellent accuracy for multiple languages, especially Chinese.
 
 ```python
-from pathlib import Path
 from xtra import PaddleOcrExtractor
 
 # For images
-with PaddleOcrExtractor(Path("image.png"), lang="en") as extractor:
+with PaddleOcrExtractor("image.png", lang="en") as extractor:
     doc = extractor.extract()
 
 # For PDFs (auto-converts to images)
-with PaddleOcrExtractor(Path("scanned.pdf"), lang="en", dpi=200) as extractor:
+with PaddleOcrExtractor("scanned.pdf", lang="en", dpi=200) as extractor:
     doc = extractor.extract()
 
 # For Chinese text
-with PaddleOcrExtractor(Path("chinese_doc.png"), lang="ch") as extractor:
+with PaddleOcrExtractor("chinese_doc.png", lang="ch") as extractor:
     doc = extractor.extract()
 ```
 
 ### OCR Extraction (Cloud - Azure)
 
 ```python
-from pathlib import Path
 from xtra import AzureDocumentIntelligenceExtractor
 
 with AzureDocumentIntelligenceExtractor(
-    Path("document.pdf"),
+    "document.pdf",
     endpoint="https://your-resource.cognitiveservices.azure.com",
     key="your-api-key",
 ) as extractor:
@@ -170,11 +169,10 @@ with AzureDocumentIntelligenceExtractor(
 ### OCR Extraction (Cloud - Google Document AI)
 
 ```python
-from pathlib import Path
 from xtra import GoogleDocumentAIExtractor
 
 with GoogleDocumentAIExtractor(
-    Path("document.pdf"),
+    "document.pdf",
     processor_name="projects/your-project/locations/us/processors/your-processor-id",
     credentials_path="/path/to/service-account.json",
 ) as extractor:

@@ -18,7 +18,7 @@ def _get_credential(key: str, credentials: Optional[Dict[str, str]]) -> Optional
 
 
 def create_extractor(
-    path: Path,
+    path: Path | str,
     extractor_type: ExtractorType,
     *,
     languages: Optional[List[str]] = None,
@@ -30,7 +30,7 @@ def create_extractor(
     """Create an extractor by type with unified parameters.
 
     Args:
-        path: Path to document/image file.
+        path: Path to document/image file (Path object or string).
         extractor_type: ExtractorType enum value specifying which extractor to use:
             - ExtractorType.PDF - Native PDF extraction
             - ExtractorType.EASYOCR - EasyOCR for images and PDFs (auto-detects)
@@ -59,9 +59,9 @@ def create_extractor(
 
     Example:
         >>> from xtra import create_extractor, ExtractorType, CoordinateUnit
-        >>> with create_extractor(Path("doc.pdf"), ExtractorType.PDF) as ext:
+        >>> with create_extractor("doc.pdf", ExtractorType.PDF) as ext:
         ...     doc = ext.extract()  # Coordinates in points (default)
-        >>> with create_extractor(Path("doc.pdf"), ExtractorType.EASYOCR,
+        >>> with create_extractor("doc.pdf", ExtractorType.EASYOCR,
         ...                       output_unit=CoordinateUnit.PIXELS) as ext:
         ...     doc = ext.extract()  # Coordinates in pixels
     """

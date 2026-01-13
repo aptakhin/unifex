@@ -41,7 +41,7 @@ class EasyOcrExtractor(BaseExtractor):
 
     def __init__(
         self,
-        path: Path,
+        path: Path | str,
         languages: Optional[List[str]] = None,
         gpu: bool = False,
         dpi: int = 200,
@@ -50,7 +50,7 @@ class EasyOcrExtractor(BaseExtractor):
         """Initialize EasyOCR extractor.
 
         Args:
-            path: Path to the image or PDF file.
+            path: Path to the image or PDF file (Path object or string).
             languages: List of language codes for OCR. Defaults to ["en"].
             gpu: Whether to use GPU acceleration.
             dpi: DPI for PDF-to-image conversion. Default 200.
@@ -62,7 +62,7 @@ class EasyOcrExtractor(BaseExtractor):
         self.dpi = dpi
 
         # Compose components
-        self._images = ImageLoader(path, dpi)
+        self._images = ImageLoader(self.path, dpi)
         self._adapter = EasyOCRAdapter()
 
     def get_page_count(self) -> int:

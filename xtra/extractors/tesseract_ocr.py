@@ -78,7 +78,7 @@ class TesseractOcrExtractor(BaseExtractor):
 
     def __init__(
         self,
-        path: Path,
+        path: Path | str,
         languages: Optional[List[str]] = None,
         dpi: int = 200,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
@@ -86,7 +86,7 @@ class TesseractOcrExtractor(BaseExtractor):
         """Initialize Tesseract OCR extractor.
 
         Args:
-            path: Path to the image or PDF file.
+            path: Path to the image or PDF file (Path object or string).
             languages: List of 2-letter ISO 639-1 language codes (e.g., ["en", "fr"]).
                        Defaults to ["en"]. Codes are converted to Tesseract format internally.
             dpi: DPI for PDF-to-image conversion. Default 200.
@@ -101,7 +101,7 @@ class TesseractOcrExtractor(BaseExtractor):
         self.dpi = dpi
 
         # Compose components
-        self._images = ImageLoader(path, dpi)
+        self._images = ImageLoader(self.path, dpi)
         self._adapter = TesseractAdapter()
 
     def get_page_count(self) -> int:

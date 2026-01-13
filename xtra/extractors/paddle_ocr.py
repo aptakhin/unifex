@@ -42,7 +42,7 @@ class PaddleOcrExtractor(BaseExtractor):
 
     def __init__(
         self,
-        path: Path,
+        path: Path | str,
         lang: str = "en",
         use_gpu: bool = False,
         dpi: int = 200,
@@ -51,7 +51,7 @@ class PaddleOcrExtractor(BaseExtractor):
         """Initialize PaddleOCR extractor.
 
         Args:
-            path: Path to the image or PDF file.
+            path: Path to the image or PDF file (Path object or string).
             lang: Language code for OCR. Common values:
                   - "en" for English
                   - "ch" for Chinese
@@ -70,7 +70,7 @@ class PaddleOcrExtractor(BaseExtractor):
         self.dpi = dpi
 
         # Compose components (lazy - OCR loaded on first use)
-        self._images = ImageLoader(path, dpi)
+        self._images = ImageLoader(self.path, dpi)
         self._adapter = PaddleOCRAdapter()
 
     def get_page_count(self) -> int:
