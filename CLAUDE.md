@@ -1,5 +1,7 @@
 # Project Guidelines for Claude
 
+> **Important:** Always also read [.claude/guidelines.md](.claude/guidelines.md) for additional project guidelines.
+
 ## Build & Test Commands
 
 - Run all tests: `poetry run pytest`
