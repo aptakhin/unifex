@@ -8,6 +8,7 @@ from .extractors import (
     PdfExtractor,
     PdfToImageEasyOcrExtractor,
     PdfToImageOcrExtractor,
+    create_extractor,
 )
 from .models import (
     BBox,
@@ -30,6 +31,7 @@ __all__ = [
     "PdfExtractor",
     "EasyOcrExtractor",
     "PdfToImageEasyOcrExtractor",
+    "create_extractor",
     # Deprecated aliases
     "OcrExtractor",
     "PdfToImageOcrExtractor",

@@ -73,6 +73,13 @@ select = [
 "**/extractors/paddle_ocr.py" = [
    "PLC0415", # Import not at top-level (lazy loading)
 ]
+"**/extractors/factory.py" = [
+   "PLC0415", # Import not at top-level (lazy loading for factory)
+   "C901",    # Function complexity (factory function)
+   "PLR0911", # Too many return statements (factory function)
+   "PLR0912", # Too many branches (factory function)
+   "PLR0913", # Too many arguments (unified interface)
+]
 
 [tool.ruff.lint.mccabe]
 # Flag errors (`C901`) whenever the complexity level exceeds max-complexity.

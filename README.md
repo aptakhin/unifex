@@ -17,6 +17,31 @@ poetry install
 
 ## Quick Start
 
+### Factory Interface (Recommended)
+
+The simplest way to use xtra is via the factory interface:
+
+```python
+from pathlib import Path
+from xtra import create_extractor, SourceType
+
+# PDF extraction
+with create_extractor(Path("document.pdf"), SourceType.PDF) as extractor:
+    doc = extractor.extract()
+
+# EasyOCR for images
+with create_extractor(Path("image.png"), SourceType.EASYOCR, languages=["en"]) as extractor:
+    doc = extractor.extract()
+
+# PDF via Tesseract OCR
+with create_extractor(Path("scanned.pdf"), SourceType.PDF_TESSERACT, dpi=200) as extractor:
+    doc = extractor.extract()
+
+# Azure Document Intelligence (credentials from env vars)
+with create_extractor(Path("document.pdf"), SourceType.AZURE_DI) as extractor:
+    doc = extractor.extract()
+```
+
 ### PDF Text Extraction
 
 ```python
