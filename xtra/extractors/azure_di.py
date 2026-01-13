@@ -11,7 +11,7 @@ from azure.ai.documentintelligence.models import AnalyzeResult
 from azure.core.credentials import AzureKeyCredential
 
 from xtra.adapters.azure_di import AzureDocumentIntelligenceAdapter
-from xtra.models import CoordinateUnit, DocumentMetadata, Page
+from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
                 error=str(e),
             )
 
-    def get_metadata(self) -> DocumentMetadata:
+    def get_extractor_metadata(self) -> ExtractorMetadata:
         if self._adapter is None:
             return AzureDocumentIntelligenceAdapter(None, self.model_id).get_metadata()
         return self._adapter.get_metadata()

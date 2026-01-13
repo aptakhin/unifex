@@ -7,9 +7,6 @@ from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 from xtra.extractors.pdf import PdfExtractor
 from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
 
-# Backward compatibility alias (deprecated)
-OcrExtractor = EasyOcrExtractor
-
 __all__ = [
     "AzureDocumentIntelligenceExtractor",
     "BaseExtractor",
@@ -20,6 +17,4 @@ __all__ = [
     "TesseractOcrExtractor",
     "PaddleOcrExtractor",
     "create_extractor",
-    # Deprecated alias
-    "OcrExtractor",
 ]

@@ -366,7 +366,7 @@ Pydantic models for type-safe document representation:
 - `Page` - Single page with text blocks
 - `TextBlock` - Text with bounding box and confidence
 - `BBox` - Bounding box coordinates
-- `DocumentMetadata` - Source type, fonts, PDF objects
+- `ExtractorMetadata` - Extractor type and processing details
 
 ## Work test times
 

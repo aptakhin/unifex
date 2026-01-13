@@ -9,7 +9,7 @@ import pypdfium2 as pdfium
 from xtra.models import (
     BBox,
     CoordinateUnit,
-    DocumentMetadata,
+    ExtractorMetadata,
     FontInfo,
     Page,
     PdfObjectInfo,
@@ -57,7 +57,7 @@ class PdfExtractor(BaseExtractor):
                 error=str(e),
             )
 
-    def get_metadata(self) -> DocumentMetadata:
+    def get_extractor_metadata(self) -> ExtractorMetadata:
         metadata_dict = {}
         try:
             for key in ["Title", "Author", "Creator", "Producer", "CreationDate", "ModDate"]:
@@ -69,8 +69,8 @@ class PdfExtractor(BaseExtractor):
 
         pdf_objects = self._extract_pdf_objects()
 
-        return DocumentMetadata(
-            source_type=ExtractorType.PDF,
+        return ExtractorMetadata(
+            extractor_type=ExtractorType.PDF,
             title=metadata_dict.get("title"),
             author=metadata_dict.get("author"),
             creator=metadata_dict.get("creator"),

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from xtra.models import BBox, DocumentMetadata, Page, ExtractorType, TextBlock
+from xtra.models import BBox, ExtractorMetadata, Page, ExtractorType, TextBlock
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
@@ -55,15 +55,15 @@ class GoogleDocumentAIAdapter:
             texts=text_blocks,
         )
 
-    def get_metadata(self) -> DocumentMetadata:
+    def get_metadata(self) -> ExtractorMetadata:
         """Extract metadata from Google Document AI result."""
         extra: dict = {
             "ocr_engine": "google_document_ai",
             "processor_name": self._processor_name,
         }
 
-        return DocumentMetadata(
-            source_type=ExtractorType.GOOGLE_DOCAI,
+        return ExtractorMetadata(
+            extractor_type=ExtractorType.GOOGLE_DOCAI,
             extra=extra,
         )
 

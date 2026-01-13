@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Optional, Sequence
 
 from xtra.coordinates import CoordinateConverter
-from xtra.models import CoordinateUnit, Document, DocumentMetadata, Page
+from xtra.models import CoordinateUnit, Document, ExtractorMetadata, Page
 
 
 @dataclass
@@ -40,8 +40,8 @@ class BaseExtractor(ABC):
         ...
 
     @abstractmethod
-    def get_metadata(self) -> DocumentMetadata:
-        """Extract document metadata."""
+    def get_extractor_metadata(self) -> ExtractorMetadata:
+        """Return metadata about the extractor and processing."""
         ...
 
     def extract_pages(self, pages: Optional[Sequence[int]] = None) -> List[ExtractionResult]:
@@ -54,7 +54,7 @@ class BaseExtractor(ABC):
         """Extract document with optional page selection."""
         results = self.extract_pages(pages)
         extracted_pages = [r.page for r in results if r.success]
-        metadata = self.get_metadata()
+        metadata = self.get_extractor_metadata()
         return Document(path=self.path, pages=extracted_pages, metadata=metadata)
 
     def close(self) -> None:

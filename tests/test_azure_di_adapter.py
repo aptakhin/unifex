@@ -61,7 +61,7 @@ class TestAzureDocumentIntelligenceAdapter:
         adapter = AzureDocumentIntelligenceAdapter(None, model_id="test-model")
         metadata = adapter.get_metadata()
 
-        assert metadata.source_type == ExtractorType.AZURE_DI
+        assert metadata.extractor_type == ExtractorType.AZURE_DI
         assert metadata.extra["model_id"] == "test-model"
         assert metadata.extra["ocr_engine"] == "azure_document_intelligence"
 
@@ -74,7 +74,7 @@ class TestAzureDocumentIntelligenceAdapter:
         adapter = AzureDocumentIntelligenceAdapter(result, model_id="prebuilt-read")  # type: ignore[arg-type]
         metadata = adapter.get_metadata()
 
-        assert metadata.source_type == ExtractorType.AZURE_DI
+        assert metadata.extractor_type == ExtractorType.AZURE_DI
         assert metadata.extra["model_id"] == "prebuilt-read"
         assert metadata.extra["azure_model_id"] == "prebuilt-read"
         assert metadata.extra["api_version"] == "2024-02-29-preview"

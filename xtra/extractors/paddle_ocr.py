@@ -13,7 +13,7 @@ from xtra.extractors._image_loader import ImageLoader
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 from xtra.models import (
     CoordinateUnit,
-    DocumentMetadata,
+    ExtractorMetadata,
     ExtractorType,
     Page,
 )
@@ -107,13 +107,13 @@ class PaddleOcrExtractor(BaseExtractor):
                 error=str(e),
             )
 
-    def get_metadata(self) -> DocumentMetadata:
+    def get_extractor_metadata(self) -> ExtractorMetadata:
         """Return extractor metadata."""
         extra = {"ocr_engine": "paddleocr", "languages": self.lang}
         if self._images.is_pdf:
             extra["dpi"] = self.dpi
-        return DocumentMetadata(
-            source_type=ExtractorType.PADDLE,
+        return ExtractorMetadata(
+            extractor_type=ExtractorType.PADDLE,
             extra=extra,
         )
 

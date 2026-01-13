@@ -23,10 +23,6 @@ class ExtractorType(StrEnum):
     GOOGLE_DOCAI = "google-docai"
 
 
-# Backward compatibility alias (deprecated)
-SourceType = ExtractorType
-
-
 class CoordinateUnit(StrEnum):
     """Units for coordinate output."""
 
@@ -82,8 +78,8 @@ class PdfObjectInfo(BaseModel):
     raw: Optional[str] = None
 
 
-class DocumentMetadata(BaseModel):
-    source_type: ExtractorType
+class ExtractorMetadata(BaseModel):
+    extractor_type: ExtractorType
     creator: Optional[str] = None
     producer: Optional[str] = None
     title: Optional[str] = None
@@ -102,13 +98,13 @@ if PYDANTIC_V2:
 
         path: Path
         pages: List[Page] = Field(default_factory=list)
-        metadata: Optional[DocumentMetadata] = None
+        metadata: Optional[ExtractorMetadata] = None
 else:
 
     class Document(BaseModel):
         path: Path
         pages: List[Page] = Field(default_factory=list)
-        metadata: Optional[DocumentMetadata] = None
+        metadata: Optional[ExtractorMetadata] = None
 
         class Config:
             arbitrary_types_allowed = True

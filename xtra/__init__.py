@@ -5,7 +5,6 @@ from xtra.extractors import (
     EasyOcrExtractor,
     ExtractionResult,
     GoogleDocumentAIExtractor,
-    OcrExtractor,
     PaddleOcrExtractor,
     PdfExtractor,
     TesseractOcrExtractor,
@@ -14,13 +13,11 @@ from xtra.extractors import (
 from xtra.models import (
     BBox,
     CoordinateUnit,
-    Document,
-    DocumentMetadata,
+    ExtractorMetadata,
     ExtractorType,
     FontInfo,
     Page,
     PdfObjectInfo,
-    SourceType,
     TextBlock,
 )
 
@@ -37,8 +34,6 @@ __all__ = [
     "TesseractOcrExtractor",
     "PaddleOcrExtractor",
     "create_extractor",
-    # Deprecated alias
-    "OcrExtractor",
     # Models
     "BBox",
     "CoordinateUnit",
@@ -46,9 +41,6 @@ __all__ = [
     "TextBlock",
     "Page",
     "PdfObjectInfo",
-    "DocumentMetadata",
-    "Document",
+    "ExtractorMetadata",
     "ExtractorType",
-    # Deprecated alias
-    "SourceType",
 ]

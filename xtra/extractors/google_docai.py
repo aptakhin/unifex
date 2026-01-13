@@ -10,7 +10,7 @@ from google.cloud import documentai
 from google.oauth2 import service_account
 
 from xtra.adapters.google_docai import GoogleDocumentAIAdapter
-from xtra.models import CoordinateUnit, DocumentMetadata, Page
+from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 
 if TYPE_CHECKING:
@@ -137,7 +137,7 @@ class GoogleDocumentAIExtractor(BaseExtractor):
                 error=str(e),
             )
 
-    def get_metadata(self) -> DocumentMetadata:
+    def get_extractor_metadata(self) -> ExtractorMetadata:
         if self._adapter is None:
             return GoogleDocumentAIAdapter(None, self.processor_name).get_metadata()
         return self._adapter.get_metadata()

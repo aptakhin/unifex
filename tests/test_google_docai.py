@@ -105,7 +105,7 @@ class TestGoogleDocumentAIAdapter:
         adapter = GoogleDocumentAIAdapter(None, "test-processor")
         metadata = adapter.get_metadata()
 
-        assert metadata.source_type == ExtractorType.GOOGLE_DOCAI
+        assert metadata.extractor_type == ExtractorType.GOOGLE_DOCAI
         assert metadata.extra["processor_name"] == "test-processor"
         assert metadata.extra["ocr_engine"] == "google_document_ai"
 

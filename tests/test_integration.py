@@ -43,7 +43,7 @@ def test_pdf_extractor() -> None:
     assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
     assert len(doc.pages) == 2
     assert doc.metadata is not None
-    assert doc.metadata.source_type == ExtractorType.PDF
+    assert doc.metadata.extractor_type == ExtractorType.PDF
 
     # Verify page 1 content
     page1 = doc.pages[0]
@@ -81,7 +81,7 @@ def test_ocr_extract_image(extractor_type: ExtractorType, ocr_engine: str) -> No
     assert doc.path == TEST_DATA_DIR / "test_image.png"
     assert len(doc.pages) == 1
     assert doc.metadata is not None
-    assert doc.metadata.source_type == extractor_type
+    assert doc.metadata.extractor_type == extractor_type
     assert doc.metadata.extra["ocr_engine"] == ocr_engine
 
     # Verify OCR detected text
@@ -113,7 +113,7 @@ def test_ocr_extract_pdf(extractor_type: ExtractorType, ocr_engine: str) -> None
     assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
     assert len(doc.pages) == 2
     assert doc.metadata is not None
-    assert doc.metadata.source_type == extractor_type
+    assert doc.metadata.extractor_type == extractor_type
     assert doc.metadata.extra["ocr_engine"] == ocr_engine
 
     # Verify pages have content

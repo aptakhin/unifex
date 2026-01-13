@@ -14,7 +14,7 @@ from xtra.extractors._image_loader import ImageLoader
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 from xtra.models import (
     CoordinateUnit,
-    DocumentMetadata,
+    ExtractorMetadata,
     ExtractorType,
     Page,
 )
@@ -99,13 +99,13 @@ class EasyOcrExtractor(BaseExtractor):
                 error=str(e),
             )
 
-    def get_metadata(self) -> DocumentMetadata:
+    def get_extractor_metadata(self) -> ExtractorMetadata:
         """Return extractor metadata."""
         extra = {"ocr_engine": "easyocr", "languages": self.languages}
         if self._images.is_pdf:
             extra["dpi"] = self.dpi
-        return DocumentMetadata(
-            source_type=ExtractorType.EASYOCR,
+        return ExtractorMetadata(
+            extractor_type=ExtractorType.EASYOCR,
             extra=extra,
         )
 

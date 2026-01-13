@@ -40,7 +40,7 @@ def test_extract_test4_pdf_metadata() -> None:
     with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         doc = extractor.extract()
     assert doc.metadata is not None
-    assert doc.metadata.source_type == ExtractorType.PDF
+    assert doc.metadata.extractor_type == ExtractorType.PDF
 
 
 def test_extract_test4_pdf_has_font_info() -> None:

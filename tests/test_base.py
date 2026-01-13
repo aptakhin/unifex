@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from xtra.extractors.base import BaseExtractor, ExtractionResult
-from xtra.models import DocumentMetadata, Page, ExtractorType
+from xtra.models import ExtractorMetadata, Page, ExtractorType
 
 
 class MockExtractor(BaseExtractor):
@@ -26,8 +26,8 @@ class MockExtractor(BaseExtractor):
             success=True,
         )
 
-    def get_metadata(self) -> DocumentMetadata:
-        return DocumentMetadata(source_type=ExtractorType.PDF)
+    def get_extractor_metadata(self) -> ExtractorMetadata:
+        return ExtractorMetadata(extractor_type=ExtractorType.PDF)
 
 
 def test_extraction_result_success() -> None:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Optional
 
-from xtra.models import DocumentMetadata, Page, ExtractorType, TextBlock
+from xtra.models import ExtractorMetadata, Page, ExtractorType, TextBlock
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
@@ -55,7 +55,7 @@ class AzureDocumentIntelligenceAdapter:
             texts=text_blocks,
         )
 
-    def get_metadata(self) -> DocumentMetadata:
+    def get_metadata(self) -> ExtractorMetadata:
         """Extract metadata from Azure result."""
         extra: dict = {
             "ocr_engine": "azure_document_intelligence",
@@ -68,8 +68,8 @@ class AzureDocumentIntelligenceAdapter:
             if self._result.api_version:
                 extra["api_version"] = self._result.api_version
 
-        return DocumentMetadata(
-            source_type=ExtractorType.AZURE_DI,
+        return ExtractorMetadata(
+            extractor_type=ExtractorType.AZURE_DI,
             extra=extra,
         )
 

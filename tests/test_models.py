@@ -3,7 +3,7 @@ from pathlib import Path
 from xtra.models import (
     BBox,
     Document,
-    DocumentMetadata,
+    ExtractorMetadata,
     FontInfo,
     Page,
     PdfObjectInfo,
@@ -78,19 +78,19 @@ def test_pdf_object_info() -> None:
 
 
 def test_document_metadata_pdf() -> None:
-    meta = DocumentMetadata(source_type=ExtractorType.PDF, creator="Test")
-    assert meta.source_type == ExtractorType.PDF
+    meta = ExtractorMetadata(extractor_type=ExtractorType.PDF, creator="Test")
+    assert meta.extractor_type == ExtractorType.PDF
     assert meta.creator == "Test"
     assert meta.fonts == []
     assert meta.pdf_objects == []
 
 
 def test_document_metadata_easyocr() -> None:
-    meta = DocumentMetadata(
-        source_type=ExtractorType.EASYOCR,
+    meta = ExtractorMetadata(
+        extractor_type=ExtractorType.EASYOCR,
         extra={"ocr_engine": "easyocr"},
     )
-    assert meta.source_type == ExtractorType.EASYOCR
+    assert meta.extractor_type == ExtractorType.EASYOCR
     assert meta.extra["ocr_engine"] == "easyocr"
 
 
@@ -105,7 +105,7 @@ def test_document_creation() -> None:
 def test_document_with_pages() -> None:
     path = Path("/tmp/test.pdf")
     page = Page(page=0, width=595.0, height=842.0)
-    meta = DocumentMetadata(source_type=ExtractorType.PDF)
+    meta = ExtractorMetadata(extractor_type=ExtractorType.PDF)
     doc = Document(path=path, pages=[page], metadata=meta)
     assert len(doc.pages) == 1
     assert doc.metadata is not None
