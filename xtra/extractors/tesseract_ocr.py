@@ -14,7 +14,7 @@ from ..models import (
     BBox,
     DocumentMetadata,
     Page,
-    SourceType,
+    ExtractorType,
     TextBlock,
 )
 from .base import BaseExtractor, ExtractionResult
@@ -158,7 +158,7 @@ class TesseractOcrExtractor(BaseExtractor):
         if self._is_pdf:
             extra["dpi"] = self.dpi
         return DocumentMetadata(
-            source_type=SourceType.TESSERACT,
+            source_type=ExtractorType.TESSERACT,
             extra=extra,
         )
 

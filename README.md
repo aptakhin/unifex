@@ -24,22 +24,22 @@ The simplest way to use xtra is via the factory interface:
 
 ```python
 from pathlib import Path
-from xtra import create_extractor, SourceType
+from xtra import create_extractor, ExtractorType
 
 # PDF extraction (native text)
-with create_extractor(Path("document.pdf"), SourceType.PDF) as extractor:
+with create_extractor(Path("document.pdf"), ExtractorType.PDF) as extractor:
     doc = extractor.extract()
 
 # EasyOCR for images
-with create_extractor(Path("image.png"), SourceType.EASYOCR, languages=["en"]) as extractor:
+with create_extractor(Path("image.png"), ExtractorType.EASYOCR, languages=["en"]) as extractor:
     doc = extractor.extract()
 
 # EasyOCR for PDFs (auto-converts to images internally)
-with create_extractor(Path("scanned.pdf"), SourceType.EASYOCR, dpi=200) as extractor:
+with create_extractor(Path("scanned.pdf"), ExtractorType.EASYOCR, dpi=200) as extractor:
     doc = extractor.extract()
 
 # Azure Document Intelligence (credentials from env vars)
-with create_extractor(Path("document.pdf"), SourceType.AZURE_DI) as extractor:
+with create_extractor(Path("document.pdf"), ExtractorType.AZURE_DI) as extractor:
     doc = extractor.extract()
 ```
 
@@ -301,7 +301,7 @@ xtra/
 ├── extractors/         # Document extraction
 │   ├── azure_di.py     # Azure Document Intelligence
 │   ├── google_docai.py # Google Document AI
-│   ├── ocr.py          # EasyOCR (local, unified for images/PDFs)
+│   ├── easy_ocr.py     # EasyOCR (local, unified for images/PDFs)
 │   ├── tesseract_ocr.py # Tesseract OCR (local, unified for images/PDFs)
 │   ├── paddle_ocr.py   # PaddleOCR (local, unified for images/PDFs)
 │   ├── pdf.py          # Native PDF extraction
@@ -337,3 +337,8 @@ Pydantic models for type-safe document representation:
 ## License
 
 MIT
+
+## Future plans
+
+- Table extraction for pdf (tabule) and cloud OCR's
+- LLM-chat free format result extraction through one interface

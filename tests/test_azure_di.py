@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from xtra.adapters.azure_di import AzureDocumentIntelligenceAdapter
 from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 
 class TestAzureDocumentIntelligenceExtractor:
@@ -37,7 +37,7 @@ class TestAzureDocumentIntelligenceExtractor:
 
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.AZURE_DI
+            assert metadata.source_type == ExtractorType.AZURE_DI
             assert metadata.extra["ocr_engine"] == "azure_document_intelligence"
             assert metadata.extra["model_id"] == "prebuilt-read"
             assert metadata.extra["azure_model_id"] == "prebuilt-read"
@@ -298,7 +298,7 @@ class TestAzureDocumentIntelligenceAdapter:
         adapter = AzureDocumentIntelligenceAdapter(None, model_id="test-model")
         metadata = adapter.get_metadata()
 
-        assert metadata.source_type == SourceType.AZURE_DI
+        assert metadata.source_type == ExtractorType.AZURE_DI
         assert metadata.extra["model_id"] == "test-model"
         assert metadata.extra["ocr_engine"] == "azure_document_intelligence"
 

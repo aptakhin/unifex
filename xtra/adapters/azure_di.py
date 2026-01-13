@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from ..models import BBox, DocumentMetadata, Page, SourceType, TextBlock
+from ..models import BBox, DocumentMetadata, Page, ExtractorType, TextBlock
 
 if TYPE_CHECKING:
     from azure.ai.documentintelligence.models import AnalyzeResult, DocumentPage
@@ -69,7 +69,7 @@ class AzureDocumentIntelligenceAdapter:
                 extra["api_version"] = self._result.api_version
 
         return DocumentMetadata(
-            source_type=SourceType.AZURE_DI,
+            source_type=ExtractorType.AZURE_DI,
             extra=extra,
         )
 

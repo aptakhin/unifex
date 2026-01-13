@@ -15,7 +15,7 @@ from ..models import (
     BBox,
     DocumentMetadata,
     Page,
-    SourceType,
+    ExtractorType,
     TextBlock,
 )
 from .base import BaseExtractor, ExtractionResult
@@ -115,7 +115,7 @@ class PaddleOcrExtractor(BaseExtractor):
         if self._is_pdf:
             extra["dpi"] = self.dpi
         return DocumentMetadata(
-            source_type=SourceType.PADDLE,
+            source_type=ExtractorType.PADDLE,
             extra=extra,
         )
 

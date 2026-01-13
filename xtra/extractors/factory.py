@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from ..models import SourceType
+from ..models import ExtractorType
 from .base import BaseExtractor
 
 
@@ -19,7 +19,7 @@ def _get_credential(key: str, credentials: Optional[Dict[str, str]]) -> Optional
 
 def create_extractor(
     path: Path,
-    extractor_type: SourceType,
+    extractor_type: ExtractorType,
     *,
     languages: Optional[List[str]] = None,
     dpi: int = 200,
@@ -30,13 +30,13 @@ def create_extractor(
 
     Args:
         path: Path to document/image file.
-        extractor_type: SourceType enum value specifying which extractor to use:
-            - SourceType.PDF - Native PDF extraction
-            - SourceType.EASYOCR - EasyOCR for images and PDFs (auto-detects)
-            - SourceType.TESSERACT - Tesseract for images and PDFs (auto-detects)
-            - SourceType.PADDLE - PaddleOCR for images and PDFs (auto-detects)
-            - SourceType.AZURE_DI - Azure Document Intelligence
-            - SourceType.GOOGLE_DOCAI - Google Document AI
+        extractor_type: ExtractorType enum value specifying which extractor to use:
+            - ExtractorType.PDF - Native PDF extraction
+            - ExtractorType.EASYOCR - EasyOCR for images and PDFs (auto-detects)
+            - ExtractorType.TESSERACT - Tesseract for images and PDFs (auto-detects)
+            - ExtractorType.PADDLE - PaddleOCR for images and PDFs (auto-detects)
+            - ExtractorType.AZURE_DI - Azure Document Intelligence
+            - ExtractorType.GOOGLE_DOCAI - Google Document AI
         languages: Language codes for OCR (default: ["en"]).
             EasyOCR/Tesseract use full list, PaddleOCR uses first language.
         dpi: DPI for PDF-to-image conversion (default: 200).
@@ -52,35 +52,35 @@ def create_extractor(
         ValueError: If extractor_type is invalid or required credentials are missing.
 
     Example:
-        >>> from xtra import create_extractor, SourceType
-        >>> with create_extractor(Path("doc.pdf"), SourceType.PDF) as ext:
+        >>> from xtra import create_extractor, ExtractorType
+        >>> with create_extractor(Path("doc.pdf"), ExtractorType.PDF) as ext:
         ...     doc = ext.extract()
     """
     languages = languages or ["en"]
 
-    if extractor_type == SourceType.PDF:
+    if extractor_type == ExtractorType.PDF:
         from .pdf import PdfExtractor
 
         return PdfExtractor(path)
 
-    elif extractor_type == SourceType.EASYOCR:
+    elif extractor_type == ExtractorType.EASYOCR:
         from .easy_ocr import EasyOcrExtractor
 
         return EasyOcrExtractor(path, languages=languages, gpu=use_gpu, dpi=dpi)
 
-    elif extractor_type == SourceType.TESSERACT:
+    elif extractor_type == ExtractorType.TESSERACT:
         from .tesseract_ocr import TesseractOcrExtractor
 
         return TesseractOcrExtractor(path, languages=languages, dpi=dpi)
 
-    elif extractor_type == SourceType.PADDLE:
+    elif extractor_type == ExtractorType.PADDLE:
         from .paddle_ocr import PaddleOcrExtractor
 
         # PaddleOCR uses single language string
         lang = languages[0] if languages else "en"
         return PaddleOcrExtractor(path, lang=lang, use_gpu=use_gpu, dpi=dpi)
 
-    elif extractor_type == SourceType.AZURE_DI:
+    elif extractor_type == ExtractorType.AZURE_DI:
         from .azure_di import AzureDocumentIntelligenceExtractor
 
         endpoint = _get_credential("XTRA_AZURE_DI_ENDPOINT", credentials)
@@ -94,7 +94,7 @@ def create_extractor(
 
         return AzureDocumentIntelligenceExtractor(path, endpoint=endpoint, key=key)
 
-    elif extractor_type == SourceType.GOOGLE_DOCAI:
+    elif extractor_type == ExtractorType.GOOGLE_DOCAI:
         from .google_docai import GoogleDocumentAIExtractor
 
         processor_name = _get_credential("XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", credentials)

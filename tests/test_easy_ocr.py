@@ -10,7 +10,7 @@ from xtra.extractors.easy_ocr import (
     _reader_cache,
     get_reader,
 )
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
@@ -93,7 +93,7 @@ class TestEasyOcrExtractor:
             extractor = EasyOcrExtractor(Path("/tmp/test.png"), languages=["en", "it"])
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.EASYOCR
+            assert metadata.source_type == ExtractorType.EASYOCR
             assert metadata.extra["ocr_engine"] == "easyocr"
             assert metadata.extra["languages"] == ["en", "it"]
 
@@ -192,7 +192,7 @@ class TestEasyOcrExtractorWithPdf:
         )
         metadata = extractor.get_metadata()
 
-        assert metadata.source_type == SourceType.EASYOCR
+        assert metadata.source_type == ExtractorType.EASYOCR
         assert metadata.extra["ocr_engine"] == "easyocr"
         assert metadata.extra["dpi"] == 300
 

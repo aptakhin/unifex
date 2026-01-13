@@ -26,7 +26,7 @@ from xtra.extractors.google_docai import GoogleDocumentAIExtractor
 from xtra.extractors.easy_ocr import EasyOcrExtractor
 from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
 from xtra.extractors.paddle_ocr import PaddleOcrExtractor
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
@@ -42,7 +42,7 @@ class TestPdfExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.PDF
+        assert doc.metadata.source_type == ExtractorType.PDF
 
         # Verify page 1 content (exact text checks)
         page1 = doc.pages[0]
@@ -80,7 +80,7 @@ class TestEasyOcrExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_image.png"
         assert len(doc.pages) == 1
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.EASYOCR
+        assert doc.metadata.source_type == ExtractorType.EASYOCR
         assert doc.metadata.extra["ocr_engine"] == "easyocr"
 
         # Verify OCR detected text
@@ -113,7 +113,7 @@ class TestEasyOcrExtractorWithPdfIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.EASYOCR
+        assert doc.metadata.source_type == ExtractorType.EASYOCR
         assert doc.metadata.extra["ocr_engine"] == "easyocr"
         assert doc.metadata.extra["dpi"] == 150
 
@@ -173,7 +173,7 @@ class TestAzureDocumentIntelligenceExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.AZURE_DI
+        assert doc.metadata.source_type == ExtractorType.AZURE_DI
         assert doc.metadata.extra["ocr_engine"] == "azure_document_intelligence"
 
         # Verify pages have content
@@ -232,7 +232,7 @@ class TestGoogleDocumentAIExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.GOOGLE_DOCAI
+        assert doc.metadata.source_type == ExtractorType.GOOGLE_DOCAI
         assert doc.metadata.extra["ocr_engine"] == "google_document_ai"
 
         # Verify pages have content
@@ -273,7 +273,7 @@ class TestTesseractOcrExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_image.png"
         assert len(doc.pages) == 1
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.TESSERACT
+        assert doc.metadata.source_type == ExtractorType.TESSERACT
         assert doc.metadata.extra["ocr_engine"] == "tesseract"
 
         # Verify OCR detected text
@@ -309,7 +309,7 @@ class TestTesseractOcrExtractorWithPdfIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.TESSERACT
+        assert doc.metadata.source_type == ExtractorType.TESSERACT
         assert doc.metadata.extra["ocr_engine"] == "tesseract"
         assert doc.metadata.extra["dpi"] == 150
 
@@ -348,7 +348,7 @@ class TestPaddleOcrExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_image.png"
         assert len(doc.pages) == 1
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.PADDLE
+        assert doc.metadata.source_type == ExtractorType.PADDLE
         assert doc.metadata.extra["ocr_engine"] == "paddleocr"
 
         # Verify OCR detected text
@@ -384,7 +384,7 @@ class TestPaddleOcrExtractorWithPdfIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.PADDLE
+        assert doc.metadata.source_type == ExtractorType.PADDLE
         assert doc.metadata.extra["ocr_engine"] == "paddleocr"
         assert doc.metadata.extra["dpi"] == 150
 

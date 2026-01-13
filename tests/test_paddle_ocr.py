@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 
 class TestPaddleOcrExtractor:
@@ -25,7 +25,7 @@ class TestPaddleOcrExtractor:
             extractor = PaddleOcrExtractor(Path("/fake/image.png"))
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.PADDLE
+            assert metadata.source_type == ExtractorType.PADDLE
             assert metadata.extra["ocr_engine"] == "paddleocr"
             assert "languages" in metadata.extra
 
@@ -225,7 +225,7 @@ class TestPaddleOcrExtractorWithPdf:
             extractor = PaddleOcrExtractor(Path("/fake/document.pdf"))
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.PADDLE
+            assert metadata.source_type == ExtractorType.PADDLE
             assert metadata.extra["ocr_engine"] == "paddleocr"
             assert metadata.extra["dpi"] == 200
 

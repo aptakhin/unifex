@@ -17,25 +17,25 @@ from .extractors import (
     PdfExtractor,
     TesseractOcrExtractor,
 )
-from .models import SourceType
+from .models import ExtractorType
 
 
 def _create_extractor(args: argparse.Namespace, languages: list[str]) -> Any:
     """Create extractor based on CLI arguments."""
-    extractor_type = SourceType(args.extractor)
+    extractor_type = ExtractorType(args.extractor)
 
-    if extractor_type == SourceType.PDF:
+    if extractor_type == ExtractorType.PDF:
         return PdfExtractor(args.input)
-    if extractor_type == SourceType.EASYOCR:
+    if extractor_type == ExtractorType.EASYOCR:
         return EasyOcrExtractor(args.input, languages=languages)
-    if extractor_type == SourceType.TESSERACT:
+    if extractor_type == ExtractorType.TESSERACT:
         return TesseractOcrExtractor(args.input, languages=languages)
-    if extractor_type == SourceType.PADDLE:
+    if extractor_type == ExtractorType.PADDLE:
         lang = languages[0] if languages else "en"
         return PaddleOcrExtractor(args.input, lang=lang)
-    if extractor_type == SourceType.AZURE_DI:
+    if extractor_type == ExtractorType.AZURE_DI:
         return _create_azure_extractor(args)
-    if extractor_type == SourceType.GOOGLE_DOCAI:
+    if extractor_type == ExtractorType.GOOGLE_DOCAI:
         return _create_google_extractor(args)
 
     print(f"Error: Unknown extractor type: {args.extractor}", file=sys.stderr)
@@ -82,7 +82,7 @@ def main() -> None:
     parser.add_argument(
         "--extractor",
         type=str,
-        choices=[e.value for e in SourceType],
+        choices=[e.value for e in ExtractorType],
         required=True,
         help="Extractor type: pdf, easyocr, tesseract, paddle, azure-di, google-docai",
     )

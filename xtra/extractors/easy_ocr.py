@@ -12,7 +12,7 @@ from ..models import (
     BBox,
     DocumentMetadata,
     Page,
-    SourceType,
+    ExtractorType,
     TextBlock,
 )
 from .base import BaseExtractor, ExtractionResult
@@ -106,7 +106,7 @@ class EasyOcrExtractor(BaseExtractor):
         if self._is_pdf:
             extra["dpi"] = self.dpi
         return DocumentMetadata(
-            source_type=SourceType.EASYOCR,
+            source_type=ExtractorType.EASYOCR,
             extra=extra,
         )
 

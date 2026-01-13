@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 
 class TestTesseractOcrExtractor:
@@ -25,7 +25,7 @@ class TestTesseractOcrExtractor:
             extractor = TesseractOcrExtractor(Path("/fake/image.png"))
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.TESSERACT
+            assert metadata.source_type == ExtractorType.TESSERACT
             assert metadata.extra["ocr_engine"] == "tesseract"
             assert "languages" in metadata.extra
 
@@ -272,7 +272,7 @@ class TestTesseractOcrExtractorWithPdf:
             extractor = TesseractOcrExtractor(Path("/fake/document.pdf"))
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.TESSERACT
+            assert metadata.source_type == ExtractorType.TESSERACT
             assert metadata.extra["ocr_engine"] == "tesseract"
             assert metadata.extra["dpi"] == 200
 

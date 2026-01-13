@@ -12,7 +12,7 @@ from ..models import (
     FontInfo,
     Page,
     PdfObjectInfo,
-    SourceType,
+    ExtractorType,
     TextBlock,
 )
 from .base import BaseExtractor, ExtractionResult
@@ -65,7 +65,7 @@ class PdfExtractor(BaseExtractor):
         pdf_objects = self._extract_pdf_objects()
 
         return DocumentMetadata(
-            source_type=SourceType.PDF,
+            source_type=ExtractorType.PDF,
             title=metadata_dict.get("title"),
             author=metadata_dict.get("author"),
             creator=metadata_dict.get("creator"),

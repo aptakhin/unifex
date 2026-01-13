@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from xtra.extractors.base import BaseExtractor, ExtractionResult
-from xtra.models import DocumentMetadata, Page, SourceType
+from xtra.models import DocumentMetadata, Page, ExtractorType
 
 
 class MockExtractor(BaseExtractor):
@@ -31,7 +31,7 @@ class MockExtractor(BaseExtractor):
         )
 
     def get_metadata(self) -> DocumentMetadata:
-        return DocumentMetadata(source_type=SourceType.PDF)
+        return DocumentMetadata(source_type=ExtractorType.PDF)
 
 
 def test_extraction_result_success() -> None:

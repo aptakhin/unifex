@@ -7,20 +7,20 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import pytest
 
 from xtra.cli import main
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
 
-def test_source_type_used_in_cli() -> None:
-    # SourceType is used as the extractor choices in CLI
-    assert SourceType.PDF == "pdf"
-    assert SourceType.EASYOCR == "easyocr"
-    assert SourceType.TESSERACT == "tesseract"
-    assert SourceType.PADDLE == "paddle"
-    assert SourceType.AZURE_DI == "azure-di"
-    assert SourceType.GOOGLE_DOCAI == "google-docai"
+def test_extractor_type_used_in_cli() -> None:
+    # ExtractorType is used as the extractor choices in CLI
+    assert ExtractorType.PDF == "pdf"
+    assert ExtractorType.EASYOCR == "easyocr"
+    assert ExtractorType.TESSERACT == "tesseract"
+    assert ExtractorType.PADDLE == "paddle"
+    assert ExtractorType.AZURE_DI == "azure-di"
+    assert ExtractorType.GOOGLE_DOCAI == "google-docai"
 
 
 def test_cli_pdf_extractor(capsys: pytest.CaptureFixture) -> None:

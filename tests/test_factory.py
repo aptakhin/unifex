@@ -10,7 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from xtra.extractors.factory import create_extractor, _get_credential
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
@@ -45,7 +45,7 @@ class TestCreateExtractorPdf:
     """Tests for PDF extractor creation."""
 
     def test_creates_pdf_extractor(self) -> None:
-        extractor = create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.PDF)
+        extractor = create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF)
         assert extractor is not None
         assert extractor.get_page_count() == 2
         extractor.close()
@@ -61,7 +61,7 @@ class TestCreateExtractorEasyOcr:
             mock_open.return_value = mock_img
 
             extractor = create_extractor(
-                Path("/fake/image.png"), SourceType.EASYOCR, languages=["en", "it"]
+                Path("/fake/image.png"), ExtractorType.EASYOCR, languages=["en", "it"]
             )
             assert extractor.languages == ["en", "it"]  # type: ignore[attr-defined]
             assert extractor.gpu is False  # type: ignore[attr-defined]
@@ -72,13 +72,13 @@ class TestCreateExtractorEasyOcr:
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
 
-            extractor = create_extractor(Path("/fake/image.png"), SourceType.EASYOCR, use_gpu=True)
+            extractor = create_extractor(Path("/fake/image.png"), ExtractorType.EASYOCR, use_gpu=True)
             assert extractor.gpu is True  # type: ignore[attr-defined]
 
     def test_creates_easyocr_extractor_with_pdf(self) -> None:
         extractor = create_extractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-            SourceType.EASYOCR,
+            ExtractorType.EASYOCR,
             languages=["en"],
             dpi=150,
         )
@@ -100,14 +100,14 @@ class TestCreateExtractorTesseract:
             mock_open.return_value = mock_img
 
             extractor = create_extractor(
-                Path("/fake/image.png"), SourceType.TESSERACT, languages=["en", "it"]
+                Path("/fake/image.png"), ExtractorType.TESSERACT, languages=["en", "it"]
             )
             assert extractor.languages == ["en", "it"]  # type: ignore[attr-defined]
 
     def test_creates_tesseract_extractor_with_pdf(self) -> None:
         extractor = create_extractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-            SourceType.TESSERACT,
+            ExtractorType.TESSERACT,
             languages=["en"],
             dpi=150,
         )
@@ -129,7 +129,7 @@ class TestCreateExtractorPaddle:
             mock_image.open.return_value = mock_img
 
             extractor = create_extractor(
-                Path("/fake/image.png"), SourceType.PADDLE, languages=["ch"]
+                Path("/fake/image.png"), ExtractorType.PADDLE, languages=["ch"]
             )
             assert extractor.lang == "ch"  # type: ignore[attr-defined]
             assert extractor.use_gpu is False  # type: ignore[attr-defined]
@@ -143,7 +143,7 @@ class TestCreateExtractorPaddle:
             mock_img.size = (100, 100)
             mock_image.open.return_value = mock_img
 
-            extractor = create_extractor(Path("/fake/image.png"), SourceType.PADDLE, use_gpu=True)
+            extractor = create_extractor(Path("/fake/image.png"), ExtractorType.PADDLE, use_gpu=True)
             assert extractor.use_gpu is True  # type: ignore[attr-defined]
 
     def test_creates_paddle_extractor_with_pdf(self) -> None:
@@ -163,7 +163,7 @@ class TestCreateExtractorPaddle:
             mock_pdfium.PdfDocument.return_value = mock_pdf
 
             extractor = create_extractor(
-                Path("/fake/document.pdf"), SourceType.PADDLE, languages=["en"], dpi=150
+                Path("/fake/document.pdf"), ExtractorType.PADDLE, languages=["en"], dpi=150
             )
             assert extractor.dpi == 150  # type: ignore[attr-defined]
 
@@ -175,7 +175,7 @@ class TestCreateExtractorAzure:
         with patch("xtra.extractors.azure_di.DocumentIntelligenceClient"):
             extractor = create_extractor(
                 TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-                SourceType.AZURE_DI,
+                ExtractorType.AZURE_DI,
                 credentials={
                     "XTRA_AZURE_DI_ENDPOINT": "https://test.cognitiveservices.azure.com",
                     "XTRA_AZURE_DI_KEY": "test-key",
@@ -195,7 +195,7 @@ class TestCreateExtractorAzure:
             ),
         ):
             extractor = create_extractor(
-                TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.AZURE_DI
+                TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.AZURE_DI
             )
             assert extractor is not None
 
@@ -204,7 +204,7 @@ class TestCreateExtractorAzure:
             patch.dict(os.environ, {}, clear=True),
             pytest.raises(ValueError, match="Azure credentials required"),
         ):
-            create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.AZURE_DI)
+            create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.AZURE_DI)
 
 
 class TestCreateExtractorGoogle:
@@ -217,7 +217,7 @@ class TestCreateExtractorGoogle:
         ):
             extractor = create_extractor(
                 TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-                SourceType.GOOGLE_DOCAI,
+                ExtractorType.GOOGLE_DOCAI,
                 credentials={
                     "XTRA_GOOGLE_DOCAI_PROCESSOR_NAME": "projects/test/locations/us/processors/123",
                     "XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH": "/path/to/creds.json",
@@ -238,7 +238,7 @@ class TestCreateExtractorGoogle:
             ),
         ):
             extractor = create_extractor(
-                TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.GOOGLE_DOCAI
+                TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.GOOGLE_DOCAI
             )
             assert extractor is not None
 
@@ -247,7 +247,7 @@ class TestCreateExtractorGoogle:
             patch.dict(os.environ, {}, clear=True),
             pytest.raises(ValueError, match="Google Document AI processor name required"),
         ):
-            create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.GOOGLE_DOCAI)
+            create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.GOOGLE_DOCAI)
 
     def test_raises_when_google_credentials_path_missing(self) -> None:
         with (
@@ -258,7 +258,7 @@ class TestCreateExtractorGoogle:
             ),
             pytest.raises(ValueError, match="Google Document AI credentials path required"),
         ):
-            create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.GOOGLE_DOCAI)
+            create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.GOOGLE_DOCAI)
 
 
 class TestCreateExtractorDefaults:
@@ -270,17 +270,17 @@ class TestCreateExtractorDefaults:
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
 
-            extractor = create_extractor(Path("/fake/image.png"), SourceType.EASYOCR)
+            extractor = create_extractor(Path("/fake/image.png"), ExtractorType.EASYOCR)
             assert extractor.languages == ["en"]  # type: ignore[attr-defined]
 
     def test_default_dpi(self) -> None:
-        extractor = create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.EASYOCR)
+        extractor = create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.EASYOCR)
         assert extractor.dpi == 200  # type: ignore[attr-defined]
         extractor.close()
 
     def test_custom_dpi(self) -> None:
         extractor = create_extractor(
-            TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.EASYOCR, dpi=300
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.EASYOCR, dpi=300
         )
         assert extractor.dpi == 300  # type: ignore[attr-defined]
         extractor.close()

@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from xtra.adapters.google_docai import GoogleDocumentAIAdapter
 from xtra.extractors.google_docai import GoogleDocumentAIExtractor
-from xtra.models import SourceType
+from xtra.models import ExtractorType
 
 
 class TestGoogleDocumentAIExtractor:
@@ -46,7 +46,7 @@ class TestGoogleDocumentAIExtractor:
 
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.GOOGLE_DOCAI
+            assert metadata.source_type == ExtractorType.GOOGLE_DOCAI
             assert metadata.extra["ocr_engine"] == "google_document_ai"
             assert "processor_name" in metadata.extra
 
@@ -344,7 +344,7 @@ class TestGoogleDocumentAIAdapter:
         adapter = GoogleDocumentAIAdapter(None, "test-processor")
         metadata = adapter.get_metadata()
 
-        assert metadata.source_type == SourceType.GOOGLE_DOCAI
+        assert metadata.source_type == ExtractorType.GOOGLE_DOCAI
         assert metadata.extra["processor_name"] == "test-processor"
         assert metadata.extra["ocr_engine"] == "google_document_ai"
 

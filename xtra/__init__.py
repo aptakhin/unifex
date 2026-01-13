@@ -15,6 +15,7 @@ from .models import (
     BBox,
     Document,
     DocumentMetadata,
+    ExtractorType,
     FontInfo,
     Page,
     PdfObjectInfo,
@@ -45,5 +46,7 @@ __all__ = [
     "PdfObjectInfo",
     "DocumentMetadata",
     "Document",
+    "ExtractorType",
+    # Deprecated alias
     "SourceType",
 ]

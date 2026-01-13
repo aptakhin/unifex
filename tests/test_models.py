@@ -11,7 +11,7 @@ from xtra.models import (
     FontInfo,
     Page,
     PdfObjectInfo,
-    SourceType,
+    ExtractorType,
     TextBlock,
 )
 
@@ -82,8 +82,8 @@ def test_pdf_object_info() -> None:
 
 
 def test_document_metadata_pdf() -> None:
-    meta = DocumentMetadata(source_type=SourceType.PDF, creator="Test")
-    assert meta.source_type == SourceType.PDF
+    meta = DocumentMetadata(source_type=ExtractorType.PDF, creator="Test")
+    assert meta.source_type == ExtractorType.PDF
     assert meta.creator == "Test"
     assert meta.fonts == []
     assert meta.pdf_objects == []
@@ -91,10 +91,10 @@ def test_document_metadata_pdf() -> None:
 
 def test_document_metadata_easyocr() -> None:
     meta = DocumentMetadata(
-        source_type=SourceType.EASYOCR,
+        source_type=ExtractorType.EASYOCR,
         extra={"ocr_engine": "easyocr"},
     )
-    assert meta.source_type == SourceType.EASYOCR
+    assert meta.source_type == ExtractorType.EASYOCR
     assert meta.extra["ocr_engine"] == "easyocr"
 
 
@@ -109,16 +109,16 @@ def test_document_creation() -> None:
 def test_document_with_pages() -> None:
     path = Path("/tmp/test.pdf")
     page = Page(page=0, width=595.0, height=842.0)
-    meta = DocumentMetadata(source_type=SourceType.PDF)
+    meta = DocumentMetadata(source_type=ExtractorType.PDF)
     doc = Document(path=path, pages=[page], metadata=meta)
     assert len(doc.pages) == 1
     assert doc.metadata is not None
 
 
-def test_source_type_enum() -> None:
-    assert SourceType.PDF == "pdf"
-    assert SourceType.EASYOCR == "easyocr"
-    assert SourceType.TESSERACT == "tesseract"
-    assert SourceType.PADDLE == "paddle"
-    assert SourceType.AZURE_DI == "azure-di"
-    assert SourceType.GOOGLE_DOCAI == "google-docai"
+def test_extractor_type_enum() -> None:
+    assert ExtractorType.PDF == "pdf"
+    assert ExtractorType.EASYOCR == "easyocr"
+    assert ExtractorType.TESSERACT == "tesseract"
+    assert ExtractorType.PADDLE == "paddle"
+    assert ExtractorType.AZURE_DI == "azure-di"
+    assert ExtractorType.GOOGLE_DOCAI == "google-docai"

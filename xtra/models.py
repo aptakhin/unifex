@@ -14,13 +14,17 @@ except ImportError:
     PYDANTIC_V2 = False
 
 
-class SourceType(StrEnum):
+class ExtractorType(StrEnum):
     PDF = "pdf"
     EASYOCR = "easyocr"
     TESSERACT = "tesseract"
     PADDLE = "paddle"
     AZURE_DI = "azure-di"
     GOOGLE_DOCAI = "google-docai"
+
+
+# Backward compatibility alias (deprecated)
+SourceType = ExtractorType
 
 
 class BBox(BaseModel):
@@ -62,7 +66,7 @@ class PdfObjectInfo(BaseModel):
 
 
 class DocumentMetadata(BaseModel):
-    source_type: SourceType
+    source_type: ExtractorType
     creator: Optional[str] = None
     producer: Optional[str] = None
     title: Optional[str] = None

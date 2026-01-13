@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from ..models import BBox, DocumentMetadata, Page, SourceType, TextBlock
+from ..models import BBox, DocumentMetadata, Page, ExtractorType, TextBlock
 
 if TYPE_CHECKING:
     from google.cloud.documentai_v1 import Document
@@ -63,7 +63,7 @@ class GoogleDocumentAIAdapter:
         }
 
         return DocumentMetadata(
-            source_type=SourceType.GOOGLE_DOCAI,
+            source_type=ExtractorType.GOOGLE_DOCAI,
             extra=extra,
         )
 
