@@ -20,9 +20,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from xtra.extractors import PdfExtractor
 from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
 from xtra.extractors.google_docai import GoogleDocumentAIExtractor
-from xtra.extractors.ocr import EasyOcrExtractor, PdfToImageEasyOcrExtractor
-from xtra.extractors.tesseract_ocr import PdfToImageTesseractExtractor, TesseractOcrExtractor
-from xtra.extractors.paddle_ocr import PaddleOcrExtractor, PdfToImagePaddleExtractor
+from xtra.extractors.ocr import EasyOcrExtractor
+from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
+from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 from xtra.models import SourceType
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
@@ -99,12 +99,12 @@ class TestEasyOcrExtractorIntegration:
 
 
 @pytest.mark.easyocr
-class TestPdfToImageEasyOcrExtractorIntegration:
-    """Integration tests for PdfToImageEasyOcrExtractor using real PDF files."""
+class TestEasyOcrExtractorWithPdfIntegration:
+    """Integration tests for EasyOcrExtractor with PDF files (unified extractor)."""
 
     def test_extract_pdf_via_easyocr(self) -> None:
         """Extract text from a PDF by converting to images and running EasyOCR."""
-        with PdfToImageEasyOcrExtractor(
+        with EasyOcrExtractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["en"], dpi=150
         ) as extractor:
             doc = extractor.extract()
@@ -112,7 +112,7 @@ class TestPdfToImageEasyOcrExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.PDF_EASYOCR
+        assert doc.metadata.source_type == SourceType.EASYOCR
         assert doc.metadata.extra["ocr_engine"] == "easyocr"
         assert doc.metadata.extra["dpi"] == 150
 
@@ -301,15 +301,15 @@ class TestTesseractOcrExtractorIntegration:
 
 
 @pytest.mark.tesseract
-class TestPdfToImageTesseractExtractorIntegration:
-    """Integration tests for PdfToImageTesseractExtractor using real PDF files.
+class TestTesseractOcrExtractorWithPdfIntegration:
+    """Integration tests for TesseractOcrExtractor with PDF files (unified extractor).
 
     Requires Tesseract to be installed on the system.
     """
 
     def test_extract_pdf_via_tesseract(self) -> None:
         """Extract text from a PDF by converting to images and running Tesseract OCR."""
-        with PdfToImageTesseractExtractor(
+        with TesseractOcrExtractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["eng"], dpi=150
         ) as extractor:
             doc = extractor.extract()
@@ -317,7 +317,7 @@ class TestPdfToImageTesseractExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.PDF_TESSERACT
+        assert doc.metadata.source_type == SourceType.TESSERACT
         assert doc.metadata.extra["ocr_engine"] == "tesseract"
         assert doc.metadata.extra["dpi"] == 150
 
@@ -378,15 +378,15 @@ class TestPaddleOcrExtractorIntegration:
 
 
 @pytest.mark.paddle
-class TestPdfToImagePaddleExtractorIntegration:
-    """Integration tests for PdfToImagePaddleExtractor using real PDF files.
+class TestPaddleOcrExtractorWithPdfIntegration:
+    """Integration tests for PaddleOcrExtractor with PDF files (unified extractor).
 
     Requires PaddleOCR and PaddlePaddle to be installed.
     """
 
     def test_extract_pdf_via_paddle(self) -> None:
         """Extract text from a PDF by converting to images and running PaddleOCR."""
-        with PdfToImagePaddleExtractor(
+        with PaddleOcrExtractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", lang="en", dpi=150
         ) as extractor:
             doc = extractor.extract()
@@ -394,7 +394,7 @@ class TestPdfToImagePaddleExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.PDF_PADDLE
+        assert doc.metadata.source_type == SourceType.PADDLE
         assert doc.metadata.extra["ocr_engine"] == "paddleocr"
         assert doc.metadata.extra["dpi"] == 150
 

@@ -185,11 +185,26 @@ class TestPaddleOcrExtractor:
             # close() should not raise
             extractor.close()
 
+    def test_init_with_dpi(self) -> None:
+        with (
+            patch("xtra.extractors.paddle_ocr.PaddleOCR"),
+            patch("xtra.extractors.paddle_ocr.Image") as mock_image,
+        ):
+            mock_img = MagicMock()
+            mock_img.size = (100, 100)
+            mock_image.open.return_value = mock_img
 
-class TestPdfToImagePaddleExtractor:
-    """Unit tests for PdfToImagePaddleExtractor."""
+            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 
-    def test_get_metadata(self) -> None:
+            extractor = PaddleOcrExtractor(Path("/fake/image.png"), dpi=300)
+            assert extractor.dpi == 300
+            assert not extractor._is_pdf
+
+
+class TestPaddleOcrExtractorWithPdf:
+    """Unit tests for PaddleOcrExtractor with PDF files."""
+
+    def test_get_metadata_with_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
             patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
@@ -205,16 +220,16 @@ class TestPdfToImagePaddleExtractor:
             mock_pdf.__iter__ = lambda self: iter([mock_page])
             mock_pdfium.PdfDocument.return_value = mock_pdf
 
-            from xtra.extractors.paddle_ocr import PdfToImagePaddleExtractor
+            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 
-            extractor = PdfToImagePaddleExtractor(Path("/fake/document.pdf"))
+            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"))
             metadata = extractor.get_metadata()
 
-            assert metadata.source_type == SourceType.PDF_PADDLE
+            assert metadata.source_type == SourceType.PADDLE
             assert metadata.extra["ocr_engine"] == "paddleocr"
             assert metadata.extra["dpi"] == 200
 
-    def test_get_page_count(self) -> None:
+    def test_get_page_count_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
             patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
@@ -231,12 +246,12 @@ class TestPdfToImagePaddleExtractor:
             mock_pdf.__iter__ = lambda self: iter(mock_pages)
             mock_pdfium.PdfDocument.return_value = mock_pdf
 
-            from xtra.extractors.paddle_ocr import PdfToImagePaddleExtractor
+            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 
-            extractor = PdfToImagePaddleExtractor(Path("/fake/document.pdf"))
+            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"))
             assert extractor.get_page_count() == 3
 
-    def test_extract_page_success(self) -> None:
+    def test_extract_page_success_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR") as mock_paddle_class,
             patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
@@ -260,9 +275,9 @@ class TestPdfToImagePaddleExtractor:
             ]
             mock_paddle_class.return_value = mock_paddle
 
-            from xtra.extractors.paddle_ocr import PdfToImagePaddleExtractor
+            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 
-            extractor = PdfToImagePaddleExtractor(Path("/fake/document.pdf"))
+            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"))
             result = extractor.extract_page(0)
 
             assert result.success is True
@@ -272,7 +287,7 @@ class TestPdfToImagePaddleExtractor:
             assert len(result.page.texts) == 1
             assert result.page.texts[0].text == "PDF"
 
-    def test_custom_dpi(self) -> None:
+    def test_custom_dpi_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
             patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
@@ -288,9 +303,9 @@ class TestPdfToImagePaddleExtractor:
             mock_pdf.__iter__ = lambda self: iter([mock_page])
             mock_pdfium.PdfDocument.return_value = mock_pdf
 
-            from xtra.extractors.paddle_ocr import PdfToImagePaddleExtractor
+            from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 
-            extractor = PdfToImagePaddleExtractor(Path("/fake/document.pdf"), dpi=300)
+            extractor = PaddleOcrExtractor(Path("/fake/document.pdf"), dpi=300)
             metadata = extractor.get_metadata()
 
             assert metadata.extra["dpi"] == 300

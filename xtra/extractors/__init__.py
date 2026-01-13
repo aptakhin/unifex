@@ -1,12 +1,13 @@
 from .azure_di import AzureDocumentIntelligenceExtractor
 from .base import BaseExtractor, ExtractionResult
 from .factory import create_extractor
-from .ocr import EasyOcrExtractor, PdfToImageEasyOcrExtractor
+from .ocr import EasyOcrExtractor
+from .paddle_ocr import PaddleOcrExtractor
 from .pdf import PdfExtractor
+from .tesseract_ocr import TesseractOcrExtractor
 
-# Backward compatibility aliases (deprecated)
+# Backward compatibility alias (deprecated)
 OcrExtractor = EasyOcrExtractor
-PdfToImageOcrExtractor = PdfToImageEasyOcrExtractor
 
 __all__ = [
     "AzureDocumentIntelligenceExtractor",
@@ -14,9 +15,9 @@ __all__ = [
     "ExtractionResult",
     "PdfExtractor",
     "EasyOcrExtractor",
-    "PdfToImageEasyOcrExtractor",
+    "TesseractOcrExtractor",
+    "PaddleOcrExtractor",
     "create_extractor",
-    # Deprecated aliases
+    # Deprecated alias
     "OcrExtractor",
-    "PdfToImageOcrExtractor",
 ]

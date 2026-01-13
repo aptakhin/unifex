@@ -75,10 +75,10 @@ class TestCreateExtractorEasyOcr:
             extractor = create_extractor(Path("/fake/image.png"), SourceType.EASYOCR, use_gpu=True)
             assert extractor.gpu is True  # type: ignore[attr-defined]
 
-    def test_creates_pdf_easyocr_extractor(self) -> None:
+    def test_creates_easyocr_extractor_with_pdf(self) -> None:
         extractor = create_extractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-            SourceType.PDF_EASYOCR,
+            SourceType.EASYOCR,
             languages=["en"],
             dpi=150,
         )
@@ -104,10 +104,10 @@ class TestCreateExtractorTesseract:
             )
             assert extractor.languages == ["eng", "ita"]  # type: ignore[attr-defined]
 
-    def test_creates_pdf_tesseract_extractor(self) -> None:
+    def test_creates_tesseract_extractor_with_pdf(self) -> None:
         extractor = create_extractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-            SourceType.PDF_TESSERACT,
+            SourceType.TESSERACT,
             languages=["eng"],
             dpi=150,
         )
@@ -146,7 +146,7 @@ class TestCreateExtractorPaddle:
             extractor = create_extractor(Path("/fake/image.png"), SourceType.PADDLE, use_gpu=True)
             assert extractor.use_gpu is True  # type: ignore[attr-defined]
 
-    def test_creates_pdf_paddle_extractor(self) -> None:
+    def test_creates_paddle_extractor_with_pdf(self) -> None:
         with (
             patch("xtra.extractors.paddle_ocr.PaddleOCR"),
             patch("xtra.extractors.paddle_ocr.pdfium") as mock_pdfium,
@@ -163,7 +163,7 @@ class TestCreateExtractorPaddle:
             mock_pdfium.PdfDocument.return_value = mock_pdf
 
             extractor = create_extractor(
-                Path("/fake/document.pdf"), SourceType.PDF_PADDLE, languages=["en"], dpi=150
+                Path("/fake/document.pdf"), SourceType.PADDLE, languages=["en"], dpi=150
             )
             assert extractor.dpi == 150  # type: ignore[attr-defined]
 
@@ -274,13 +274,13 @@ class TestCreateExtractorDefaults:
             assert extractor.languages == ["en"]  # type: ignore[attr-defined]
 
     def test_default_dpi(self) -> None:
-        extractor = create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.PDF_EASYOCR)
+        extractor = create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.EASYOCR)
         assert extractor.dpi == 200  # type: ignore[attr-defined]
         extractor.close()
 
     def test_custom_dpi(self) -> None:
         extractor = create_extractor(
-            TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.PDF_EASYOCR, dpi=300
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf", SourceType.EASYOCR, dpi=300
         )
         assert extractor.dpi == 300  # type: ignore[attr-defined]
         extractor.close()

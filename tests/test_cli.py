@@ -17,7 +17,8 @@ def test_source_type_used_in_cli() -> None:
     # SourceType is used as the extractor choices in CLI
     assert SourceType.PDF == "pdf"
     assert SourceType.EASYOCR == "easyocr"
-    assert SourceType.PDF_EASYOCR == "pdf-easyocr"
+    assert SourceType.TESSERACT == "tesseract"
+    assert SourceType.PADDLE == "paddle"
     assert SourceType.AZURE_DI == "azure-di"
 
 

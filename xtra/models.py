@@ -17,11 +17,8 @@ except ImportError:
 class SourceType(StrEnum):
     PDF = "pdf"
     EASYOCR = "easyocr"
-    PDF_EASYOCR = "pdf-easyocr"
     TESSERACT = "tesseract"
-    PDF_TESSERACT = "pdf-tesseract"
     PADDLE = "paddle"
-    PDF_PADDLE = "pdf-paddle"
     AZURE_DI = "azure-di"
     GOOGLE_DOCAI = "google-docai"
 

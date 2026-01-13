@@ -118,5 +118,7 @@ def test_document_with_pages() -> None:
 def test_source_type_enum() -> None:
     assert SourceType.PDF == "pdf"
     assert SourceType.EASYOCR == "easyocr"
-    assert SourceType.PDF_EASYOCR == "pdf-easyocr"
+    assert SourceType.TESSERACT == "tesseract"
+    assert SourceType.PADDLE == "paddle"
     assert SourceType.AZURE_DI == "azure-di"
+    assert SourceType.GOOGLE_DOCAI == "google-docai"

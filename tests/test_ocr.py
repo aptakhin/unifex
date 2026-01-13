@@ -7,7 +7,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from xtra.extractors.ocr import (
     EasyOcrExtractor,
-    PdfToImageEasyOcrExtractor,
     _reader_cache,
     get_reader,
 )
@@ -65,6 +64,16 @@ class TestEasyOcrExtractor:
             extractor = EasyOcrExtractor(Path("/tmp/test.png"), languages=["en", "it"], gpu=True)
             assert extractor.languages == ["en", "it"]
             assert extractor.gpu is True
+
+    def test_init_with_dpi(self) -> None:
+        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+            mock_img = MagicMock()
+            mock_img.size = (100, 100)
+            mock_open.return_value = mock_img
+
+            extractor = EasyOcrExtractor(Path("/tmp/test.png"), dpi=300)
+            assert extractor.dpi == 300
+            assert not extractor._is_pdf
 
     def test_get_page_count(self) -> None:
         with patch("xtra.extractors.ocr.Image.open") as mock_open:
@@ -159,54 +168,42 @@ class TestEasyOcrExtractor:
             assert blocks[1].text == "Text2"
 
 
-class TestPdfToImageEasyOcrExtractor:
-    def test_init_default_values(self) -> None:
-        extractor = PdfToImageEasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
+class TestEasyOcrExtractorWithPdf:
+    """Tests for EasyOcrExtractor with PDF files."""
+
+    def test_init_with_pdf(self) -> None:
+        extractor = EasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         assert extractor.languages == ["en"]
         assert extractor.gpu is False
         assert extractor.dpi == 200
+        assert extractor._is_pdf is True
         assert extractor.get_page_count() == 2
 
-    def test_get_metadata(self) -> None:
-        extractor = PdfToImageEasyOcrExtractor(
+    def test_init_with_pdf_custom_dpi(self) -> None:
+        extractor = EasyOcrExtractor(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["en", "it"], dpi=300
+        )
+        assert extractor.dpi == 300
+        assert extractor._is_pdf is True
+
+    def test_get_metadata_with_pdf(self) -> None:
+        extractor = EasyOcrExtractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["en", "it"], dpi=300
         )
         metadata = extractor.get_metadata()
 
-        assert metadata.source_type == SourceType.PDF_EASYOCR
+        assert metadata.source_type == SourceType.EASYOCR
         assert metadata.extra["ocr_engine"] == "easyocr"
         assert metadata.extra["dpi"] == 300
 
-    def test_get_page_count(self) -> None:
-        extractor = PdfToImageEasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
+    def test_get_page_count_pdf(self) -> None:
+        extractor = EasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         assert extractor.get_page_count() == 2
 
-    def test_extract_page_out_of_range(self) -> None:
-        extractor = PdfToImageEasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
+    def test_extract_page_out_of_range_pdf(self) -> None:
+        extractor = EasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         result = extractor.extract_page(5)
 
         assert not result.success
         assert result.error is not None
         assert "out of range" in result.error.lower()
-
-    def test_convert_results(self) -> None:
-        extractor = PdfToImageEasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
-        results = [
-            ([[0, 0], [50, 0], [50, 10], [0, 10]], "Text1", 0.9),
-        ]
-        blocks = extractor._convert_results(results)
-
-        assert len(blocks) == 1
-        assert blocks[0].text == "Text1"
-        assert blocks[0].confidence == 0.9
-
-    def test_polygon_to_bbox_and_rotation(self) -> None:
-        extractor = PdfToImageEasyOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
-        polygon = [[10, 10], [110, 10], [110, 30], [10, 30]]
-        bbox, rotation = extractor._polygon_to_bbox_and_rotation(polygon)
-
-        assert bbox.x0 == 10
-        assert bbox.y0 == 10
-        assert bbox.x1 == 110
-        assert bbox.y1 == 30
-        assert rotation == 0.0

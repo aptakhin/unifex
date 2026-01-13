@@ -32,12 +32,9 @@ def create_extractor(
         path: Path to document/image file.
         extractor_type: SourceType enum value specifying which extractor to use:
             - SourceType.PDF - Native PDF extraction
-            - SourceType.EASYOCR - EasyOCR for images
-            - SourceType.PDF_EASYOCR - PDF via EasyOCR
-            - SourceType.TESSERACT - Tesseract for images
-            - SourceType.PDF_TESSERACT - PDF via Tesseract
-            - SourceType.PADDLE - PaddleOCR for images
-            - SourceType.PDF_PADDLE - PDF via PaddleOCR
+            - SourceType.EASYOCR - EasyOCR for images and PDFs (auto-detects)
+            - SourceType.TESSERACT - Tesseract for images and PDFs (auto-detects)
+            - SourceType.PADDLE - PaddleOCR for images and PDFs (auto-detects)
             - SourceType.AZURE_DI - Azure Document Intelligence
             - SourceType.GOOGLE_DOCAI - Google Document AI
         languages: Language codes for OCR (default: ["en"]).
@@ -69,35 +66,19 @@ def create_extractor(
     elif extractor_type == SourceType.EASYOCR:
         from .ocr import EasyOcrExtractor
 
-        return EasyOcrExtractor(path, languages=languages, gpu=use_gpu)
-
-    elif extractor_type == SourceType.PDF_EASYOCR:
-        from .ocr import PdfToImageEasyOcrExtractor
-
-        return PdfToImageEasyOcrExtractor(path, languages=languages, gpu=use_gpu, dpi=dpi)
+        return EasyOcrExtractor(path, languages=languages, gpu=use_gpu, dpi=dpi)
 
     elif extractor_type == SourceType.TESSERACT:
         from .tesseract_ocr import TesseractOcrExtractor
 
-        return TesseractOcrExtractor(path, languages=languages)
-
-    elif extractor_type == SourceType.PDF_TESSERACT:
-        from .tesseract_ocr import PdfToImageTesseractExtractor
-
-        return PdfToImageTesseractExtractor(path, languages=languages, dpi=dpi)
+        return TesseractOcrExtractor(path, languages=languages, dpi=dpi)
 
     elif extractor_type == SourceType.PADDLE:
         from .paddle_ocr import PaddleOcrExtractor
 
         # PaddleOCR uses single language string
         lang = languages[0] if languages else "en"
-        return PaddleOcrExtractor(path, lang=lang, use_gpu=use_gpu)
-
-    elif extractor_type == SourceType.PDF_PADDLE:
-        from .paddle_ocr import PdfToImagePaddleExtractor
-
-        lang = languages[0] if languages else "en"
-        return PdfToImagePaddleExtractor(path, lang=lang, use_gpu=use_gpu, dpi=dpi)
+        return PaddleOcrExtractor(path, lang=lang, use_gpu=use_gpu, dpi=dpi)
 
     elif extractor_type == SourceType.AZURE_DI:
         from .azure_di import AzureDocumentIntelligenceExtractor

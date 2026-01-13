@@ -5,9 +5,9 @@ from .extractors import (
     EasyOcrExtractor,
     ExtractionResult,
     OcrExtractor,
+    PaddleOcrExtractor,
     PdfExtractor,
-    PdfToImageEasyOcrExtractor,
-    PdfToImageOcrExtractor,
+    TesseractOcrExtractor,
     create_extractor,
 )
 from .models import (
@@ -30,11 +30,11 @@ __all__ = [
     "ExtractionResult",
     "PdfExtractor",
     "EasyOcrExtractor",
-    "PdfToImageEasyOcrExtractor",
+    "TesseractOcrExtractor",
+    "PaddleOcrExtractor",
     "create_extractor",
-    # Deprecated aliases
+    # Deprecated alias
     "OcrExtractor",
-    "PdfToImageOcrExtractor",
     # Models
     "BBox",
     "FontInfo",
