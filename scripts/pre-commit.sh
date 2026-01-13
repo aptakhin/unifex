@@ -14,9 +14,9 @@ git add -u
 echo "Running ty type check..."
 poetry run ty check
 
-# Run tests with coverage
+# Run tests with coverage (excluding cloud tests that require credentials)
 echo "Running tests with coverage..."
-poetry run pytest --cov=xtra --cov-report=term-missing --cov-fail-under=85
+poetry run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf)" --cov=xtra --cov-report=term-missing --cov-fail-under=85
 
 # Check if there are any staged files
 if [ -z "$(git diff --cached --name-only)" ]; then
