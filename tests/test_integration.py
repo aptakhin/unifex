@@ -3,10 +3,8 @@
 These tests use real files and services (no mocking).
 Azure/Google tests require credentials in environment variables - see .env.example.
 
-Use pytest markers to selectively run tests:
-- pytest -m "not paddle" - exclude PaddleOCR tests
-- pytest -m "not (tesseract or paddle)" - exclude Tesseract and PaddleOCR tests
-- pytest -m "azure" - run only Azure tests
+NOTE: Do not add pytest.mark markers to skip tests without explicit user request.
+All tests should run by default to ensure full coverage.
 """
 
 import os
@@ -66,7 +64,6 @@ class TestPdfExtractorIntegration:
                 assert text.bbox.y0 < text.bbox.y1
 
 
-@pytest.mark.easyocr
 class TestEasyOcrExtractorIntegration:
     """Integration tests for EasyOcrExtractor using real image files."""
 
@@ -98,7 +95,6 @@ class TestEasyOcrExtractorIntegration:
             assert 0.0 <= text.confidence <= 1.0
 
 
-@pytest.mark.easyocr
 class TestEasyOcrExtractorWithPdfIntegration:
     """Integration tests for EasyOcrExtractor with PDF files (unified extractor)."""
 
@@ -137,13 +133,12 @@ class TestEasyOcrExtractorWithPdfIntegration:
                 assert 0.0 <= text.confidence <= 1.0
 
 
-@pytest.mark.azure
 class TestAzureDocumentIntelligenceExtractorIntegration:
     """Integration tests for Azure Document Intelligence extractor.
 
     These tests require Azure credentials in environment variables:
-    - AZURE_DI_ENDPOINT: Azure Document Intelligence endpoint URL
-    - AZURE_DI_KEY: Azure Document Intelligence API key
+    - XTRA_AZURE_DI_ENDPOINT: Azure Document Intelligence endpoint URL
+    - XTRA_AZURE_DI_KEY: Azure Document Intelligence API key
 
     See .env.example for details.
     """
@@ -151,11 +146,13 @@ class TestAzureDocumentIntelligenceExtractorIntegration:
     @pytest.fixture
     def azure_credentials(self) -> tuple[str, str]:
         """Get Azure credentials from environment or skip test."""
-        endpoint = os.environ.get("AZURE_DI_ENDPOINT", "")
-        key = os.environ.get("AZURE_DI_KEY", "")
+        endpoint = os.environ.get("XTRA_AZURE_DI_ENDPOINT", "")
+        key = os.environ.get("XTRA_AZURE_DI_KEY", "")
 
         if not endpoint or not key:
-            pytest.skip("Azure credentials not configured (AZURE_DI_ENDPOINT, AZURE_DI_KEY)")
+            pytest.skip(
+                "Azure credentials not configured (XTRA_AZURE_DI_ENDPOINT, XTRA_AZURE_DI_KEY)"
+            )
 
         return endpoint, key
 
@@ -197,13 +194,12 @@ class TestAzureDocumentIntelligenceExtractorIntegration:
         assert "second" in page2_text or "third" in page2_text or "page" in page2_text
 
 
-@pytest.mark.google
 class TestGoogleDocumentAIExtractorIntegration:
     """Integration tests for Google Document AI extractor.
 
     These tests require Google Cloud credentials:
-    - GOOGLE_DOCAI_PROCESSOR_NAME: Full processor resource name
-    - GOOGLE_DOCAI_CREDENTIALS_PATH: Path to service account JSON file
+    - XTRA_GOOGLE_DOCAI_PROCESSOR_NAME: Full processor resource name
+    - XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH: Path to service account JSON file
 
     See .env.example for details.
     """
@@ -211,13 +207,13 @@ class TestGoogleDocumentAIExtractorIntegration:
     @pytest.fixture
     def google_credentials(self) -> tuple[str, str]:
         """Get Google credentials from environment or skip test."""
-        processor_name = os.environ.get("GOOGLE_DOCAI_PROCESSOR_NAME", "")
-        credentials_path = os.environ.get("GOOGLE_DOCAI_CREDENTIALS_PATH", "")
+        processor_name = os.environ.get("XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", "")
+        credentials_path = os.environ.get("XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH", "")
 
         if not processor_name or not credentials_path:
             pytest.skip(
                 "Google credentials not configured "
-                "(GOOGLE_DOCAI_PROCESSOR_NAME, GOOGLE_DOCAI_CREDENTIALS_PATH)"
+                "(XTRA_GOOGLE_DOCAI_PROCESSOR_NAME, XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH)"
             )
 
         return processor_name, credentials_path
@@ -260,7 +256,6 @@ class TestGoogleDocumentAIExtractorIntegration:
         assert "second" in page2_text or "third" in page2_text or "page" in page2_text
 
 
-@pytest.mark.tesseract
 class TestTesseractOcrExtractorIntegration:
     """Integration tests for TesseractOcrExtractor using real image files.
 
@@ -300,7 +295,6 @@ class TestTesseractOcrExtractorIntegration:
             assert 0.0 <= text.confidence <= 1.0
 
 
-@pytest.mark.tesseract
 class TestTesseractOcrExtractorWithPdfIntegration:
     """Integration tests for TesseractOcrExtractor with PDF files (unified extractor).
 
@@ -342,7 +336,6 @@ class TestTesseractOcrExtractorWithPdfIntegration:
                 assert 0.0 <= text.confidence <= 1.0
 
 
-@pytest.mark.paddle
 class TestPaddleOcrExtractorIntegration:
     """Integration tests for PaddleOcrExtractor using real image files.
 
@@ -377,7 +370,6 @@ class TestPaddleOcrExtractorIntegration:
             assert 0.0 <= text.confidence <= 1.0
 
 
-@pytest.mark.paddle
 class TestPaddleOcrExtractorWithPdfIntegration:
     """Integration tests for PaddleOcrExtractor with PDF files (unified extractor).
 

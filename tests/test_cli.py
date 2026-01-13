@@ -20,6 +20,7 @@ def test_source_type_used_in_cli() -> None:
     assert SourceType.TESSERACT == "tesseract"
     assert SourceType.PADDLE == "paddle"
     assert SourceType.AZURE_DI == "azure-di"
+    assert SourceType.GOOGLE_DOCAI == "google-docai"
 
 
 def test_cli_pdf_extractor(capsys: pytest.CaptureFixture) -> None:

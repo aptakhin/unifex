@@ -177,8 +177,8 @@ class TestCreateExtractorAzure:
                 TEST_DATA_DIR / "test_pdf_2p_text.pdf",
                 SourceType.AZURE_DI,
                 credentials={
-                    "AZURE_DI_ENDPOINT": "https://test.cognitiveservices.azure.com",
-                    "AZURE_DI_KEY": "test-key",
+                    "XTRA_AZURE_DI_ENDPOINT": "https://test.cognitiveservices.azure.com",
+                    "XTRA_AZURE_DI_KEY": "test-key",
                 },
             )
             assert extractor is not None
@@ -189,8 +189,8 @@ class TestCreateExtractorAzure:
             patch.dict(
                 os.environ,
                 {
-                    "AZURE_DI_ENDPOINT": "https://test.cognitiveservices.azure.com",
-                    "AZURE_DI_KEY": "test-key",
+                    "XTRA_AZURE_DI_ENDPOINT": "https://test.cognitiveservices.azure.com",
+                    "XTRA_AZURE_DI_KEY": "test-key",
                 },
             ),
         ):
@@ -219,8 +219,8 @@ class TestCreateExtractorGoogle:
                 TEST_DATA_DIR / "test_pdf_2p_text.pdf",
                 SourceType.GOOGLE_DOCAI,
                 credentials={
-                    "GOOGLE_DOCAI_PROCESSOR_NAME": "projects/test/locations/us/processors/123",
-                    "GOOGLE_DOCAI_CREDENTIALS_PATH": "/path/to/creds.json",
+                    "XTRA_GOOGLE_DOCAI_PROCESSOR_NAME": "projects/test/locations/us/processors/123",
+                    "XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH": "/path/to/creds.json",
                 },
             )
             assert extractor is not None
@@ -232,8 +232,8 @@ class TestCreateExtractorGoogle:
             patch.dict(
                 os.environ,
                 {
-                    "GOOGLE_DOCAI_PROCESSOR_NAME": "projects/test/locations/us/processors/123",
-                    "GOOGLE_DOCAI_CREDENTIALS_PATH": "/path/to/creds.json",
+                    "XTRA_GOOGLE_DOCAI_PROCESSOR_NAME": "projects/test/locations/us/processors/123",
+                    "XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH": "/path/to/creds.json",
                 },
             ),
         ):
@@ -253,7 +253,7 @@ class TestCreateExtractorGoogle:
         with (
             patch.dict(
                 os.environ,
-                {"GOOGLE_DOCAI_PROCESSOR_NAME": "projects/test/locations/us/processors/123"},
+                {"XTRA_GOOGLE_DOCAI_PROCESSOR_NAME": "projects/test/locations/us/processors/123"},
                 clear=True,
             ),
             pytest.raises(ValueError, match="Google Document AI credentials path required"),

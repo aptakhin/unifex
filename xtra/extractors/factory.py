@@ -42,8 +42,8 @@ def create_extractor(
         dpi: DPI for PDF-to-image conversion (default: 200).
         use_gpu: Enable GPU acceleration where supported (default: False).
         credentials: Override credentials dict. If None, reads from env vars:
-            - AZURE_DI_ENDPOINT, AZURE_DI_KEY for Azure
-            - GOOGLE_DOCAI_PROCESSOR_NAME, GOOGLE_DOCAI_CREDENTIALS_PATH for Google
+            - XTRA_AZURE_DI_ENDPOINT, XTRA_AZURE_DI_KEY for Azure
+            - XTRA_GOOGLE_DOCAI_PROCESSOR_NAME, XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH for Google
 
     Returns:
         Configured extractor instance.
@@ -83,12 +83,12 @@ def create_extractor(
     elif extractor_type == SourceType.AZURE_DI:
         from .azure_di import AzureDocumentIntelligenceExtractor
 
-        endpoint = _get_credential("AZURE_DI_ENDPOINT", credentials)
-        key = _get_credential("AZURE_DI_KEY", credentials)
+        endpoint = _get_credential("XTRA_AZURE_DI_ENDPOINT", credentials)
+        key = _get_credential("XTRA_AZURE_DI_KEY", credentials)
 
         if not endpoint or not key:
             raise ValueError(
-                "Azure credentials required. Set AZURE_DI_ENDPOINT and AZURE_DI_KEY "
+                "Azure credentials required. Set XTRA_AZURE_DI_ENDPOINT and XTRA_AZURE_DI_KEY "
                 "environment variables or pass credentials dict."
             )
 
@@ -97,19 +97,19 @@ def create_extractor(
     elif extractor_type == SourceType.GOOGLE_DOCAI:
         from .google_docai import GoogleDocumentAIExtractor
 
-        processor_name = _get_credential("GOOGLE_DOCAI_PROCESSOR_NAME", credentials)
-        credentials_path = _get_credential("GOOGLE_DOCAI_CREDENTIALS_PATH", credentials)
+        processor_name = _get_credential("XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", credentials)
+        credentials_path = _get_credential("XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH", credentials)
 
         if not processor_name:
             raise ValueError(
-                "Google Document AI processor name required. Set GOOGLE_DOCAI_PROCESSOR_NAME "
+                "Google Document AI processor name required. Set XTRA_GOOGLE_DOCAI_PROCESSOR_NAME "
                 "environment variable or pass credentials dict."
             )
 
         if not credentials_path:
             raise ValueError(
-                "Google Document AI credentials path required. Set GOOGLE_DOCAI_CREDENTIALS_PATH "
-                "environment variable or pass credentials dict."
+                "Google Document AI credentials path required. "
+                "Set XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH env var or pass credentials dict."
             )
 
         return GoogleDocumentAIExtractor(

@@ -59,6 +59,7 @@ select = [
 "**/cli.py" = [
    "C901",    # Function complexity (CLI main function)
    "PLR0912", # Too many branches (CLI main function)
+   "S101",    # Use of `assert` for type narrowing after validation
 ]
 "**/azure_di.py" = [
    "PLR2004", # Magic value for polygon length
@@ -86,13 +87,8 @@ select = [
 max-complexity = 10
 
 [tool.pytest.ini_options]
-markers = [
-    "tesseract: tests requiring Tesseract OCR",
-    "paddle: tests requiring PaddleOCR",
-    "easyocr: tests requiring EasyOCR",
-    "azure: tests requiring Azure credentials",
-    "google: tests requiring Google credentials",
-]
+# NOTE: Do not add pytest markers to skip tests without explicit user request.
+# All tests should run by default to ensure full coverage.
 
 [build-system]
 requires = ["poetry-core"]

@@ -6,6 +6,7 @@ A Python library for document text extraction with local and cloud OCR solutions
 
 - **Multiple OCR Backends**: Local (EasyOCR, Tesseract, PaddleOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
 - **PDF Text Extraction**: Native PDF text extraction using pypdfium2
+- **Unified Extractors**: Each OCR extractor auto-detects file type (PDF vs image) and handles conversion internally
 - **Schema Adapters**: Clean separation of external API schemas from internal models
 - **Pydantic Models**: Type-safe document representation with pydantic v1/v2 compatibility
 
@@ -25,7 +26,7 @@ The simplest way to use xtra is via the factory interface:
 from pathlib import Path
 from xtra import create_extractor, SourceType
 
-# PDF extraction
+# PDF extraction (native text)
 with create_extractor(Path("document.pdf"), SourceType.PDF) as extractor:
     doc = extractor.extract()
 
@@ -33,8 +34,8 @@ with create_extractor(Path("document.pdf"), SourceType.PDF) as extractor:
 with create_extractor(Path("image.png"), SourceType.EASYOCR, languages=["en"]) as extractor:
     doc = extractor.extract()
 
-# PDF via Tesseract OCR
-with create_extractor(Path("scanned.pdf"), SourceType.PDF_TESSERACT, dpi=200) as extractor:
+# EasyOCR for PDFs (auto-converts to images internally)
+with create_extractor(Path("scanned.pdf"), SourceType.EASYOCR, dpi=200) as extractor:
     doc = extractor.extract()
 
 # Azure Document Intelligence (credentials from env vars)
@@ -59,14 +60,14 @@ with PdfExtractor(Path("document.pdf")) as extractor:
 
 ```python
 from pathlib import Path
-from xtra import EasyOcrExtractor, PdfToImageEasyOcrExtractor
+from xtra import EasyOcrExtractor
 
 # For images
 with EasyOcrExtractor(Path("image.png"), languages=["en"]) as extractor:
     doc = extractor.extract()
 
-# For PDFs via OCR
-with PdfToImageEasyOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
+# For PDFs (auto-converts to images)
+with EasyOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
     doc = extractor.extract()
 ```
 
@@ -79,14 +80,14 @@ Requires Tesseract to be installed on the system:
 
 ```python
 from pathlib import Path
-from xtra.extractors.tesseract_ocr import TesseractOcrExtractor, PdfToImageTesseractExtractor
+from xtra import TesseractOcrExtractor
 
 # For images
 with TesseractOcrExtractor(Path("image.png"), languages=["eng"]) as extractor:
     doc = extractor.extract()
 
-# For PDFs via OCR
-with PdfToImageTesseractExtractor(Path("scanned.pdf"), languages=["eng"], dpi=200) as extractor:
+# For PDFs (auto-converts to images)
+with TesseractOcrExtractor(Path("scanned.pdf"), languages=["eng"], dpi=200) as extractor:
     doc = extractor.extract()
 ```
 
@@ -96,14 +97,14 @@ PaddleOCR provides excellent accuracy for multiple languages, especially Chinese
 
 ```python
 from pathlib import Path
-from xtra.extractors.paddle_ocr import PaddleOcrExtractor, PdfToImagePaddleExtractor
+from xtra import PaddleOcrExtractor
 
 # For images
 with PaddleOcrExtractor(Path("image.png"), lang="en") as extractor:
     doc = extractor.extract()
 
-# For PDFs via OCR
-with PdfToImagePaddleExtractor(Path("scanned.pdf"), lang="en", dpi=200) as extractor:
+# For PDFs (auto-converts to images)
+with PaddleOcrExtractor(Path("scanned.pdf"), lang="en", dpi=200) as extractor:
     doc = extractor.extract()
 
 # For Chinese text
@@ -129,7 +130,7 @@ with AzureDocumentIntelligenceExtractor(
 
 ```python
 from pathlib import Path
-from xtra.extractors.google_docai import GoogleDocumentAIExtractor
+from xtra import GoogleDocumentAIExtractor
 
 with GoogleDocumentAIExtractor(
     Path("document.pdf"),
@@ -145,16 +146,30 @@ with GoogleDocumentAIExtractor(
 # PDF extraction
 poetry run python -m xtra.cli document.pdf --extractor pdf
 
-# EasyOCR extraction
+# EasyOCR extraction (works for both images and PDFs)
 poetry run python -m xtra.cli image.png --extractor easyocr --lang en,it
+poetry run python -m xtra.cli scanned.pdf --extractor easyocr --lang en
 
-# PDF via EasyOCR
-poetry run python -m xtra.cli scanned.pdf --extractor pdf-easyocr
+# Tesseract OCR
+poetry run python -m xtra.cli document.pdf --extractor tesseract --lang eng
 
-# Azure Document Intelligence
+# PaddleOCR
+poetry run python -m xtra.cli document.pdf --extractor paddle --lang en
+
+# Azure Document Intelligence (credentials via CLI or env vars)
 poetry run python -m xtra.cli document.pdf --extractor azure-di \
     --azure-endpoint https://your-resource.cognitiveservices.azure.com \
     --azure-key your-api-key
+
+# Or use environment variables
+export XTRA_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+export XTRA_AZURE_DI_KEY=your-api-key
+poetry run python -m xtra.cli document.pdf --extractor azure-di
+
+# Google Document AI
+poetry run python -m xtra.cli document.pdf --extractor google-docai \
+    --google-processor-name projects/your-project/locations/us/processors/123 \
+    --google-credentials-path /path/to/credentials.json
 
 # JSON output
 poetry run python -m xtra.cli document.pdf --extractor pdf --json
@@ -162,6 +177,18 @@ poetry run python -m xtra.cli document.pdf --extractor pdf --json
 # Specific pages
 poetry run python -m xtra.cli document.pdf --extractor pdf --pages 0,1,2
 ```
+
+## Environment Variables
+
+Cloud extractors support configuration via environment variables:
+
+| Variable | Description |
+|----------|-------------|
+| `XTRA_AZURE_DI_ENDPOINT` | Azure Document Intelligence endpoint URL |
+| `XTRA_AZURE_DI_KEY` | Azure Document Intelligence API key |
+| `XTRA_AZURE_DI_MODEL` | Azure model ID (default: `prebuilt-read`) |
+| `XTRA_GOOGLE_DOCAI_PROCESSOR_NAME` | Google Document AI processor name |
+| `XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH` | Path to Google service account JSON |
 
 ## Development
 
@@ -197,12 +224,9 @@ Integration tests run against real files and services without mocking. They are 
 
 **Local extractors** (no credentials required):
 - `PdfExtractor` - Tests PDF text extraction
-- `EasyOcrExtractor` - Tests image OCR with EasyOCR
-- `PdfToImageEasyOcrExtractor` - Tests PDF-to-image OCR with EasyOCR
-- `TesseractOcrExtractor` - Tests image OCR with Tesseract (requires Tesseract installed)
-- `PdfToImageTesseractExtractor` - Tests PDF-to-image OCR with Tesseract
-- `PaddleOcrExtractor` - Tests image OCR with PaddleOCR
-- `PdfToImagePaddleExtractor` - Tests PDF-to-image OCR with PaddleOCR
+- `EasyOcrExtractor` - Tests image and PDF OCR with EasyOCR
+- `TesseractOcrExtractor` - Tests image and PDF OCR with Tesseract (requires Tesseract installed)
+- `PaddleOcrExtractor` - Tests image and PDF OCR with PaddleOCR
 
 **Cloud extractors** (require credentials):
 - `AzureDocumentIntelligenceExtractor` - Tests Azure Document Intelligence
@@ -217,8 +241,8 @@ Integration tests run against real files and services without mocking. They are 
 
 2. Edit `.env` with your Azure Document Intelligence credentials:
    ```
-   AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-   AZURE_DI_KEY=your-api-key
+   XTRA_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+   XTRA_AZURE_DI_KEY=your-api-key
    ```
 
 3. Load environment variables before running tests:
@@ -242,8 +266,8 @@ Azure integration tests are automatically skipped if credentials are not configu
 
 5. Edit `.env` with your Google Document AI credentials:
    ```
-   GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/your-processor-id
-   GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/your/service-account.json
+   XTRA_GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/your-processor-id
+   XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/your/service-account.json
    ```
 
 Google Document AI integration tests are automatically skipped if credentials are not configured.
@@ -272,10 +296,11 @@ xtra/
 ├── extractors/         # Document extraction
 │   ├── azure_di.py     # Azure Document Intelligence
 │   ├── google_docai.py # Google Document AI
-│   ├── ocr.py          # EasyOCR (local)
-│   ├── tesseract_ocr.py # Tesseract OCR (local)
-│   ├── paddle_ocr.py   # PaddleOCR (local)
-│   └── pdf.py          # Native PDF extraction
+│   ├── ocr.py          # EasyOCR (local, unified for images/PDFs)
+│   ├── tesseract_ocr.py # Tesseract OCR (local, unified for images/PDFs)
+│   ├── paddle_ocr.py   # PaddleOCR (local, unified for images/PDFs)
+│   ├── pdf.py          # Native PDF extraction
+│   └── factory.py      # Unified factory interface
 └── models.py           # Internal data models
 ```
 
@@ -283,12 +308,9 @@ xtra/
 
 Low-level document extraction:
 - `PdfExtractor` - Native PDF text extraction via pypdfium2
-- `EasyOcrExtractor` - Image OCR via EasyOCR
-- `PdfToImageEasyOcrExtractor` - PDF to image + EasyOCR
-- `TesseractOcrExtractor` - Image OCR via Tesseract
-- `PdfToImageTesseractExtractor` - PDF to image + Tesseract OCR
-- `PaddleOcrExtractor` - Image OCR via PaddleOCR
-- `PdfToImagePaddleExtractor` - PDF to image + PaddleOCR
+- `EasyOcrExtractor` - Image/PDF OCR via EasyOCR (auto-detects file type)
+- `TesseractOcrExtractor` - Image/PDF OCR via Tesseract (auto-detects file type)
+- `PaddleOcrExtractor` - Image/PDF OCR via PaddleOCR (auto-detects file type)
 - `AzureDocumentIntelligenceExtractor` - Azure cloud OCR
 - `GoogleDocumentAIExtractor` - Google Cloud Document AI
 
