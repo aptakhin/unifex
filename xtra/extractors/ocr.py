@@ -64,7 +64,6 @@ class OcrExtractor(BaseExtractor):
 
             reader = get_reader(self.languages, self.gpu)
             results = reader.readtext(str(self.path) if page == 0 else img)
-            print("XX", page, results)
             text_blocks = self._convert_results(results)
 
             return ExtractionResult(
@@ -162,7 +161,6 @@ class PdfToImageOcrExtractor(BaseExtractor):
             import numpy as np
 
             results = reader.readtext(np.array(img))
-            print("XX", page, results)
 
             text_blocks = self._convert_results(results)
 
