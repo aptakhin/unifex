@@ -64,7 +64,7 @@ def create_extractor(
         return PdfExtractor(path)
 
     elif extractor_type == SourceType.EASYOCR:
-        from .ocr import EasyOcrExtractor
+        from .easy_ocr import EasyOcrExtractor
 
         return EasyOcrExtractor(path, languages=languages, gpu=use_gpu, dpi=dpi)
 

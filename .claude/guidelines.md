@@ -2,7 +2,9 @@
 
 # Claude Code Guidelines for LalaSearch
 
-## Most Important Rule
+## Most Important Rules
+
+**ALWAYS COMMIT** - After completing any feature or task, commit immediately!
 
 **ASK QUESTIONS FIRST** - Don't blindly execute requests!
 
@@ -29,11 +31,12 @@ You're a development partner, not just a code executor. Your expertise matters!
 
 ### Completing Features
 
-**Every feature MUST be completed with**:
+**CRITICAL: Every feature MUST be completed with a commit!**
+
 1. Run `./scripts/pre-commit.sh`
 2. Commit: `git add . && git commit -m "feat: description"`
 
-**Never consider a feature complete until it is committed!**
+**Never consider a feature complete until it is committed! Always remember to commit!**
 
 ## Project Structure
 

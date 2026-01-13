@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from xtra.extractors import PdfExtractor
 from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
 from xtra.extractors.google_docai import GoogleDocumentAIExtractor
-from xtra.extractors.ocr import EasyOcrExtractor
+from xtra.extractors.easy_ocr import EasyOcrExtractor
 from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
 from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 from xtra.models import SourceType
@@ -267,9 +267,7 @@ class TestTesseractOcrExtractorIntegration:
 
     def test_extract_image_with_tesseract(self) -> None:
         """Extract text from an image using Tesseract OCR."""
-        with TesseractOcrExtractor(
-            TEST_DATA_DIR / "test_image.png", languages=["en"]
-        ) as extractor:
+        with TesseractOcrExtractor(TEST_DATA_DIR / "test_image.png", languages=["en"]) as extractor:
             doc = extractor.extract()
 
         assert doc.path == TEST_DATA_DIR / "test_image.png"

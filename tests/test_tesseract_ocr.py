@@ -210,9 +210,7 @@ class TestTesseractOcrExtractor:
 
             from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
 
-            extractor = TesseractOcrExtractor(
-                Path("/fake/image.png"), languages=["en", "fr", "de"]
-            )
+            extractor = TesseractOcrExtractor(Path("/fake/image.png"), languages=["en", "fr", "de"])
             extractor.extract_page(0)
 
             # Check that pytesseract was called with converted language string

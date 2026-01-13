@@ -54,7 +54,7 @@ class EasyOcrExtractor(BaseExtractor):
     def _load_images(self) -> None:
         """Load image(s) from path. Auto-detects PDF vs image."""
         if self._is_pdf:
-            import pypdfium2 as pdfium
+            import pypdfium2 as pdfium  # noqa: PLC0415
 
             pdf = pdfium.PdfDocument(self.path)
             scale = self.dpi / 72.0
@@ -79,7 +79,7 @@ class EasyOcrExtractor(BaseExtractor):
             width, height = img.size
 
             reader = get_reader(self.languages, self.gpu)
-            import numpy as np
+            import numpy as np  # noqa: PLC0415
 
             results = reader.readtext(np.array(img))
             text_blocks = self._convert_results(results)

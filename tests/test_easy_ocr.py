@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-from xtra.extractors.ocr import (
+from xtra.extractors.easy_ocr import (
     EasyOcrExtractor,
     _reader_cache,
     get_reader,
@@ -20,7 +20,7 @@ def test_get_reader_caches() -> None:
     # Clear cache first
     _reader_cache.clear()
 
-    with patch("xtra.extractors.ocr.easyocr.Reader") as mock_reader:
+    with patch("xtra.extractors.easy_ocr.easyocr.Reader") as mock_reader:
         mock_reader.return_value = MagicMock()
 
         reader1 = get_reader(["en"], gpu=False)
@@ -34,7 +34,7 @@ def test_get_reader_caches() -> None:
 def test_get_reader_different_languages() -> None:
     _reader_cache.clear()
 
-    with patch("xtra.extractors.ocr.easyocr.Reader") as mock_reader:
+    with patch("xtra.extractors.easy_ocr.easyocr.Reader") as mock_reader:
         mock_reader.return_value = MagicMock()
 
         get_reader(["en"], gpu=False)
@@ -46,7 +46,7 @@ def test_get_reader_different_languages() -> None:
 
 class TestEasyOcrExtractor:
     def test_init_default_languages(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -56,7 +56,7 @@ class TestEasyOcrExtractor:
             assert extractor.gpu is False
 
     def test_init_custom_languages(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -66,7 +66,7 @@ class TestEasyOcrExtractor:
             assert extractor.gpu is True
 
     def test_init_with_dpi(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -76,7 +76,7 @@ class TestEasyOcrExtractor:
             assert not extractor._is_pdf
 
     def test_get_page_count(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -85,7 +85,7 @@ class TestEasyOcrExtractor:
             assert extractor.get_page_count() == 1
 
     def test_get_metadata(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -100,12 +100,12 @@ class TestEasyOcrExtractor:
     def test_extract_page_success(self) -> None:
         _reader_cache.clear()
 
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (800, 600)
             mock_open.return_value = mock_img
 
-            with patch("xtra.extractors.ocr.easyocr.Reader") as mock_reader_cls:
+            with patch("xtra.extractors.easy_ocr.easyocr.Reader") as mock_reader_cls:
                 mock_reader = MagicMock()
                 mock_reader.readtext.return_value = [
                     ([[0, 0], [100, 0], [100, 20], [0, 20]], "Hello", 0.95),
@@ -121,7 +121,7 @@ class TestEasyOcrExtractor:
                 assert result.page.texts[0].confidence == 0.95
 
     def test_extract_page_out_of_range(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -134,7 +134,7 @@ class TestEasyOcrExtractor:
             assert "out of range" in result.error.lower()
 
     def test_polygon_to_bbox_and_rotation(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -150,7 +150,7 @@ class TestEasyOcrExtractor:
             assert rotation == 0.0
 
     def test_convert_results(self) -> None:
-        with patch("xtra.extractors.ocr.Image.open") as mock_open:
+        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
