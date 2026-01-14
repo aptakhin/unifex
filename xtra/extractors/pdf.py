@@ -7,15 +7,18 @@ from typing import List, Optional
 import pypdfium2 as pdfium
 
 from xtra.models import (
-    BBox,
     CoordinateUnit,
     ExtractorMetadata,
-    FontInfo,
     Page,
     ExtractorType,
     TextBlock,
 )
 from xtra.extractors.base import BaseExtractor, ExtractionResult
+from xtra.extractors.character_mergers import (
+    BasicLineMerger,
+    CharacterMerger,
+    CharInfo,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +30,11 @@ class PdfExtractor(BaseExtractor):
         self,
         path: Path | str,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
+        character_merger: Optional[CharacterMerger] = None,
     ) -> None:
         super().__init__(path, output_unit)
         self._pdf = pdfium.PdfDocument(self.path)
+        self._merger = character_merger if character_merger is not None else BasicLineMerger()
 
     def get_page_count(self) -> int:
         return len(self._pdf)
@@ -85,90 +90,13 @@ class PdfExtractor(BaseExtractor):
         if char_count == 0:
             return []
 
-        blocks: List[TextBlock] = []
-        current_chars: List[dict] = []
-        prev_char_info: Optional[dict] = None
-
+        chars: List[CharInfo] = []
         for i in range(char_count):
             char = textpage.get_text_range(i, 1)
             bbox = textpage.get_charbox(i)
             rotation = (
                 textpage.get_char_rotation(i) if hasattr(textpage, "get_char_rotation") else 0
             )
+            chars.append(CharInfo(char=char, bbox=bbox, rotation=rotation, index=i))
 
-            char_info = {"char": char, "bbox": bbox, "rotation": rotation, "index": i}
-
-            if self._is_new_block(prev_char_info, char_info):
-                if current_chars:
-                    block = self._create_text_block(current_chars, textpage, page_height)
-                    if block and block.text.strip():
-                        blocks.append(block)
-                current_chars = []
-
-            current_chars.append(char_info)
-            prev_char_info = char_info
-
-        if current_chars:
-            block = self._create_text_block(current_chars, textpage, page_height)
-            if block and block.text.strip():
-                blocks.append(block)
-
-        return blocks
-
-    def _is_new_block(
-        self,
-        prev: Optional[dict],
-        curr: dict,
-        line_gap_threshold: float = 5.0,
-    ) -> bool:
-        if prev is None:
-            return False
-        vertical_gap = abs(curr["bbox"][1] - prev["bbox"][1])
-        return vertical_gap > line_gap_threshold
-
-    def _create_text_block(
-        self,
-        chars: List[dict],
-        textpage: pdfium.PdfTextPage,
-        page_height: float,
-    ) -> Optional[TextBlock]:
-        if not chars:
-            return None
-
-        text = "".join(c["char"] for c in chars).strip()
-        if not text:
-            return None
-
-        x0 = min(c["bbox"][0] for c in chars)
-        y0 = min(c["bbox"][1] for c in chars)
-        x1 = max(c["bbox"][2] for c in chars)
-        y1 = max(c["bbox"][3] for c in chars)
-
-        bbox = BBox(x0=x0, y0=page_height - y1, x1=x1, y1=page_height - y0)
-        rotation = chars[0]["rotation"] if chars else 0
-        font_info = self._extract_font_info(textpage, chars[0]["index"])
-
-        return TextBlock(
-            text=text,
-            bbox=bbox,
-            rotation=float(rotation),
-            font_info=font_info,
-        )
-
-    def _extract_font_info(
-        self, textpage: pdfium.PdfTextPage, char_index: int
-    ) -> Optional[FontInfo]:
-        try:
-            text_obj = textpage.get_textobj(char_index)
-            if text_obj is None:
-                return None
-
-            font = text_obj.get_font()
-            font_size = text_obj.get_font_size()
-            name = font.get_base_name() or font.get_family_name() or None
-            weight = font.get_weight()
-
-            return FontInfo(name=name, size=font_size, weight=weight)
-        except (AttributeError, IndexError, pdfium.PdfiumError) as e:
-            logger.debug("Failed to extract font info for char %d: %s", char_index, e)
-            return None
+        return self._merger.merge(chars, textpage, page_height)
