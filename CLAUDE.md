@@ -27,3 +27,7 @@
 - PDF extractor doesn't support PIXELS output (PDFs don't have inherent DPI)
 - OCR extractors have DPI parameter for pixel conversions
 - NORMALIZED coordinates are 0-1 relative to page dimensions
+
+## Workflow
+
+- Always create a git commit after completing a task

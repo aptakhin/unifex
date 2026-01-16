@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
-from xtra.extractors.factory import create_extractor
+from xtra.extractors.factory import CHARACTER_MERGER_CHOICES, create_extractor
 from xtra.models import CoordinateUnit, ExtractorType
 
 
@@ -45,6 +45,7 @@ def _create_extractor(args: argparse.Namespace, languages: list[str]) -> Any:
             use_gpu=args.gpu,
             credentials=credentials,
             output_unit=output_unit,
+            character_merger=args.character_merger,
         )
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -91,6 +92,13 @@ def main() -> None:
         choices=[u.value for u in CoordinateUnit],
         default="points",
         help="Coordinate unit for output: points (default), pixels, inches, normalized",
+    )
+    parser.add_argument(
+        "--character-merger",
+        type=str,
+        choices=list(CHARACTER_MERGER_CHOICES.keys()),
+        default=None,
+        help="Character merger for PDF extractor: basic-line (default), keep-char",
     )
     parser.add_argument(
         "--azure-endpoint",
