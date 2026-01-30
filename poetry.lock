@@ -3543,4 +3543,4 @@ tesseract = ["pytesseract"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<=3.13"
-content-hash = "32334c319ce5142b2c97d3b1d3bfc65d8b8817d68e5c460a7fe57d835b55cb34"
+content-hash = "736a9f3eaa5358ede136c5b978ada2550188fda43483f7750ee1a494c739a346"
