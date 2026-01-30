@@ -106,19 +106,19 @@ def create_extractor(  # noqa: PLR0913
         return PdfExtractor(path, output_unit=output_unit, character_merger=merger)
 
     elif extractor_type == ExtractorType.EASYOCR:
-        from .easy_ocr import EasyOcrExtractor
+        from .ocr.easy_ocr import EasyOcrExtractor
 
         return EasyOcrExtractor(
             path, languages=languages, gpu=use_gpu, dpi=dpi, output_unit=output_unit
         )
 
     elif extractor_type == ExtractorType.TESSERACT:
-        from .tesseract_ocr import TesseractOcrExtractor
+        from .ocr.tesseract_ocr import TesseractOcrExtractor
 
         return TesseractOcrExtractor(path, languages=languages, dpi=dpi, output_unit=output_unit)
 
     elif extractor_type == ExtractorType.PADDLE:
-        from .paddle_ocr import PaddleOcrExtractor
+        from .ocr.paddle_ocr import PaddleOcrExtractor
 
         # PaddleOCR uses single language string
         lang = languages[0] if languages else "en"
@@ -127,7 +127,7 @@ def create_extractor(  # noqa: PLR0913
         )
 
     elif extractor_type == ExtractorType.AZURE_DI:
-        from .azure_di import AzureDocumentIntelligenceExtractor
+        from .ocr.azure_di import AzureDocumentIntelligenceExtractor
 
         endpoint = _get_credential("XTRA_AZURE_DI_ENDPOINT", credentials)
         key = _get_credential("XTRA_AZURE_DI_KEY", credentials)
@@ -143,7 +143,7 @@ def create_extractor(  # noqa: PLR0913
         )
 
     elif extractor_type == ExtractorType.GOOGLE_DOCAI:
-        from .google_docai import GoogleDocumentAIExtractor
+        from .ocr.google_docai import GoogleDocumentAIExtractor
 
         processor_name = _get_credential("XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", credentials)
         credentials_path = _get_credential("XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH", credentials)

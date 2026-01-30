@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from xtra.adapters.paddle_ocr import PaddleOCRAdapter
-from xtra.extractors._image_loader import ImageLoader
 from xtra.extractors.base import BaseExtractor, PageExtractionResult
+from xtra.extractors.ocr._image_loader import ImageLoader
 from xtra.models import (
     CoordinateUnit,
     ExtractorMetadata,

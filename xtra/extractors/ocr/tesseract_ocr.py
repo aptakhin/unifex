@@ -6,8 +6,8 @@ import logging
 from pathlib import Path
 
 from xtra.adapters.tesseract_ocr import TesseractAdapter
-from xtra.extractors._image_loader import ImageLoader
 from xtra.extractors.base import BaseExtractor, PageExtractionResult
+from xtra.extractors.ocr._image_loader import ImageLoader
 from xtra.models import (
     CoordinateUnit,
     ExtractorMetadata,

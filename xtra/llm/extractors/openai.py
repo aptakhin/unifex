@@ -7,7 +7,7 @@ from typing import Any, TypeVar, cast, get_type_hints
 
 from pydantic import BaseModel
 
-from xtra.extractors._image_loader import ImageLoader
+from xtra.extractors.ocr._image_loader import ImageLoader
 from xtra.llm.adapters.image_encoder import ImageEncoder
 from xtra.llm.models import LLMExtractionResult, LLMProvider
 
