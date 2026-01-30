@@ -387,7 +387,7 @@ Please keep in mind EasyOCR solution performance slows downs with bigger images 
 
 ## License
 
-MIT
+BSD 3-Clause License. See [LICENSE](LICENSE) for details.
 
 ## Future plans
 
