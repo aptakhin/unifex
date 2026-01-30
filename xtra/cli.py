@@ -6,6 +6,7 @@ from __future__ import annotations
 # Suppress FutureWarning from instructor's internal google.generativeai import
 # Must be before any imports that might trigger it
 import warnings
+
 warnings.filterwarnings("ignore", category=FutureWarning, module="instructor")
 
 import argparse
@@ -63,22 +64,21 @@ def _print_llm_result(data: Any, as_json: bool) -> None:
     """Print LLM extraction result."""
     if as_json:
         print(json.dumps(data, indent=2, default=str))
+    # Simple key-value output for dicts, otherwise just print
+    elif isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, dict):
+                print(f"{key}:")
+                for k, v in value.items():
+                    print(f"  {k}: {v}")
+            elif isinstance(value, list):
+                print(f"{key}:")
+                for item in value:
+                    print(f"  - {item}")
+            else:
+                print(f"{key}: {value}")
     else:
-        # Simple key-value output for dicts, otherwise just print
-        if isinstance(data, dict):
-            for key, value in data.items():
-                if isinstance(value, dict):
-                    print(f"{key}:")
-                    for k, v in value.items():
-                        print(f"  {k}: {v}")
-                elif isinstance(value, list):
-                    print(f"{key}:")
-                    for item in value:
-                        print(f"  - {item}")
-                else:
-                    print(f"{key}: {value}")
-        else:
-            print(data)
+        print(data)
 
 
 def _run_llm_extraction(args: argparse.Namespace, pages: Optional[Sequence[int]]) -> None:

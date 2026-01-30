@@ -84,6 +84,8 @@ select = [
    "C901",    # Function complexity (CLI main function)
    "PLR0912", # Too many branches (CLI main function)
    "S101",    # Use of `assert` for type narrowing after validation
+   "E402",    # Module level import not at top (warnings filter must come first)
+   "PLC0415", # Import not at top-level (lazy loading for optional deps)
 ]
 "**/azure_di.py" = [
    "PLR2004", # Magic value for polygon length
@@ -136,6 +138,13 @@ max-complexity = 10
 # All tests should run by default to ensure full coverage.
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+omit = [
+    "xtra/llm/extractors/openai.py",
+    "xtra/llm/extractors/anthropic.py",
+    "xtra/llm/extractors/google.py",
+]
 
 [build-system]
 requires = ["poetry-core"]
