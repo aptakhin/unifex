@@ -1,0 +1,171 @@
+"""Azure OpenAI LLM extractor using instructor."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+
+from pydantic import BaseModel
+
+from xtra.extractors._image_loader import ImageLoader
+from xtra.llm.adapters.image_encoder import ImageEncoder
+from xtra.llm.models import LLMExtractionResult, LLMProvider
+from xtra.llm.extractors.openai import _build_prompt, _build_messages
+
+T = TypeVar("T", bound=BaseModel)
+
+
+def extract_azure_openai(
+    path: Path | str,
+    model: str,
+    *,
+    schema: Optional[Type[T]] = None,
+    prompt: Optional[str] = None,
+    pages: Optional[List[int]] = None,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    api_key: Optional[str] = None,
+    endpoint: Optional[str] = None,
+    api_version: str = "2024-02-15-preview",
+) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    """Extract structured data using Azure OpenAI."""
+    try:
+        import instructor
+        from openai import AzureOpenAI
+    except ImportError as e:
+        raise ImportError(
+            "OpenAI dependencies not installed. Install with: pip install xtra[llm-openai]"
+        ) from e
+
+    if not endpoint:
+        raise ValueError("Azure OpenAI endpoint required")
+
+    path = Path(path) if isinstance(path, str) else path
+    loader = ImageLoader(path, dpi=dpi)
+    encoder = ImageEncoder()
+
+    try:
+        # Load and encode images
+        page_nums = pages if pages is not None else list(range(loader.page_count))
+        images = [loader.get_page(p) for p in page_nums]
+        encoded_images = encoder.encode_images(images)
+
+        # Build messages
+        extraction_prompt = _build_prompt(schema, prompt)
+        messages = _build_messages(encoded_images, extraction_prompt)
+
+        # Create Azure client
+        azure_client = AzureOpenAI(
+            api_key=api_key,
+            api_version=api_version,
+            azure_endpoint=endpoint,
+        )
+        client = instructor.from_openai(azure_client)
+
+        # Extract with schema or dict
+        if schema is not None:
+            response = client.chat.completions.create(  # type: ignore
+                model=model,  # This is the deployment name in Azure
+                response_model=schema,
+                max_retries=max_retries,
+                messages=messages,
+                temperature=temperature,
+            )
+            data = response
+        else:
+            response = azure_client.chat.completions.create(  # type: ignore
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                response_format={"type": "json_object"},
+            )
+            import json
+
+            data = json.loads(response.choices[0].message.content)
+
+        return LLMExtractionResult(
+            data=data,
+            model=model,
+            provider=LLMProvider.AZURE_OPENAI,
+        )
+    finally:
+        loader.close()
+
+
+async def extract_azure_openai_async(
+    path: Path | str,
+    model: str,
+    *,
+    schema: Optional[Type[T]] = None,
+    prompt: Optional[str] = None,
+    pages: Optional[List[int]] = None,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    api_key: Optional[str] = None,
+    endpoint: Optional[str] = None,
+    api_version: str = "2024-02-15-preview",
+) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    """Async extract structured data using Azure OpenAI."""
+    try:
+        import instructor
+        from openai import AsyncAzureOpenAI
+    except ImportError as e:
+        raise ImportError(
+            "OpenAI dependencies not installed. Install with: pip install xtra[llm-openai]"
+        ) from e
+
+    if not endpoint:
+        raise ValueError("Azure OpenAI endpoint required")
+
+    path = Path(path) if isinstance(path, str) else path
+    loader = ImageLoader(path, dpi=dpi)
+    encoder = ImageEncoder()
+
+    try:
+        # Load and encode images
+        page_nums = pages if pages is not None else list(range(loader.page_count))
+        images = [loader.get_page(p) for p in page_nums]
+        encoded_images = encoder.encode_images(images)
+
+        # Build messages
+        extraction_prompt = _build_prompt(schema, prompt)
+        messages = _build_messages(encoded_images, extraction_prompt)
+
+        # Create async Azure client
+        azure_client = AsyncAzureOpenAI(
+            api_key=api_key,
+            api_version=api_version,
+            azure_endpoint=endpoint,
+        )
+        client = instructor.from_openai(azure_client)
+
+        # Extract with schema or dict
+        if schema is not None:
+            response = await client.chat.completions.create(  # type: ignore
+                model=model,
+                response_model=schema,
+                max_retries=max_retries,
+                messages=messages,
+                temperature=temperature,
+            )
+            data = response
+        else:
+            response = await azure_client.chat.completions.create(  # type: ignore
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                response_format={"type": "json_object"},
+            )
+            import json
+
+            data = json.loads(response.choices[0].message.content)
+
+        return LLMExtractionResult(
+            data=data,
+            model=model,
+            provider=LLMProvider.AZURE_OPENAI,
+        )
+    finally:
+        loader.close()
