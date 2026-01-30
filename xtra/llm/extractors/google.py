@@ -36,6 +36,22 @@ def _build_genai_content(images: list[Any], prompt: str) -> list[Any]:
     return content
 
 
+def _convert_content_to_parts(content: list[Any]) -> list[Any]:
+    """Convert instructor Image objects to google.genai types.Part for raw client usage."""
+    from google.genai import types
+    from instructor.processing.multimodal import Image as InstructorImage
+
+    parts: list[Any] = []
+    for item in content:
+        if isinstance(item, InstructorImage):
+            parts.append(item.to_genai())
+        elif isinstance(item, str):
+            parts.append(types.Part.from_text(text=item))
+        else:
+            parts.append(item)
+    return parts
+
+
 def extract_google(
     path: Path | str,
     model: str,
@@ -93,9 +109,11 @@ def extract_google(
             data = cast("T", response)
         else:
             # For dict extraction, use raw client with JSON mime type
+            # Convert instructor Image objects to types.Part for raw client
+            raw_content = _convert_content_to_parts(content)
             response = client.models.generate_content(
                 model=model,
-                contents=content,
+                contents=raw_content,
                 config=types.GenerateContentConfig(
                     temperature=temperature,
                     response_mime_type="application/json",
@@ -172,9 +190,11 @@ async def extract_google_async(
             data = cast("T", response)
         else:
             # For dict extraction, use raw async client
+            # Convert instructor Image objects to types.Part for raw client
+            raw_content = _convert_content_to_parts(content)
             response = await client.aio.models.generate_content(
                 model=model,
-                contents=content,
+                contents=raw_content,
                 config=types.GenerateContentConfig(
                     temperature=temperature,
                     response_mime_type="application/json",
