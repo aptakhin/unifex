@@ -3,7 +3,7 @@ set -e
 
 # Default values
 COVERAGE_MIN=${COVERAGE_MIN:-85}
-SKIP_CLOUD_TESTS=${SKIP_CLOUD_TESTS:-true}
+SKIP_CLOUD_TESTS=${SKIP_CLOUD_TESTS:-false}
 
 echo "=== Running tests ==="
 echo "Coverage minimum: ${COVERAGE_MIN}%"
