@@ -40,7 +40,8 @@ def _build_prompt(schema: Optional[Type[BaseModel]], custom_prompt: Optional[str
             # Append schema info to custom prompt
             fields = _schema_to_field_description(schema)
             return f"{custom_prompt}\n\nExpected fields:\n{fields}"
-        return custom_prompt
+        # For dict extraction, append JSON instruction (required by OpenAI/Azure)
+        return f"{custom_prompt}\n\nRespond with valid JSON."
 
     if schema:
         fields = _schema_to_field_description(schema)
