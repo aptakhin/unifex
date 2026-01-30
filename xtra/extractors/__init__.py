@@ -1,4 +1,3 @@
-from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 from xtra.extractors.character_mergers import (
     BasicLineMerger,
@@ -7,24 +6,40 @@ from xtra.extractors.character_mergers import (
     KeepCharacterMerger,
 )
 from xtra.extractors.factory import create_extractor
-from xtra.extractors.google_docai import GoogleDocumentAIExtractor
-from xtra.extractors.easy_ocr import EasyOcrExtractor
-from xtra.extractors.paddle_ocr import PaddleOcrExtractor
 from xtra.extractors.pdf import PdfExtractor
-from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
 
 __all__ = [
-    "AzureDocumentIntelligenceExtractor",
+    # Core (always available)
     "BaseExtractor",
     "BasicLineMerger",
     "CharacterMerger",
     "CharInfo",
     "ExtractionResult",
-    "GoogleDocumentAIExtractor",
     "KeepCharacterMerger",
     "PdfExtractor",
+    "create_extractor",
+    # Optional (lazy loaded)
+    "AzureDocumentIntelligenceExtractor",
+    "GoogleDocumentAIExtractor",
     "EasyOcrExtractor",
     "TesseractOcrExtractor",
     "PaddleOcrExtractor",
-    "create_extractor",
 ]
+
+# Lazy loading for optional dependencies
+_LAZY_IMPORTS = {
+    "AzureDocumentIntelligenceExtractor": "xtra.extractors.azure_di",
+    "GoogleDocumentAIExtractor": "xtra.extractors.google_docai",
+    "EasyOcrExtractor": "xtra.extractors.easy_ocr",
+    "TesseractOcrExtractor": "xtra.extractors.tesseract_ocr",
+    "PaddleOcrExtractor": "xtra.extractors.paddle_ocr",
+}
+
+
+def __getattr__(name: str):
+    if name in _LAZY_IMPORTS:
+        import importlib
+
+        module = importlib.import_module(_LAZY_IMPORTS[name])
+        return getattr(module, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

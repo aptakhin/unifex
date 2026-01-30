@@ -4,17 +4,27 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
-
-from azure.ai.documentintelligence import DocumentIntelligenceClient
-from azure.ai.documentintelligence.models import AnalyzeResult
-from azure.core.credentials import AzureKeyCredential
+from typing import TYPE_CHECKING, Any, Optional
 
 from xtra.adapters.azure_di import AzureDocumentIntelligenceAdapter
 from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 
+if TYPE_CHECKING:
+    from azure.ai.documentintelligence import DocumentIntelligenceClient
+
 logger = logging.getLogger(__name__)
+
+
+def _check_azure_installed() -> None:
+    """Check if azure-ai-documentintelligence is installed."""
+    try:
+        from azure.ai.documentintelligence import DocumentIntelligenceClient  # noqa: F401
+    except ImportError as e:
+        raise ImportError(
+            "azure-ai-documentintelligence is not installed. "
+            "Install it with: pip install xtra[azure]"
+        ) from e
 
 
 class AzureDocumentIntelligenceExtractor(BaseExtractor):
@@ -28,14 +38,18 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
         model_id: str = "prebuilt-read",
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
+        _check_azure_installed()
+        from azure.ai.documentintelligence import DocumentIntelligenceClient
+        from azure.core.credentials import AzureKeyCredential
+
         super().__init__(path, output_unit)
         self.endpoint = endpoint
         self.model_id = model_id
-        self._client = DocumentIntelligenceClient(
+        self._client: DocumentIntelligenceClient = DocumentIntelligenceClient(
             endpoint=endpoint,
             credential=AzureKeyCredential(key),
         )
-        self._result: Optional[AnalyzeResult] = None
+        self._result: Optional[Any] = None
         self._adapter: Optional[AzureDocumentIntelligenceAdapter] = None
         self._analyze_document()
 

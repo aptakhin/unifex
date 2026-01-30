@@ -4,10 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import List, Optional
-
-import easyocr
-import numpy as np
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from xtra.adapters.easy_ocr import EasyOCRAdapter
 from xtra.extractors._image_loader import ImageLoader
@@ -19,13 +16,28 @@ from xtra.models import (
     Page,
 )
 
+if TYPE_CHECKING:
+    import easyocr
+
 logger = logging.getLogger(__name__)
 
-_reader_cache: dict[tuple, easyocr.Reader] = {}
+_reader_cache: dict[tuple, Any] = {}
 
 
-def get_reader(languages: List[str], gpu: bool = False) -> easyocr.Reader:
+def _check_easyocr_installed() -> None:
+    """Check if easyocr is installed, raise ImportError with helpful message if not."""
+    try:
+        import easyocr  # noqa: F401
+    except ImportError as e:
+        raise ImportError(
+            "EasyOCR is not installed. Install it with: pip install xtra[easyocr]"
+        ) from e
+
+
+def get_reader(languages: List[str], gpu: bool = False) -> "easyocr.Reader":
     """Get or create a cached EasyOCR reader."""
+    import easyocr
+
     key = (tuple(languages), gpu)
     if key not in _reader_cache:
         _reader_cache[key] = easyocr.Reader(languages, gpu=gpu)
@@ -56,6 +68,7 @@ class EasyOcrExtractor(BaseExtractor):
             dpi: DPI for PDF-to-image conversion. Default 200.
             output_unit: Coordinate unit for output. Default POINTS.
         """
+        _check_easyocr_installed()
         super().__init__(path, output_unit)
         self.languages = languages or ["en"]
         self.gpu = gpu
@@ -71,6 +84,8 @@ class EasyOcrExtractor(BaseExtractor):
 
     def extract_page(self, page: int) -> ExtractionResult:
         """Extract text from a single image/page."""
+        import numpy as np
+
         try:
             img = self._images.get_page(page)
             width, height = img.size

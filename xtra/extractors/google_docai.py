@@ -6,9 +6,6 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
-from google.cloud import documentai
-from google.oauth2 import service_account
-
 from xtra.adapters.google_docai import GoogleDocumentAIAdapter
 from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 from xtra.extractors.base import BaseExtractor, ExtractionResult
@@ -17,6 +14,16 @@ if TYPE_CHECKING:
     from google.cloud.documentai_v1 import Document
 
 logger = logging.getLogger(__name__)
+
+
+def _check_google_docai_installed() -> None:
+    """Check if google-cloud-documentai is installed."""
+    try:
+        from google.cloud import documentai  # noqa: F401
+    except ImportError as e:
+        raise ImportError(
+            "google-cloud-documentai is not installed. Install it with: pip install xtra[google]"
+        ) from e
 
 
 class GoogleDocumentAIExtractor(BaseExtractor):
@@ -40,6 +47,10 @@ class GoogleDocumentAIExtractor(BaseExtractor):
             mime_type: Optional MIME type. If not provided, will be inferred from file extension.
             output_unit: Coordinate unit for output. Default POINTS.
         """
+        _check_google_docai_installed()
+        from google.cloud import documentai
+        from google.oauth2 import service_account
+
         super().__init__(path, output_unit)
         self.processor_name = processor_name
         self.credentials_path = credentials_path
@@ -89,6 +100,8 @@ class GoogleDocumentAIExtractor(BaseExtractor):
 
     def _process_document(self) -> None:
         """Send document to Google Document AI for processing."""
+        from google.cloud import documentai
+
         try:
             with open(self.path, "rb") as f:
                 content = f.read()

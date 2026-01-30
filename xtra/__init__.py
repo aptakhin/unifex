@@ -1,13 +1,8 @@
 from xtra.adapters import AzureDocumentIntelligenceAdapter
 from xtra.extractors import (
-    AzureDocumentIntelligenceExtractor,
     BaseExtractor,
-    EasyOcrExtractor,
     ExtractionResult,
-    GoogleDocumentAIExtractor,
-    PaddleOcrExtractor,
     PdfExtractor,
-    TesseractOcrExtractor,
     create_extractor,
 )
 from xtra.models import (
@@ -23,15 +18,10 @@ from xtra.models import (
 __all__ = [
     # Adapters
     "AzureDocumentIntelligenceAdapter",
-    # Extractors
-    "AzureDocumentIntelligenceExtractor",
+    # Core extractors (always available)
     "BaseExtractor",
     "ExtractionResult",
-    "GoogleDocumentAIExtractor",
     "PdfExtractor",
-    "EasyOcrExtractor",
-    "TesseractOcrExtractor",
-    "PaddleOcrExtractor",
     "create_extractor",
     # Models
     "BBox",
@@ -41,4 +31,28 @@ __all__ = [
     "Page",
     "ExtractorMetadata",
     "ExtractorType",
+    # Optional extractors (lazy loaded)
+    "AzureDocumentIntelligenceExtractor",
+    "GoogleDocumentAIExtractor",
+    "EasyOcrExtractor",
+    "TesseractOcrExtractor",
+    "PaddleOcrExtractor",
 ]
+
+# Lazy loading for optional dependencies
+_LAZY_IMPORTS = {
+    "AzureDocumentIntelligenceExtractor": "xtra.extractors.azure_di",
+    "GoogleDocumentAIExtractor": "xtra.extractors.google_docai",
+    "EasyOcrExtractor": "xtra.extractors.easy_ocr",
+    "TesseractOcrExtractor": "xtra.extractors.tesseract_ocr",
+    "PaddleOcrExtractor": "xtra.extractors.paddle_ocr",
+}
+
+
+def __getattr__(name: str):
+    if name in _LAZY_IMPORTS:
+        import importlib
+
+        module = importlib.import_module(_LAZY_IMPORTS[name])
+        return getattr(module, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

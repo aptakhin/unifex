@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-
-import numpy as np
-from paddleocr import PaddleOCR
+from typing import TYPE_CHECKING, Any
 
 from xtra.adapters.paddle_ocr import PaddleOCRAdapter
 from xtra.extractors._image_loader import ImageLoader
@@ -18,13 +16,28 @@ from xtra.models import (
     Page,
 )
 
+if TYPE_CHECKING:
+    from paddleocr import PaddleOCR
+
 logger = logging.getLogger(__name__)
 
-_ocr_cache: dict[tuple, PaddleOCR] = {}
+_ocr_cache: dict[tuple, Any] = {}
 
 
-def get_paddle_ocr(lang: str, use_gpu: bool) -> PaddleOCR:
+def _check_paddleocr_installed() -> None:
+    """Check if paddleocr is installed, raise ImportError with helpful message if not."""
+    try:
+        from paddleocr import PaddleOCR  # noqa: F401
+    except ImportError as e:
+        raise ImportError(
+            "PaddleOCR is not installed. Install it with: pip install xtra[paddle]"
+        ) from e
+
+
+def get_paddle_ocr(lang: str, use_gpu: bool) -> "PaddleOCR":
     """Get or create a cached PaddleOCR instance."""
+    from paddleocr import PaddleOCR
+
     key = (lang, use_gpu)
     if key not in _ocr_cache:
         _ocr_cache[key] = PaddleOCR(use_angle_cls=True, lang=lang, use_gpu=use_gpu, show_log=False)
@@ -64,6 +77,7 @@ class PaddleOcrExtractor(BaseExtractor):
             dpi: DPI for PDF-to-image conversion. Default 200.
             output_unit: Coordinate unit for output. Default POINTS.
         """
+        _check_paddleocr_installed()
         super().__init__(path, output_unit)
         self.lang = lang
         self.use_gpu = use_gpu
@@ -79,6 +93,8 @@ class PaddleOcrExtractor(BaseExtractor):
 
     def extract_page(self, page: int) -> ExtractionResult:
         """Extract text from a single image/page."""
+        import numpy as np
+
         try:
             img = self._images.get_page(page)
             width, height = img.size

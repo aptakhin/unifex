@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import List, Optional
-
-import pytesseract
+from typing import TYPE_CHECKING, List, Optional
 
 from xtra.adapters.tesseract_ocr import TesseractAdapter
 from xtra.extractors._image_loader import ImageLoader
@@ -18,7 +16,21 @@ from xtra.models import (
     Page,
 )
 
+if TYPE_CHECKING:
+    pass
+
 logger = logging.getLogger(__name__)
+
+
+def _check_pytesseract_installed() -> None:
+    """Check if pytesseract is installed, raise ImportError with helpful message if not."""
+    try:
+        import pytesseract  # noqa: F401
+    except ImportError as e:
+        raise ImportError(
+            "pytesseract is not installed. Install it with: pip install xtra[tesseract]"
+        ) from e
+
 
 # ISO 639-1 (2-letter) to Tesseract (3-letter) language code mapping
 # Users provide 2-letter codes, we convert internally for Tesseract
@@ -92,6 +104,7 @@ class TesseractOcrExtractor(BaseExtractor):
             dpi: DPI for PDF-to-image conversion. Default 200.
             output_unit: Coordinate unit for output. Default POINTS.
         """
+        _check_pytesseract_installed()
         super().__init__(path, output_unit)
         input_languages = languages or ["en"]
         # Store original 2-letter codes for metadata
@@ -110,6 +123,8 @@ class TesseractOcrExtractor(BaseExtractor):
 
     def extract_page(self, page: int) -> ExtractionResult:
         """Extract text from a single image/page."""
+        import pytesseract
+
         try:
             img = self._images.get_page(page)
             width, height = img.size
