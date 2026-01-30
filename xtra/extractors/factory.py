@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
 
+from xtra.extractors.base import BaseExtractor
 from xtra.extractors.character_mergers import (
     BasicLineMerger,
     CharacterMerger,
     KeepCharacterMerger,
 )
 from xtra.models import CoordinateUnit, ExtractorType
-from xtra.extractors.base import BaseExtractor
 
 # Available character merger choices for PDF extractor
 CHARACTER_MERGER_CHOICES = {
@@ -39,7 +38,7 @@ def get_character_merger(name: str) -> CharacterMerger:
     return CHARACTER_MERGER_CHOICES[name]()
 
 
-def _get_credential(key: str, credentials: Optional[Dict[str, str]]) -> Optional[str]:
+def _get_credential(key: str, credentials: dict[str, str] | None) -> str | None:
     """Get credential from dict or environment variable."""
     if credentials and key in credentials:
         return credentials[key]
@@ -50,12 +49,12 @@ def create_extractor(
     path: Path | str,
     extractor_type: ExtractorType,
     *,
-    languages: Optional[List[str]] = None,
+    languages: list[str] | None = None,
     dpi: int = 200,
     use_gpu: bool = False,
-    credentials: Optional[Dict[str, str]] = None,
+    credentials: dict[str, str] | None = None,
     output_unit: CoordinateUnit = CoordinateUnit.POINTS,
-    character_merger: Optional[str] = None,
+    character_merger: str | None = None,
 ) -> BaseExtractor:
     """Create an extractor by type with unified parameters.
 

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from xtra.models import BBox, CoordinateInfo, CoordinateUnit, Page, TextBlock
 
 POINTS_PER_INCH = 72.0
@@ -28,7 +26,7 @@ class CoordinateConverter:
         source_unit: CoordinateUnit,
         page_width: float,
         page_height: float,
-        dpi: Optional[float] = None,
+        dpi: float | None = None,
     ) -> None:
         """Initialize converter.
 
@@ -117,7 +115,7 @@ class CoordinateConverter:
         )
 
     def convert_page(
-        self, page: Page, target_unit: CoordinateUnit, target_dpi: Optional[float] = None
+        self, page: Page, target_unit: CoordinateUnit, target_dpi: float | None = None
     ) -> Page:
         """Convert an entire Page to target unit system.
 
@@ -136,7 +134,7 @@ class CoordinateConverter:
         new_height = self.convert_value(page.height, target_unit, is_x=False)
 
         # Determine DPI for coordinate info
-        coord_dpi: Optional[float] = None
+        coord_dpi: float | None = None
         if target_unit == CoordinateUnit.PIXELS:
             coord_dpi = target_dpi if target_dpi is not None else self.dpi
 

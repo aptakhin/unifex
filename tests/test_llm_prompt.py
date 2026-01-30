@@ -1,7 +1,5 @@
 """Tests for prompt building from schema."""
 
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 from xtra.llm.extractors.openai import _build_prompt, _schema_to_field_description
@@ -15,7 +13,7 @@ class SimpleSchema(BaseModel):
 class SchemaWithDescriptions(BaseModel):
     invoice_number: str = Field(description="The unique invoice identifier")
     total: float = Field(description="Total amount in USD")
-    vendor: Optional[str] = Field(default=None, description="Vendor name if available")
+    vendor: str | None = Field(default=None, description="Vendor name if available")
 
 
 class NestedSchema(BaseModel):

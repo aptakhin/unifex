@@ -34,7 +34,7 @@ def _check_paddleocr_installed() -> None:
         ) from e
 
 
-def get_paddle_ocr(lang: str, use_gpu: bool) -> "PaddleOCR":
+def get_paddle_ocr(lang: str, use_gpu: bool) -> PaddleOCR:
     """Get or create a cached PaddleOCR instance."""
     from paddleocr import PaddleOCR
 

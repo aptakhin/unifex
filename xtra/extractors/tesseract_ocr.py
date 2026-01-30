@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
 
 from xtra.adapters.tesseract_ocr import TesseractAdapter
 from xtra.extractors._image_loader import ImageLoader
@@ -15,9 +14,6 @@ from xtra.models import (
     ExtractorType,
     Page,
 )
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +87,7 @@ class TesseractOcrExtractor(BaseExtractor):
     def __init__(
         self,
         path: Path | str,
-        languages: Optional[List[str]] = None,
+        languages: list[str] | None = None,
         dpi: int = 200,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:

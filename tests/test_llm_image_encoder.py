@@ -8,14 +8,14 @@ from xtra.llm.adapters.image_encoder import ImageEncoder
 
 
 def test_encode_png() -> None:
-    encoder = ImageEncoder(format="PNG")
+    encoder = ImageEncoder(image_format="PNG")
     img = Image.new("RGB", (100, 100), color="red")
     result = encoder.encode_image(img)
     assert result.startswith("data:image/png;base64,")
 
 
 def test_encode_jpeg() -> None:
-    encoder = ImageEncoder(format="JPEG")
+    encoder = ImageEncoder(image_format="JPEG")
     img = Image.new("RGB", (100, 100), color="blue")
     result = encoder.encode_image(img)
     assert result.startswith("data:image/jpeg;base64,")

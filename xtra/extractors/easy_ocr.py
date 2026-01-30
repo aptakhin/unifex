@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from xtra.adapters.easy_ocr import EasyOCRAdapter
 from xtra.extractors._image_loader import ImageLoader
@@ -34,7 +34,7 @@ def _check_easyocr_installed() -> None:
         ) from e
 
 
-def get_reader(languages: List[str], gpu: bool = False) -> "easyocr.Reader":
+def get_reader(languages: list[str], gpu: bool = False) -> easyocr.Reader:
     """Get or create a cached EasyOCR reader."""
     import easyocr
 
@@ -54,7 +54,7 @@ class EasyOcrExtractor(BaseExtractor):
     def __init__(
         self,
         path: Path | str,
-        languages: Optional[List[str]] = None,
+        languages: list[str] | None = None,
         gpu: bool = False,
         dpi: int = 200,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,

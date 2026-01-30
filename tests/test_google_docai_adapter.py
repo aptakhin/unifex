@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 from pydantic import BaseModel
 
 from xtra.adapters.google_docai import GoogleDocumentAIAdapter
 from xtra.models import ExtractorType
-
 
 # Pydantic models representing Google Document AI response structure
 
@@ -19,7 +16,7 @@ class Vertex(BaseModel):
 
 
 class BoundingPoly(BaseModel):
-    normalized_vertices: List[Vertex]
+    normalized_vertices: list[Vertex]
 
 
 class TextSegment(BaseModel):
@@ -28,17 +25,17 @@ class TextSegment(BaseModel):
 
 
 class TextAnchor(BaseModel):
-    text_segments: List[TextSegment]
+    text_segments: list[TextSegment]
 
 
 class Layout(BaseModel):
-    bounding_poly: Optional[BoundingPoly] = None
+    bounding_poly: BoundingPoly | None = None
     confidence: float = 0.0
-    text_anchor: Optional[TextAnchor] = None
+    text_anchor: TextAnchor | None = None
 
 
 class Token(BaseModel):
-    layout: Optional[Layout] = None
+    layout: Layout | None = None
 
 
 class Dimension(BaseModel):
@@ -48,12 +45,12 @@ class Dimension(BaseModel):
 
 class Page(BaseModel):
     dimension: Dimension
-    tokens: List[Token] = []
+    tokens: list[Token] = []
 
 
 class Document(BaseModel):
     text: str = ""
-    pages: List[Page] = []
+    pages: list[Page] = []
 
 
 class TestGoogleDocumentAIAdapter:

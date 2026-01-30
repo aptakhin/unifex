@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
-from xtra.models import BBox, ExtractorMetadata, Page, ExtractorType, TextBlock
+from xtra.models import BBox, ExtractorMetadata, ExtractorType, Page, TextBlock
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class GoogleDocumentAIAdapter:
     """Converts Google Document AI Document to internal schema."""
 
-    def __init__(self, document: Optional[Document], processor_name: str) -> None:
+    def __init__(self, document: Document | None, processor_name: str) -> None:
         self._document = document
         self._processor_name = processor_name
 
@@ -67,9 +67,9 @@ class GoogleDocumentAIAdapter:
             extra=extra,
         )
 
-    def _convert_page_to_blocks(self, docai_page) -> List[TextBlock]:
+    def _convert_page_to_blocks(self, docai_page) -> list[TextBlock]:
         """Convert Google Document AI page tokens to TextBlocks."""
-        blocks: List[TextBlock] = []
+        blocks: list[TextBlock] = []
 
         if not docai_page.tokens:
             return blocks
@@ -127,7 +127,7 @@ class GoogleDocumentAIAdapter:
     @staticmethod
     def _vertices_to_bbox_and_rotation(
         vertices, page_width: float, page_height: float
-    ) -> Tuple[BBox, float]:
+    ) -> tuple[BBox, float]:
         """Convert Google Document AI vertices to BBox and rotation.
 
         Google Document AI returns normalized vertices (0-1 range) that need

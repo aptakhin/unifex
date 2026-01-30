@@ -4,9 +4,9 @@ from xtra.models import (
     BBox,
     Document,
     ExtractorMetadata,
+    ExtractorType,
     FontInfo,
     Page,
-    ExtractorType,
     TextBlock,
 )
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import base64
 import io
-from typing import List, Literal, Optional
+from typing import Literal
 
 from PIL import Image
 
@@ -14,19 +14,19 @@ class ImageEncoder:
 
     def __init__(
         self,
-        format: Literal["PNG", "JPEG"] = "PNG",
+        image_format: Literal["PNG", "JPEG"] = "PNG",
         quality: int = 85,
-        max_dimension: Optional[int] = 2048,
+        max_dimension: int | None = 2048,
     ) -> None:
         """Initialize encoder.
 
         Args:
-            format: Output image format (PNG or JPEG).
+            image_format: Output image format (PNG or JPEG).
             quality: JPEG quality (1-100), ignored for PNG.
             max_dimension: Max width/height. Images larger are scaled down
                 preserving aspect ratio. None to disable resizing.
         """
-        self.format = format
+        self.format = image_format
         self.quality = quality
         self.max_dimension = max_dimension
 
@@ -48,7 +48,7 @@ class ImageEncoder:
         encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
         return f"data:{mime_type};base64,{encoded}"
 
-    def encode_images(self, images: List[Image.Image]) -> List[str]:
+    def encode_images(self, images: list[Image.Image]) -> list[str]:
         """Encode multiple images to base64 data URLs."""
         return [self.encode_image(img) for img in images]
 

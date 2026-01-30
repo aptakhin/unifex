@@ -3,22 +3,21 @@ from __future__ import annotations
 import logging
 import threading
 from pathlib import Path
-from typing import List, Optional
 
 import pypdfium2 as pdfium
 
-from xtra.models import (
-    CoordinateUnit,
-    ExtractorMetadata,
-    Page,
-    ExtractorType,
-    TextBlock,
-)
 from xtra.extractors.base import BaseExtractor, PageExtractionResult
 from xtra.extractors.character_mergers import (
     BasicLineMerger,
     CharacterMerger,
     CharInfo,
+)
+from xtra.models import (
+    CoordinateUnit,
+    ExtractorMetadata,
+    ExtractorType,
+    Page,
+    TextBlock,
 )
 
 logger = logging.getLogger(__name__)
@@ -31,7 +30,7 @@ class PdfExtractor(BaseExtractor):
         self,
         path: Path | str,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
-        character_merger: Optional[CharacterMerger] = None,
+        character_merger: CharacterMerger | None = None,
     ) -> None:
         super().__init__(path, output_unit)
         self._pdf = pdfium.PdfDocument(self.path)
@@ -90,7 +89,7 @@ class PdfExtractor(BaseExtractor):
     def close(self) -> None:
         self._pdf.close()
 
-    def _extract_text_blocks(self, page: pdfium.PdfPage, page_height: float) -> List[TextBlock]:
+    def _extract_text_blocks(self, page: pdfium.PdfPage, page_height: float) -> list[TextBlock]:
         textpage = page.get_textpage()
         char_count = textpage.count_chars()
         if char_count == 0:
@@ -102,7 +101,7 @@ class PdfExtractor(BaseExtractor):
         # Check rotation support once, not per character
         has_rotation = hasattr(textpage, "get_char_rotation")
 
-        chars: List[CharInfo] = []
+        chars: list[CharInfo] = []
         for i in range(char_count):
             bbox = textpage.get_charbox(i)
             rotation = textpage.get_char_rotation(i) if has_rotation else 0

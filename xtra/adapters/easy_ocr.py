@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 from pydantic import BaseModel, field_validator
 
 from xtra.models import TextBlock
@@ -20,13 +18,13 @@ class EasyOCRDetection(BaseModel):
     bbox is [[x1,y1], [x2,y2], [x3,y3], [x4,y4]] representing 4 corners.
     """
 
-    polygon: List[List[float]]
+    polygon: list[list[float]]
     text: str
     confidence: float
 
     @field_validator("polygon")
     @classmethod
-    def validate_polygon(cls, v: List[List[float]]) -> List[List[float]]:
+    def validate_polygon(cls, v: list[list[float]]) -> list[list[float]]:
         if len(v) != POLYGON_POINTS:
             raise ValueError(f"Polygon must have {POLYGON_POINTS} points, got {len(v)}")
         for point in v:
@@ -37,7 +35,7 @@ class EasyOCRDetection(BaseModel):
         return v
 
     @classmethod
-    def from_easyocr_format(cls, item: tuple) -> "EasyOCRDetection":
+    def from_easyocr_format(cls, item: tuple) -> EasyOCRDetection:
         """Create from EasyOCR's native format: (bbox, text, confidence)."""
         polygon, text, confidence = item
         return cls(polygon=polygon, text=text, confidence=confidence)
@@ -49,17 +47,17 @@ class EasyOCRResult(BaseModel):
     EasyOCR returns results as [(bbox, text, conf), ...] for a single image.
     """
 
-    detections: List[EasyOCRDetection]
+    detections: list[EasyOCRDetection]
 
     @classmethod
-    def from_easyocr_output(cls, result: Optional[list]) -> "EasyOCRResult":
+    def from_easyocr_output(cls, result: list | None) -> EasyOCRResult:
         """Parse and validate EasyOCR's raw output format.
 
         Handles edge cases:
         - Empty result []
         - Result with None items
         """
-        detections: List[EasyOCRDetection] = []
+        detections: list[EasyOCRDetection] = []
 
         if not result:
             return cls(detections=detections)
@@ -75,7 +73,7 @@ class EasyOCRResult(BaseModel):
 class EasyOCRAdapter:
     """Converts EasyOCR output to internal schema."""
 
-    def convert_result(self, result: Optional[list]) -> List[TextBlock]:
+    def convert_result(self, result: list | None) -> list[TextBlock]:
         """Convert EasyOCR output to TextBlocks.
 
         Args:
@@ -87,9 +85,9 @@ class EasyOCRAdapter:
         validated = EasyOCRResult.from_easyocr_output(result)
         return self._detections_to_blocks(validated.detections)
 
-    def _detections_to_blocks(self, detections: List[EasyOCRDetection]) -> List[TextBlock]:
+    def _detections_to_blocks(self, detections: list[EasyOCRDetection]) -> list[TextBlock]:
         """Convert validated detections to TextBlocks."""
-        blocks: List[TextBlock] = []
+        blocks: list[TextBlock] = []
 
         for detection in detections:
             if not detection.text or not detection.text.strip():

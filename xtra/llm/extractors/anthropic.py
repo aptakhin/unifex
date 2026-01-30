@@ -3,24 +3,24 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from pydantic import BaseModel
 
 from xtra.extractors._image_loader import ImageLoader
 from xtra.llm.adapters.image_encoder import ImageEncoder
-from xtra.llm.models import LLMExtractionResult, LLMProvider
 from xtra.llm.extractors.openai import _build_prompt
+from xtra.llm.models import LLMExtractionResult, LLMProvider
 
 T = TypeVar("T", bound=BaseModel)
 
 
 def _build_messages_anthropic(
-    encoded_images: List[str],
+    encoded_images: list[str],
     prompt: str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Build Anthropic chat messages with images."""
-    content: List[Dict[str, Any]] = []
+    content: list[dict[str, Any]] = []
 
     for img_url in encoded_images:
         # Anthropic uses different format for base64 images
@@ -54,14 +54,14 @@ def extract_anthropic(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    api_key: Optional[str] = None,
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    api_key: str | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Extract structured data using Anthropic."""
     try:
         import instructor
@@ -94,7 +94,7 @@ def extract_anthropic(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 max_tokens=4096,
                 temperature=temperature,
             )
@@ -125,14 +125,14 @@ async def extract_anthropic_async(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    api_key: Optional[str] = None,
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    api_key: str | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Async extract structured data using Anthropic."""
     try:
         import instructor
@@ -165,7 +165,7 @@ async def extract_anthropic_async(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 max_tokens=4096,
                 temperature=temperature,
             )

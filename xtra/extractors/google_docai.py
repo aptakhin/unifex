@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from xtra.adapters.google_docai import GoogleDocumentAIAdapter
-from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 from xtra.extractors.base import BaseExtractor, PageExtractionResult
+from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 
 if TYPE_CHECKING:
     from google.cloud.documentai_v1 import Document
@@ -34,7 +34,7 @@ class GoogleDocumentAIExtractor(BaseExtractor):
         path: Path | str,
         processor_name: str,
         credentials_path: str,
-        mime_type: Optional[str] = None,
+        mime_type: str | None = None,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
         """Initialize Google Document AI extractor.
@@ -67,8 +67,8 @@ class GoogleDocumentAIExtractor(BaseExtractor):
         self._client = documentai.DocumentProcessorServiceClient(
             credentials=credentials, client_options=opts
         )
-        self._document: Optional[Document] = None
-        self._adapter: Optional[GoogleDocumentAIAdapter] = None
+        self._document: Document | None = None
+        self._adapter: GoogleDocumentAIAdapter | None = None
         self._process_document()
 
     def _infer_mime_type(self) -> str:

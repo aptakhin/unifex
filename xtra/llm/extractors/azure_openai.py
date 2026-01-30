@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from pydantic import BaseModel
 
 from xtra.extractors._image_loader import ImageLoader
 from xtra.llm.adapters.image_encoder import ImageEncoder
+from xtra.llm.extractors.openai import _build_messages, _build_prompt
 from xtra.llm.models import LLMExtractionResult, LLMProvider
-from xtra.llm.extractors.openai import _build_prompt, _build_messages
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -19,16 +19,16 @@ def extract_azure_openai(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    api_key: Optional[str] = None,
-    endpoint: Optional[str] = None,
+    api_key: str | None = None,
+    endpoint: str | None = None,
     api_version: str = "2024-02-15-preview",
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Extract structured data using Azure OpenAI."""
     try:
         import instructor
@@ -69,14 +69,14 @@ def extract_azure_openai(
                 model=model,  # This is the deployment name in Azure
                 response_model=schema,
                 max_retries=max_retries,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
             )
             data = response
         else:
             response = azure_client.chat.completions.create(
                 model=model,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )
@@ -97,16 +97,16 @@ async def extract_azure_openai_async(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    api_key: Optional[str] = None,
-    endpoint: Optional[str] = None,
+    api_key: str | None = None,
+    endpoint: str | None = None,
     api_version: str = "2024-02-15-preview",
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Async extract structured data using Azure OpenAI."""
     try:
         import instructor
@@ -147,14 +147,14 @@ async def extract_azure_openai_async(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
             )
             data = response
         else:
             response = await azure_client.chat.completions.create(
                 model=model,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )

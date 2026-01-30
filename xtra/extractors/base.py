@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Sequence
 
 from xtra.coordinates import CoordinateConverter
 from xtra.models import CoordinateUnit, Document, ExtractorMetadata, Page
@@ -25,7 +25,7 @@ class PageExtractionResult:
 
     page: Page
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -37,7 +37,7 @@ class ExtractionResult:
     """
 
     document: Document
-    page_results: List[PageExtractionResult] = field(default_factory=list)
+    page_results: list[PageExtractionResult] = field(default_factory=list)
 
     @property
     def success(self) -> bool:
@@ -45,12 +45,12 @@ class ExtractionResult:
         return all(r.success for r in self.page_results)
 
     @property
-    def failed_pages(self) -> List[PageExtractionResult]:
+    def failed_pages(self) -> list[PageExtractionResult]:
         """List of failed page extraction results."""
         return [r for r in self.page_results if not r.success]
 
     @property
-    def errors(self) -> List[tuple[int, str]]:
+    def errors(self) -> list[tuple[int, str]]:
         """List of (page_number, error_message) for failed pages."""
         return [(r.page.page, r.error or "") for r in self.page_results if not r.success]
 
@@ -83,10 +83,10 @@ class BaseExtractor(ABC):
 
     def _extract_pages(
         self,
-        pages: Optional[Sequence[int]] = None,
+        pages: Sequence[int] | None = None,
         max_workers: int = 1,
         executor: ExecutorType = ExecutorType.THREAD,
-    ) -> List[PageExtractionResult]:
+    ) -> list[PageExtractionResult]:
         """Extract multiple pages with optional parallel processing.
 
         Internal method that returns per-page results.
@@ -114,7 +114,7 @@ class BaseExtractor(ABC):
         )
 
         # Parallel execution with ordering preserved
-        results: List[Optional[PageExtractionResult]] = [None] * len(pages_list)
+        results: list[PageExtractionResult | None] = [None] * len(pages_list)
         with executor_class(max_workers=max_workers) as pool:
             future_to_idx = {pool.submit(self.extract_page, p): i for i, p in enumerate(pages_list)}
             for future in as_completed(future_to_idx):
@@ -131,7 +131,7 @@ class BaseExtractor(ABC):
 
     def extract(
         self,
-        pages: Optional[Sequence[int]] = None,
+        pages: Sequence[int] | None = None,
         max_workers: int = 1,
         executor: ExecutorType = ExecutorType.THREAD,
     ) -> ExtractionResult:
@@ -154,9 +154,9 @@ class BaseExtractor(ABC):
 
     async def _extract_pages_async(
         self,
-        pages: Optional[Sequence[int]] = None,
+        pages: Sequence[int] | None = None,
         max_workers: int = 1,
-    ) -> List[PageExtractionResult]:
+    ) -> list[PageExtractionResult]:
         """Async version of _extract_pages - runs extraction in thread pool.
 
         Internal method that returns per-page results.
@@ -205,7 +205,7 @@ class BaseExtractor(ABC):
 
     async def extract_async(
         self,
-        pages: Optional[Sequence[int]] = None,
+        pages: Sequence[int] | None = None,
         max_workers: int = 1,
     ) -> ExtractionResult:
         """Async version of extract - runs extraction in thread pool.
@@ -224,15 +224,14 @@ class BaseExtractor(ABC):
         document = Document(path=self.path, pages=extracted_pages, metadata=metadata)
         return ExtractionResult(document=document, page_results=page_results)
 
-    def close(self) -> None:
+    def close(self) -> None:  # noqa: B027 - Intentionally empty, subclasses override if needed
         """Clean up resources. Override in subclasses if needed."""
-        pass
 
     def _convert_page(
         self,
         page: Page,
         source_unit: CoordinateUnit,
-        dpi: Optional[float] = None,
+        dpi: float | None = None,
     ) -> Page:
         """Convert page coordinates from source unit to output_unit.
 
@@ -256,7 +255,7 @@ class BaseExtractor(ABC):
         )
         return converter.convert_page(page, self.output_unit, target_dpi=dpi)
 
-    def __enter__(self) -> "BaseExtractor":
+    def __enter__(self) -> BaseExtractor:
         return self
 
     def __exit__(self, *args: object) -> None:

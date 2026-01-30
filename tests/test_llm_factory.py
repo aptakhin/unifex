@@ -2,9 +2,8 @@
 
 import pytest
 
-from xtra.llm.factory import _parse_model_string, _get_credential
+from xtra.llm.factory import _get_credential, _parse_model_string
 from xtra.llm.models import LLMProvider
-
 
 # Model string parsing tests
 

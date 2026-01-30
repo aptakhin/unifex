@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import math
-from typing import Any, List, Sequence, Tuple
+from collections.abc import Sequence
+from typing import Any
 
 from xtra.models import BBox
 
 # Type alias for points in different formats
-Point = Tuple[float, float]
+Point = tuple[float, float]
 
 # Minimum required vertices/coordinates for a valid polygon
 MIN_POLYGON_POINTS = 4
@@ -18,7 +19,7 @@ MIN_FLAT_COORDS = 8  # 4 points * 2 coordinates each
 def polygon_to_bbox_and_rotation(
     polygon: Sequence[Any],
     flat: bool = False,
-) -> Tuple[BBox, float]:
+) -> tuple[BBox, float]:
     """Convert a polygon to axis-aligned bounding box and rotation angle.
 
     Supports two polygon formats:
@@ -53,7 +54,7 @@ def polygon_to_bbox_and_rotation(
         coords = list(polygon)
         if len(coords) < MIN_FLAT_COORDS:
             return BBox(x0=0, y0=0, x1=0, y1=0), 0.0
-        points: List[Point] = [(coords[i], coords[i + 1]) for i in range(0, MIN_FLAT_COORDS, 2)]
+        points: list[Point] = [(coords[i], coords[i + 1]) for i in range(0, MIN_FLAT_COORDS, 2)]
     else:
         # Point list format: [[x0, y0], [x1, y1], ...] -> [(x0, y0), (x1, y1), ...]
         points = [(float(p[0]), float(p[1])) for p in polygon]

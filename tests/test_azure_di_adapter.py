@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import pytest
 from pydantic import BaseModel
 
@@ -14,25 +12,25 @@ from xtra.models import ExtractorType
 class DocumentWord(BaseModel):
     """Azure DI word model."""
 
-    content: Optional[str] = None
-    polygon: Optional[List[float]] = None
-    confidence: Optional[float] = None
+    content: str | None = None
+    polygon: list[float] | None = None
+    confidence: float | None = None
 
 
 class DocumentPage(BaseModel):
     """Azure DI page model."""
 
-    width: Optional[float] = None
-    height: Optional[float] = None
-    words: Optional[List[DocumentWord]] = None
+    width: float | None = None
+    height: float | None = None
+    words: list[DocumentWord] | None = None
 
 
 class AnalyzeResult(BaseModel):
     """Azure DI analyze result model."""
 
-    pages: Optional[List[DocumentPage]] = None
-    model_id: Optional[str] = None
-    api_version: Optional[str] = None
+    pages: list[DocumentPage] | None = None
+    model_id: str | None = None
+    api_version: str | None = None
 
 
 class TestAzureDocumentIntelligenceAdapter:

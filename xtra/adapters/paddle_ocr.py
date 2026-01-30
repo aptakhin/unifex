@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 from pydantic import BaseModel, field_validator
 
 from xtra.models import TextBlock
@@ -20,13 +18,13 @@ class PaddleOCRDetection(BaseModel):
     bbox is [[x1,y1], [x2,y2], [x3,y3], [x4,y4]] representing 4 corners.
     """
 
-    polygon: List[List[float]]
+    polygon: list[list[float]]
     text: str
     confidence: float
 
     @field_validator("polygon")
     @classmethod
-    def validate_polygon(cls, v: List[List[float]]) -> List[List[float]]:
+    def validate_polygon(cls, v: list[list[float]]) -> list[list[float]]:
         if len(v) != POLYGON_POINTS:
             raise ValueError(f"Polygon must have {POLYGON_POINTS} points, got {len(v)}")
         for point in v:
@@ -38,8 +36,8 @@ class PaddleOCRDetection(BaseModel):
 
     @classmethod
     def from_paddle_format(
-        cls, item: Tuple[List[List[float]], Tuple[str, float]]
-    ) -> "PaddleOCRDetection":
+        cls, item: tuple[list[list[float]], tuple[str, float]]
+    ) -> PaddleOCRDetection:
         """Create from PaddleOCR's native format: [bbox, (text, confidence)]."""
         bbox, (text, confidence) = item
         return cls(polygon=bbox, text=text, confidence=confidence)
@@ -52,10 +50,10 @@ class PaddleOCRResult(BaseModel):
     list is for batch processing (always length 1 for single image).
     """
 
-    detections: List[PaddleOCRDetection]
+    detections: list[PaddleOCRDetection]
 
     @classmethod
-    def from_paddle_output(cls, result: Optional[list]) -> "PaddleOCRResult":
+    def from_paddle_output(cls, result: list | None) -> PaddleOCRResult:
         """Parse and validate PaddleOCR's raw output format.
 
         Handles edge cases:
@@ -63,7 +61,7 @@ class PaddleOCRResult(BaseModel):
         - Empty result [[]]
         - Result with None items [[None]]
         """
-        detections: List[PaddleOCRDetection] = []
+        detections: list[PaddleOCRDetection] = []
 
         if not result or not result[0]:
             return cls(detections=detections)
@@ -79,7 +77,7 @@ class PaddleOCRResult(BaseModel):
 class PaddleOCRAdapter:
     """Converts PaddleOCR output to internal schema."""
 
-    def convert_result(self, result: Optional[list]) -> List[TextBlock]:
+    def convert_result(self, result: list | None) -> list[TextBlock]:
         """Convert PaddleOCR output to TextBlocks.
 
         Args:
@@ -91,9 +89,9 @@ class PaddleOCRAdapter:
         validated = PaddleOCRResult.from_paddle_output(result)
         return self._detections_to_blocks(validated.detections)
 
-    def _detections_to_blocks(self, detections: List[PaddleOCRDetection]) -> List[TextBlock]:
+    def _detections_to_blocks(self, detections: list[PaddleOCRDetection]) -> list[TextBlock]:
         """Convert validated detections to TextBlocks."""
-        blocks: List[TextBlock] = []
+        blocks: list[TextBlock] = []
 
         for detection in detections:
             if not detection.text or not detection.text.strip():

@@ -12,17 +12,18 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="instructor")
 import argparse
 import json
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence
+from typing import Any
 
 from xtra.extractors.base import ExecutorType
 from xtra.extractors.factory import CHARACTER_MERGER_CHOICES, create_extractor
 from xtra.models import CoordinateUnit, ExtractorType
 
 
-def _build_credentials(args: argparse.Namespace) -> Optional[Dict[str, str]]:
+def _build_credentials(args: argparse.Namespace) -> dict[str, str] | None:
     """Build credentials dict from CLI arguments."""
-    credentials: Dict[str, str] = {}
+    credentials: dict[str, str] = {}
 
     if args.azure_endpoint:
         credentials["XTRA_AZURE_DI_ENDPOINT"] = args.azure_endpoint
@@ -81,7 +82,7 @@ def _print_llm_result(data: Any, as_json: bool) -> None:
         print(data)
 
 
-def _run_llm_extraction(args: argparse.Namespace, pages: Optional[Sequence[int]]) -> None:
+def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
     """Run LLM-based extraction."""
     try:
         from xtra.llm.factory import extract_structured
@@ -216,7 +217,7 @@ def main() -> None:
         print("Error: Either --extractor or --llm must be specified", file=sys.stderr)
         sys.exit(1)
 
-    pages: Optional[Sequence[int]] = None
+    pages: Sequence[int] | None = None
     if args.pages:
         pages = [int(p.strip()) for p in args.pages.split(",")]
 

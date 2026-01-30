@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, overload
+from typing import Any, TypeVar, overload
 
 from pydantic import BaseModel
 
@@ -44,7 +44,7 @@ def _parse_model_string(model: str) -> tuple[LLMProvider, str]:
     )
 
 
-def _get_credential(key: str, credentials: Optional[Dict[str, str]]) -> Optional[str]:
+def _get_credential(key: str, credentials: dict[str, str] | None) -> str | None:
     """Get credential from dict or environment variable."""
     if credentials and key in credentials:
         return credentials[key]
@@ -56,13 +56,13 @@ def extract_structured(
     path: Path | str,
     model: str,
     *,
-    schema: Type[T],
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T],
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    credentials: Optional[Dict[str, str]] = None,
+    credentials: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T]: ...
 
 
@@ -72,27 +72,27 @@ def extract_structured(
     model: str,
     *,
     schema: None = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    credentials: Optional[Dict[str, str]] = None,
-) -> LLMExtractionResult[Dict[str, Any]]: ...
+    credentials: dict[str, str] | None = None,
+) -> LLMExtractionResult[dict[str, Any]]: ...
 
 
 def extract_structured(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    credentials: Optional[Dict[str, str]] = None,
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    credentials: dict[str, str] | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Extract structured data from a document using an LLM.
 
     Args:
@@ -198,13 +198,13 @@ async def extract_structured_async(
     path: Path | str,
     model: str,
     *,
-    schema: Type[T],
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T],
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    credentials: Optional[Dict[str, str]] = None,
+    credentials: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T]: ...
 
 
@@ -214,27 +214,27 @@ async def extract_structured_async(
     model: str,
     *,
     schema: None = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    credentials: Optional[Dict[str, str]] = None,
-) -> LLMExtractionResult[Dict[str, Any]]: ...
+    credentials: dict[str, str] | None = None,
+) -> LLMExtractionResult[dict[str, Any]]: ...
 
 
 async def extract_structured_async(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    credentials: Optional[Dict[str, str]] = None,
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    credentials: dict[str, str] | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Async version of extract_structured."""
     provider, model_name = _parse_model_string(model)
 

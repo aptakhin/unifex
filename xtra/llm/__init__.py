@@ -8,9 +8,9 @@ from xtra.llm.models import (
 )
 
 __all__ = [
-    "extract_structured",
-    "extract_structured_async",
     "LLMExtractionResult",
     "LLMProvider",
     "PageExtractionConfig",
+    "extract_structured",
+    "extract_structured_async",
 ]

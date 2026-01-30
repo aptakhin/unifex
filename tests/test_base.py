@@ -8,7 +8,7 @@ from xtra.extractors.base import (
     ExtractionResult,
     PageExtractionResult,
 )
-from xtra.models import Document, ExtractorMetadata, Page, ExtractorType
+from xtra.models import Document, ExtractorMetadata, ExtractorType, Page
 
 
 class MockExtractor(BaseExtractor):

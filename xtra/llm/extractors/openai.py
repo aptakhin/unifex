@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast, get_type_hints
+from typing import Any, TypeVar, cast, get_type_hints
 
 from pydantic import BaseModel
 
@@ -14,7 +14,7 @@ from xtra.llm.models import LLMExtractionResult, LLMProvider
 T = TypeVar("T", bound=BaseModel)
 
 
-def _schema_to_field_description(schema: Type[BaseModel]) -> str:
+def _schema_to_field_description(schema: type[BaseModel]) -> str:
     """Convert Pydantic schema to human-readable field description."""
     lines = []
     hints = get_type_hints(schema)
@@ -33,7 +33,7 @@ def _schema_to_field_description(schema: Type[BaseModel]) -> str:
     return "\n".join(lines)
 
 
-def _build_prompt(schema: Optional[Type[BaseModel]], custom_prompt: Optional[str]) -> str:
+def _build_prompt(schema: type[BaseModel] | None, custom_prompt: str | None) -> str:
     """Build extraction prompt with schema field info."""
     if custom_prompt:
         if schema:
@@ -51,11 +51,11 @@ def _build_prompt(schema: Optional[Type[BaseModel]], custom_prompt: Optional[str
 
 
 def _build_messages(
-    encoded_images: List[str],
+    encoded_images: list[str],
     prompt: str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Build OpenAI chat messages with images."""
-    content: List[Dict[str, Any]] = []
+    content: list[dict[str, Any]] = []
 
     for img_url in encoded_images:
         content.append(
@@ -79,14 +79,14 @@ def extract_openai(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    api_key: Optional[str] = None,
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    api_key: str | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Extract structured data using OpenAI."""
     try:
         import instructor
@@ -119,7 +119,7 @@ def extract_openai(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
             )
             data = response
@@ -128,7 +128,7 @@ def extract_openai(
             raw_client = OpenAI(api_key=api_key)
             response = raw_client.chat.completions.create(
                 model=model,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )
@@ -149,14 +149,14 @@ async def extract_openai_async(
     path: Path | str,
     model: str,
     *,
-    schema: Optional[Type[T]] = None,
-    prompt: Optional[str] = None,
-    pages: Optional[List[int]] = None,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
     dpi: int = 200,
     max_retries: int = 3,
     temperature: float = 0.0,
-    api_key: Optional[str] = None,
-) -> LLMExtractionResult[Union[T, Dict[str, Any]]]:
+    api_key: str | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
     """Async extract structured data using OpenAI."""
     try:
         import instructor
@@ -189,7 +189,7 @@ async def extract_openai_async(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
             )
             data = response
@@ -197,7 +197,7 @@ async def extract_openai_async(
             raw_client = AsyncOpenAI(api_key=api_key)
             response = await raw_client.chat.completions.create(
                 model=model,
-                messages=cast(Any, messages),
+                messages=cast("Any", messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )

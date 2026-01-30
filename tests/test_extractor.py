@@ -3,7 +3,6 @@ from pathlib import Path
 from xtra.extractors import PdfExtractor
 from xtra.models import ExtractorType
 
-
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
 

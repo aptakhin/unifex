@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any
 
 try:
     from pydantic import BaseModel, ConfigDict, Field
@@ -40,43 +40,43 @@ class BBox(BaseModel):
 
 
 class FontInfo(BaseModel):
-    name: Optional[str] = None
-    size: Optional[float] = None
-    flags: Optional[int] = None
-    weight: Optional[int] = None
+    name: str | None = None
+    size: float | None = None
+    flags: int | None = None
+    weight: int | None = None
 
 
 class TextBlock(BaseModel):
     text: str
     bbox: BBox
     rotation: float = 0.0
-    confidence: Optional[float] = None
-    font_info: Optional[FontInfo] = None
+    confidence: float | None = None
+    font_info: FontInfo | None = None
 
 
 class CoordinateInfo(BaseModel):
     """Information about the coordinate system used."""
 
     unit: CoordinateUnit
-    dpi: Optional[float] = None  # Only meaningful for pixel-based coords
+    dpi: float | None = None  # Only meaningful for pixel-based coords
 
 
 class Page(BaseModel):
     page: int
     width: float
     height: float
-    texts: List[TextBlock] = Field(default_factory=list)
-    coordinate_info: Optional[CoordinateInfo] = None
+    texts: list[TextBlock] = Field(default_factory=list)
+    coordinate_info: CoordinateInfo | None = None
 
 
 class ExtractorMetadata(BaseModel):
     extractor_type: ExtractorType
-    creator: Optional[str] = None
-    producer: Optional[str] = None
-    title: Optional[str] = None
-    author: Optional[str] = None
-    creation_date: Optional[str] = None
-    modification_date: Optional[str] = None
+    creator: str | None = None
+    producer: str | None = None
+    title: str | None = None
+    author: str | None = None
+    creation_date: str | None = None
+    modification_date: str | None = None
     extra: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -86,14 +86,14 @@ if PYDANTIC_V2:
         model_config = ConfigDict(arbitrary_types_allowed=True)
 
         path: Path
-        pages: List[Page] = Field(default_factory=list)
-        metadata: Optional[ExtractorMetadata] = None
+        pages: list[Page] = Field(default_factory=list)
+        metadata: ExtractorMetadata | None = None
 else:
 
     class Document(BaseModel):
         path: Path
-        pages: List[Page] = Field(default_factory=list)
-        metadata: Optional[ExtractorMetadata] = None
+        pages: list[Page] = Field(default_factory=list)
+        metadata: ExtractorMetadata | None = None
 
         class Config:
             arbitrary_types_allowed = True

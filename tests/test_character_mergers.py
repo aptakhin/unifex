@@ -8,7 +8,6 @@ from xtra.extractors.character_mergers import (
     KeepCharacterMerger,
 )
 
-
 # Fixtures for testing - simulating characters extracted from a PDF page
 # Page height is 792 points (standard US Letter)
 PAGE_HEIGHT = 792.0

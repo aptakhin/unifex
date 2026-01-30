@@ -3,8 +3,8 @@
 from pydantic import BaseModel
 
 from xtra.llm.models import (
-    LLMProvider,
     LLMExtractionResult,
+    LLMProvider,
     PageExtractionConfig,
 )
 

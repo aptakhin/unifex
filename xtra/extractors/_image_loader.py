@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import threading
 from pathlib import Path
-from typing import Dict, Optional
 
 import pypdfium2 as pdfium
 from PIL import Image
@@ -32,9 +31,9 @@ class ImageLoader:
         self.is_pdf = path.suffix.lower() == ".pdf"
 
         # Lazy loading state
-        self._pdf: Optional[pdfium.PdfDocument] = None
-        self._page_count: Optional[int] = None
-        self._image_cache: Dict[int, Image.Image] = {}
+        self._pdf: pdfium.PdfDocument | None = None
+        self._page_count: int | None = None
+        self._image_cache: dict[int, Image.Image] = {}
         self._lock = threading.Lock()
 
     @property

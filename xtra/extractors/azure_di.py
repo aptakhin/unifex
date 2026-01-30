@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from xtra.adapters.azure_di import AzureDocumentIntelligenceAdapter
-from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 from xtra.extractors.base import BaseExtractor, PageExtractionResult
+from xtra.models import CoordinateUnit, ExtractorMetadata, Page
 
 if TYPE_CHECKING:
     from azure.ai.documentintelligence import DocumentIntelligenceClient
@@ -49,8 +49,8 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
             endpoint=endpoint,
             credential=AzureKeyCredential(key),
         )
-        self._result: Optional[Any] = None
-        self._adapter: Optional[AzureDocumentIntelligenceAdapter] = None
+        self._result: Any | None = None
+        self._adapter: AzureDocumentIntelligenceAdapter | None = None
         self._analyze_document()
 
     def _analyze_document(self) -> None:

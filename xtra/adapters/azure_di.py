@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
-from xtra.models import ExtractorMetadata, Page, ExtractorType, TextBlock
+from xtra.models import ExtractorMetadata, ExtractorType, Page, TextBlock
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class AzureDocumentIntelligenceAdapter:
     """Converts Azure Document Intelligence AnalyzeResult to internal schema."""
 
-    def __init__(self, result: Optional[AnalyzeResult], model_id: str = "prebuilt-read") -> None:
+    def __init__(self, result: AnalyzeResult | None, model_id: str = "prebuilt-read") -> None:
         self._result = result
         self._model_id = model_id
 
@@ -73,9 +73,9 @@ class AzureDocumentIntelligenceAdapter:
             extra=extra,
         )
 
-    def _convert_page_to_blocks(self, azure_page: DocumentPage) -> List[TextBlock]:
+    def _convert_page_to_blocks(self, azure_page: DocumentPage) -> list[TextBlock]:
         """Convert Azure DI page words to TextBlocks."""
-        blocks: List[TextBlock] = []
+        blocks: list[TextBlock] = []
 
         if azure_page.words is None:
             return blocks

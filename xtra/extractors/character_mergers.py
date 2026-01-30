@@ -10,7 +10,7 @@ import ctypes
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 from xtra.models import BBox, FontInfo, TextBlock
 
@@ -29,8 +29,8 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # Font cache type: (font_name, rounded_size) -> FontInfo
-FontCacheKey = Tuple[Optional[str], float]
-FontCache = Dict[FontCacheKey, FontInfo]
+FontCacheKey = tuple[str | None, float]
+FontCache = dict[FontCacheKey, FontInfo]
 
 
 @dataclass
@@ -49,10 +49,10 @@ class CharacterMerger(ABC):
     @abstractmethod
     def merge(
         self,
-        chars: List[CharInfo],
-        textpage: Optional[pdfium.PdfTextPage],
+        chars: list[CharInfo],
+        textpage: pdfium.PdfTextPage | None,
         page_height: float,
-    ) -> List[TextBlock]:
+    ) -> list[TextBlock]:
         """Merge characters into TextBlocks.
 
         Args:
@@ -68,9 +68,9 @@ class CharacterMerger(ABC):
 
     def _extract_font_info(
         self,
-        textpage: Optional[pdfium.PdfTextPage],
+        textpage: pdfium.PdfTextPage | None,
         char_index: int,
-    ) -> Optional[FontInfo]:
+    ) -> FontInfo | None:
         """Extract font information for a character."""
         if textpage is None:
             return None
@@ -114,16 +114,16 @@ class BasicLineMerger(CharacterMerger):
 
     def merge(
         self,
-        chars: List[CharInfo],
-        textpage: Optional[pdfium.PdfTextPage],
+        chars: list[CharInfo],
+        textpage: pdfium.PdfTextPage | None,
         page_height: float,
-    ) -> List[TextBlock]:
+    ) -> list[TextBlock]:
         if not chars:
             return []
 
-        blocks: List[TextBlock] = []
-        current_chars: List[CharInfo] = []
-        prev_char: Optional[CharInfo] = None
+        blocks: list[TextBlock] = []
+        current_chars: list[CharInfo] = []
+        prev_char: CharInfo | None = None
 
         for char_info in chars:
             if self._is_new_block(prev_char, char_info):
@@ -143,7 +143,7 @@ class BasicLineMerger(CharacterMerger):
 
         return blocks
 
-    def _is_new_block(self, prev: Optional[CharInfo], curr: CharInfo) -> bool:
+    def _is_new_block(self, prev: CharInfo | None, curr: CharInfo) -> bool:
         if prev is None:
             return False
         vertical_gap = abs(curr.bbox[1] - prev.bbox[1])
@@ -151,10 +151,10 @@ class BasicLineMerger(CharacterMerger):
 
     def _create_text_block(
         self,
-        chars: List[CharInfo],
-        textpage: Optional[pdfium.PdfTextPage],
+        chars: list[CharInfo],
+        textpage: pdfium.PdfTextPage | None,
         page_height: float,
-    ) -> Optional[TextBlock]:
+    ) -> TextBlock | None:
         if not chars:
             return None
 
@@ -191,11 +191,11 @@ class KeepCharacterMerger(CharacterMerger):
 
     def merge(
         self,
-        chars: List[CharInfo],
-        textpage: Optional[pdfium.PdfTextPage],
+        chars: list[CharInfo],
+        textpage: pdfium.PdfTextPage | None,
         page_height: float,
-    ) -> List[TextBlock]:
-        blocks: List[TextBlock] = []
+    ) -> list[TextBlock]:
+        blocks: list[TextBlock] = []
         font_cache: FontCache = {}
 
         for char_info in chars:
@@ -215,10 +215,10 @@ class KeepCharacterMerger(CharacterMerger):
 
     def _extract_font_info_cached(
         self,
-        textpage: Optional[pdfium.PdfTextPage],
+        textpage: pdfium.PdfTextPage | None,
         char_index: int,
         cache: FontCache,
-    ) -> Optional[FontInfo]:
+    ) -> FontInfo | None:
         """Extract font info using raw pdfium API with caching.
 
         Uses FPDFText_GetFontInfo/GetFontSize/GetFontWeight directly,

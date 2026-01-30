@@ -4,7 +4,6 @@ from pathlib import Path
 
 from xtra.extractors.easy_ocr import EasyOcrExtractor
 
-
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
 

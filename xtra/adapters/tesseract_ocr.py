@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
-
 from pydantic import BaseModel, field_validator
 
 from xtra.models import BBox, TextBlock
@@ -35,10 +33,10 @@ class TesseractResult(BaseModel):
     Tesseract returns results as a dict with parallel arrays for each field.
     """
 
-    detections: List[TesseractDetection]
+    detections: list[TesseractDetection]
 
     @classmethod
-    def from_tesseract_output(cls, data: Optional[Dict[str, List]]) -> "TesseractResult":
+    def from_tesseract_output(cls, data: dict[str, list] | None) -> TesseractResult:
         """Parse and validate Tesseract's raw output format.
 
         Args:
@@ -48,7 +46,7 @@ class TesseractResult(BaseModel):
         Returns:
             TesseractResult with validated detections.
         """
-        detections: List[TesseractDetection] = []
+        detections: list[TesseractDetection] = []
 
         if not data or "text" not in data:
             return cls(detections=detections)
@@ -80,7 +78,7 @@ class TesseractResult(BaseModel):
 class TesseractAdapter:
     """Converts Tesseract OCR output to internal schema."""
 
-    def convert_result(self, data: Optional[Dict[str, List]]) -> List[TextBlock]:
+    def convert_result(self, data: dict[str, list] | None) -> list[TextBlock]:
         """Convert Tesseract output to TextBlocks.
 
         Args:
@@ -92,9 +90,9 @@ class TesseractAdapter:
         validated = TesseractResult.from_tesseract_output(data)
         return self._detections_to_blocks(validated.detections)
 
-    def _detections_to_blocks(self, detections: List[TesseractDetection]) -> List[TextBlock]:
+    def _detections_to_blocks(self, detections: list[TesseractDetection]) -> list[TextBlock]:
         """Convert validated detections to TextBlocks."""
-        blocks: List[TextBlock] = []
+        blocks: list[TextBlock] = []
 
         for detection in detections:
             if not detection.text or not detection.text.strip():

@@ -7,7 +7,6 @@ import pytest
 from xtra.cli import main
 from xtra.models import ExtractorType
 
-
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
 
