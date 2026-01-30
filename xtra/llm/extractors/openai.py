@@ -113,8 +113,10 @@ def extract_openai(  # noqa: PLR0913
         messages = _build_messages(encoded_images, extraction_prompt)
 
         # Create instructor client with optional custom URL/headers
+        # Use dummy key for custom endpoints that don't require auth
+        effective_key = api_key if api_key else ("not-needed" if base_url else None)
         client = instructor.from_openai(
-            OpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
+            OpenAI(api_key=effective_key, base_url=base_url, default_headers=headers)
         )
 
         # Extract with schema or dict
@@ -129,7 +131,7 @@ def extract_openai(  # noqa: PLR0913
             data = response
         else:
             # For dict extraction, use JSON mode without instructor
-            raw_client = OpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
+            raw_client = OpenAI(api_key=effective_key, base_url=base_url, default_headers=headers)
             response = raw_client.chat.completions.create(
                 model=model,
                 messages=cast("Any", messages),
@@ -187,8 +189,10 @@ async def extract_openai_async(  # noqa: PLR0913
         messages = _build_messages(encoded_images, extraction_prompt)
 
         # Create async instructor client with optional custom URL/headers
+        # Use dummy key for custom endpoints that don't require auth
+        effective_key = api_key if api_key else ("not-needed" if base_url else None)
         client = instructor.from_openai(
-            AsyncOpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
+            AsyncOpenAI(api_key=effective_key, base_url=base_url, default_headers=headers)
         )
 
         # Extract with schema or dict
@@ -202,7 +206,7 @@ async def extract_openai_async(  # noqa: PLR0913
             )
             data = response
         else:
-            raw_client = AsyncOpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
+            raw_client = AsyncOpenAI(api_key=effective_key, base_url=base_url, default_headers=headers)
             response = await raw_client.chat.completions.create(
                 model=model,
                 messages=cast("Any", messages),
