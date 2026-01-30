@@ -8,6 +8,8 @@ A Python library for document text extraction with local and cloud OCR solutions
 
 - **Multiple OCR Backends**: Local (EasyOCR, Tesseract, PaddleOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
 - **PDF Text Extraction**: Native PDF text extraction using pypdfium2
+- **Parallel Extraction**: Process multiple pages concurrently with thread or process executors
+- **Async Support**: Native async/await API for integration with async applications
 - **Unified Extractors**: Each OCR extractor auto-detects file type (PDF vs image) and handles conversion internally
 - **Schema Adapters**: Clean separation of external API schemas from internal models
 - **Pydantic Models**: Type-safe document representation with pydantic v1/v2 compatibility
@@ -33,37 +35,42 @@ from xtra import create_extractor, ExtractorType
 
 # PDF extraction (native text) - string path
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
+    doc = result.document  # Access the Document
 
 # EasyOCR for images
 with create_extractor("image.png", ExtractorType.EASYOCR, languages=["en"]) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
 # EasyOCR for PDFs (auto-converts to images internally)
 with create_extractor("scanned.pdf", ExtractorType.EASYOCR, dpi=200) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
 # Azure Document Intelligence (credentials from env vars)
 with create_extractor("document.pdf", ExtractorType.AZURE_DI) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
 # Path objects also work
 from pathlib import Path
 with create_extractor(Path("document.pdf"), ExtractorType.PDF) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 ```
 
 ### Example Output
 
-The `extract()` method returns a `Document` object with pages and text blocks:
+The `extract()` method returns an `ExtractionResult` containing the `Document` and per-page results:
 
 ```python
 from xtra import create_extractor, ExtractorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
-# Access extracted data
+# Check extraction status
+print(f"Success: {result.success}")  # True if all pages extracted
+
+# Access extracted document
+doc = result.document
 print(f"Pages: {len(doc.pages)}")  # Pages: 2
 
 for page in doc.pages:
@@ -71,6 +78,11 @@ for page in doc.pages:
     for text in page.texts:
         print(f"  - \"{text.text}\"")
         print(f"    bbox: ({text.bbox.x0:.1f}, {text.bbox.y0:.1f}, {text.bbox.x1:.1f}, {text.bbox.y1:.1f})")
+
+# Handle errors if any
+if not result.success:
+    for page_num, error in result.errors:
+        print(f"Page {page_num} failed: {error}")
 ```
 
 Output:
@@ -95,8 +107,8 @@ from xtra import PdfExtractor
 
 # String paths work directly
 with PdfExtractor("document.pdf") as extractor:
-    doc = extractor.extract()
-    for page in doc.pages:
+    result = extractor.extract()
+    for page in result.document.pages:
         for text in page.texts:
             print(text.text)
 ```
@@ -106,6 +118,49 @@ with PdfExtractor("document.pdf") as extractor:
 All OCR extractors use **2-letter ISO 639-1 language codes** (e.g., `"en"`, `"fr"`, `"de"`, `"it"`).
 Extractors that require different formats (like Tesseract) convert internally.
 
+### Parallel Extraction
+
+Extract multiple pages concurrently for faster processing:
+
+```python
+from xtra import create_extractor, ExtractorType, ExecutorType
+
+# Thread-based parallelism (recommended for most cases)
+with create_extractor("large_document.pdf", ExtractorType.EASYOCR) as extractor:
+    result = extractor.extract(max_workers=4)  # 4 parallel workers
+
+# Process-based parallelism (for CPU-bound pure Python workloads)
+with create_extractor("large_document.pdf", ExtractorType.EASYOCR) as extractor:
+    result = extractor.extract(max_workers=4, executor=ExecutorType.PROCESS)
+
+# Extract specific pages in parallel
+with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
+    result = extractor.extract(pages=[0, 2, 5, 8], max_workers=4)
+```
+
+**Executor Types:**
+
+| Executor | Best For | Notes |
+|----------|----------|-------|
+| `THREAD` (default) | Most OCR use cases | Shared model cache, low overhead, C libraries release GIL |
+| `PROCESS` | CPU-bound pure Python | Models duplicated per worker, higher memory usage |
+
+### Async Extraction
+
+For async applications, use the async API:
+
+```python
+import asyncio
+from xtra import create_extractor, ExtractorType
+
+async def extract_document():
+    with create_extractor("document.pdf", ExtractorType.EASYOCR) as extractor:
+        result = await extractor.extract_async(max_workers=4)
+        return result.document
+
+doc = asyncio.run(extract_document())
+```
+
 ### OCR Extraction (Local - EasyOCR)
 
 ```python
@@ -113,11 +168,11 @@ from xtra import EasyOcrExtractor
 
 # For images
 with EasyOcrExtractor("image.png", languages=["en"]) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
 # For PDFs (auto-converts to images)
 with EasyOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 ```
 
 ### OCR Extraction (Local - Tesseract)
@@ -132,11 +187,11 @@ from xtra import TesseractOcrExtractor
 
 # For images
 with TesseractOcrExtractor("image.png", languages=["en"]) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
 # For PDFs (auto-converts to images)
 with TesseractOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 ```
 
 ### OCR Extraction (Local - PaddleOCR)
@@ -148,15 +203,15 @@ from xtra import PaddleOcrExtractor
 
 # For images
 with PaddleOcrExtractor("image.png", lang="en") as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
 # For PDFs (auto-converts to images)
 with PaddleOcrExtractor("scanned.pdf", lang="en", dpi=200) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 
 # For Chinese text
 with PaddleOcrExtractor("chinese_doc.png", lang="ch") as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 ```
 
 ### OCR Extraction (Cloud - Azure)
@@ -169,7 +224,7 @@ with AzureDocumentIntelligenceExtractor(
     endpoint="https://your-resource.cognitiveservices.azure.com",
     key="your-api-key",
 ) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 ```
 
 ### OCR Extraction (Cloud - Google Document AI)
@@ -182,7 +237,7 @@ with GoogleDocumentAIExtractor(
     processor_name="projects/your-project/locations/us/processors/your-processor-id",
     credentials_path="/path/to/service-account.json",
 ) as extractor:
-    doc = extractor.extract()
+    result = extractor.extract()
 ```
 
 ## CLI Usage
@@ -194,6 +249,12 @@ poetry run python -m xtra.cli document.pdf --extractor pdf
 # EasyOCR extraction (works for both images and PDFs)
 poetry run python -m xtra.cli image.png --extractor easyocr --lang en,it
 poetry run python -m xtra.cli scanned.pdf --extractor easyocr --lang en
+
+# Parallel extraction with 4 workers
+poetry run python -m xtra.cli large_document.pdf --extractor easyocr --workers 4
+
+# Use process executor instead of threads
+poetry run python -m xtra.cli document.pdf --extractor easyocr --workers 4 --executor process
 
 # Tesseract OCR
 poetry run python -m xtra.cli document.pdf --extractor tesseract --lang eng
