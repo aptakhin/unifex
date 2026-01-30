@@ -3,6 +3,11 @@
 
 from __future__ import annotations
 
+# Suppress FutureWarning from instructor's internal google.generativeai import
+# Must be before any imports that might trigger it
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="instructor")
+
 import argparse
 import json
 import sys
