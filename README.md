@@ -458,7 +458,6 @@ BSD 3-Clause License. See [LICENSE](LICENSE) for details.
 
 ## Future plans
 
-- Table extraction for pdf (tabula) and cloud OCR's
-- LLM-chat free format result extraction through one interface
+- Table extraction for pdf (tabula)
 - Detecting language helper
 - Performance measurement
