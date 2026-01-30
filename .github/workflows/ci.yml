@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install poetry==2.1.1
-      - run: poetry install --with dev
+      - run: poetry install --with dev --all-extras
       - run: ./scripts/ci/typecheck.sh
 
   test:
@@ -37,7 +37,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install poetry==2.1.1
-      - run: poetry install --with dev --extras "tesseract easyocr azure google"
+      # Install headless OpenCV before poetry to prevent segfault when easyocr+paddleocr coexist
+      - run: pip install opencv-python-headless
+      - run: poetry install --with dev --all-extras
       - run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
       - run: echo '${{ secrets.GOOGLE_DOCAI_CREDENTIALS }}' > /tmp/google_creds.json
       - run: ./scripts/ci/test.sh
