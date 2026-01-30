@@ -58,7 +58,9 @@ def test_build_prompt_with_custom_prompt_and_schema() -> None:
 
 def test_build_prompt_with_custom_prompt_no_schema() -> None:
     result = _build_prompt(None, "Extract all text")
-    assert result == "Extract all text"
+    # Custom prompt with JSON instruction appended (required by OpenAI/Azure)
+    assert "Extract all text" in result
+    assert "json" in result.lower()
 
 
 def test_build_prompt_no_schema_no_prompt() -> None:

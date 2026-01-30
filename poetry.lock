@@ -1593,6 +1593,17 @@ files = [
 ]
 
 [[package]]
+name = "jsonref"
+version = "1.1.0"
+description = "jsonref is a library for automatic dereferencing of JSON Reference objects for Python."
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "jsonref-1.1.0-py3-none-any.whl", hash = "sha256:590dc7773df6c21cbf948b5dac07a72a251db28b0238ceecce0a2abfa8ec30a9"},
+    {file = "jsonref-1.1.0.tar.gz", hash = "sha256:32fe8e1d85af0fdefbebce950af85590b22b60f9e95443176adbde4e1ecea552"},
+]
+
+[[package]]
 name = "lazy-loader"
 version = "0.4"
 description = "Makes it easy to load subpackages and functions on demand."
@@ -4777,13 +4788,13 @@ multidict = ">=4.0"
 propcache = ">=0.2.1"
 
 [extras]
-all = ["anthropic", "azure-ai-documentintelligence", "easyocr", "google-cloud-documentai", "google-genai", "instructor", "openai", "paddleocr", "paddlepaddle", "pytesseract"]
+all = ["anthropic", "azure-ai-documentintelligence", "easyocr", "google-cloud-documentai", "google-genai", "instructor", "jsonref", "openai", "paddleocr", "paddlepaddle", "pytesseract"]
 azure = ["azure-ai-documentintelligence"]
 easyocr = ["easyocr"]
 google = ["google-cloud-documentai"]
-llm-all = ["anthropic", "google-genai", "instructor", "openai"]
+llm-all = ["anthropic", "google-genai", "instructor", "jsonref", "openai"]
 llm-anthropic = ["anthropic", "instructor"]
-llm-google = ["google-genai", "instructor"]
+llm-google = ["google-genai", "instructor", "jsonref"]
 llm-openai = ["instructor", "openai"]
 paddle = ["paddleocr", "paddlepaddle"]
 tesseract = ["pytesseract"]
@@ -4791,4 +4802,4 @@ tesseract = ["pytesseract"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<=3.13"
-content-hash = "ddd68af8cbbafd1003221667d7a3f721545513ba4b4b431ab5b4a8ce9939a7e8"
+content-hash = "11b228eb0caea8bf644502b24c6302749a942884a0ed30fcbe0794ce6b368b99"
