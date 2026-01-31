@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "echo '⚠️  TDD: Have you written tests FIRST? Red → Green → Refactor'"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "command": "echo '⚠️  Remember: COMMIT when the feature is complete!'"
+      },
+      {
+        "matcher": "Bash",
+        "command": "echo '📋 If tests fail due to missing credentials: ask user for creds to make cassettes, or exclude from coverage. Do NOT mock to fake coverage.'"
+      }
+    ]
+  }
+}
