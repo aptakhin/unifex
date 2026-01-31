@@ -20,6 +20,9 @@ from xtra.extractors.base import ExecutorType
 from xtra.extractors.factory import CHARACTER_MERGER_CHOICES, create_extractor
 from xtra.models import CoordinateUnit, ExtractorType
 
+# Extractors that support table extraction
+TABLE_SUPPORTED_EXTRACTORS = {"pdf", "azure-di", "google-docai", "paddle"}
+
 
 def _build_credentials(args: argparse.Namespace) -> dict[str, str] | None:
     """Build credentials dict from CLI arguments."""
@@ -133,19 +136,29 @@ def _attach_tables_to_pages(result: Any, tables: list[Any]) -> None:
         page.tables = tables_by_page.get(page.page, [])
 
 
+def _build_table_options(args: argparse.Namespace) -> dict[str, Any]:
+    """Build tabula options from CLI arguments."""
+    table_options: dict[str, Any] = {}
+
+    if args.table_lattice:
+        table_options["lattice"] = True
+    if args.table_stream:
+        table_options["stream"] = True
+    if args.table_columns:
+        table_options["columns"] = [float(c.strip()) for c in args.table_columns.split(",")]
+    if args.table_area:
+        table_options["area"] = [float(v.strip()) for v in args.table_area.split(",")]
+
+    return table_options
+
+
 def _extract_and_attach_tables(
     extractor: Any,
     result: Any,
     pages: Sequence[int] | None,
-    table_mode: str | None,
+    table_options: dict[str, Any],
 ) -> None:
     """Extract tables and attach them to document pages."""
-    table_options: dict[str, Any] = {}
-    if table_mode == "lattice":
-        table_options["lattice"] = True
-    elif table_mode == "stream":
-        table_options["stream"] = True
-
     tables = extractor.extract_tables(pages=pages, table_options=table_options)
     _attach_tables_to_pages(result, tables)
 
@@ -255,11 +268,26 @@ def _setup_parser() -> argparse.ArgumentParser:
         help="Extract tables (PDF requires tabula-py; Azure/Google extract automatically)",
     )
     parser.add_argument(
-        "--table-mode",
+        "--table-lattice",
+        action="store_true",
+        help="Use lattice mode for PDF tables (tables with visible cell borders)",
+    )
+    parser.add_argument(
+        "--table-stream",
+        action="store_true",
+        help="Use stream mode for PDF tables (tables without cell borders)",
+    )
+    parser.add_argument(
+        "--table-columns",
         type=str,
-        choices=["lattice", "stream"],
         default=None,
-        help="Table extraction mode: lattice (bordered tables), stream (borderless)",
+        help="Column x-coordinates for PDF table splitting, comma-separated (e.g., '100,200,300')",
+    )
+    parser.add_argument(
+        "--table-area",
+        type=str,
+        default=None,
+        help="Table area as top,left,bottom,right in points (e.g., '0,0,500,400')",
     )
     parser.add_argument(
         "--workers",
@@ -340,6 +368,15 @@ def main() -> None:
         print("Error: Either --extractor or --llm must be specified", file=sys.stderr)
         sys.exit(1)
 
+    # Validate table extraction support early
+    if args.tables and args.extractor and args.extractor not in TABLE_SUPPORTED_EXTRACTORS:
+        print(
+            f"Error: --tables is not supported for '{args.extractor}' extractor. "
+            f"Supported: {', '.join(sorted(TABLE_SUPPORTED_EXTRACTORS))}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     pages: Sequence[int] | None = None
     if args.pages:
         pages = [int(p.strip()) for p in args.pages.split(",")]
@@ -360,18 +397,14 @@ def main() -> None:
         # Extract tables if requested
         if args.tables:
             if args.extractor == "pdf":
-                _extract_and_attach_tables(extractor, result, pages, args.table_mode)
+                table_options = _build_table_options(args)
+                _extract_and_attach_tables(extractor, result, pages, table_options)
             elif args.extractor in ("azure-di", "google-docai"):
                 # Tables are extracted automatically by these extractors
                 pass
             elif args.extractor == "paddle":
                 # PaddleOCR uses PPStructure for table extraction
                 _extract_paddle_tables(extractor, result, pages)
-            else:
-                print(
-                    f"Warning: --tables is not supported for {args.extractor} extractor",
-                    file=sys.stderr,
-                )
 
     doc = result.document
     if args.json:
