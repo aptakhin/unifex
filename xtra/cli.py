@@ -60,7 +60,7 @@ def _create_extractor(args: argparse.Namespace, languages: list[str]) -> Any:
     credentials = _build_credentials(args)
 
     # Parse output unit
-    output_unit = CoordinateUnit(args.output_unit)
+    output_unit = CoordinateUnit(args.unit)
 
     try:
         return create_extractor(
@@ -136,18 +136,84 @@ def _attach_tables_to_pages(result: Any, tables: list[Any]) -> None:
         page.tables = tables_by_page.get(page.page, [])
 
 
-def _build_table_options(args: argparse.Namespace) -> dict[str, Any]:
-    """Build tabula options from CLI arguments."""
-    table_options: dict[str, Any] = {}
+AREA_COORDS_COUNT = 4  # top, left, bottom, right
+POINTS_PER_INCH = 72.0
 
-    if args.table_lattice:
+
+def _convert_to_points(
+    value: float,
+    source_unit: CoordinateUnit,
+    is_x: bool,
+    page_size: tuple[float, float],
+    dpi: float,
+) -> float:
+    """Convert a coordinate value from source_unit to points.
+
+    Args:
+        value: The coordinate value to convert.
+        source_unit: The unit of the input value.
+        is_x: True for x-coordinate, False for y-coordinate (for normalized).
+        page_size: (width, height) in points for normalized conversion.
+        dpi: DPI value for pixel conversion.
+
+    Returns:
+        The value converted to points.
+    """
+    if source_unit == CoordinateUnit.POINTS:
+        return value
+    if source_unit == CoordinateUnit.INCHES:
+        return value * POINTS_PER_INCH
+    if source_unit == CoordinateUnit.PIXELS:
+        return value * (POINTS_PER_INCH / dpi)
+    if source_unit == CoordinateUnit.NORMALIZED:
+        return value * (page_size[0] if is_x else page_size[1])
+    return value
+
+
+def _build_table_options(
+    args: argparse.Namespace,
+    page_width: float,
+    page_height: float,
+) -> dict[str, Any]:
+    """Build tabula options from CLI arguments with coordinate conversion.
+
+    Converts coordinates from user's --unit to points for tabula.
+
+    Args:
+        args: Parsed CLI arguments.
+        page_width: Page width in points.
+        page_height: Page height in points.
+
+    Returns:
+        Dict of tabula options with coordinates in points.
+    """
+    table_options: dict[str, Any] = {}
+    unit = CoordinateUnit(args.unit)
+    dpi = float(args.dpi)
+    page_size = (page_width, page_height)
+
+    if args.pdf_table_lattice:
         table_options["lattice"] = True
-    if args.table_stream:
+    if args.pdf_table_stream:
         table_options["stream"] = True
-    if args.table_columns:
-        table_options["columns"] = [float(c.strip()) for c in args.table_columns.split(",")]
-    if args.table_area:
-        table_options["area"] = [float(v.strip()) for v in args.table_area.split(",")]
+
+    if args.pdf_table_columns:
+        raw_columns = [float(c.strip()) for c in args.pdf_table_columns.split(",")]
+        table_options["columns"] = [
+            _convert_to_points(c, unit, is_x=True, page_size=page_size, dpi=dpi)
+            for c in raw_columns
+        ]
+
+    if args.pdf_table_area:
+        raw_area = [float(v.strip()) for v in args.pdf_table_area.split(",")]
+        if len(raw_area) == AREA_COORDS_COUNT:
+            top, left, bottom, right = raw_area
+            table_options["area"] = [
+                _convert_to_points(top, unit, is_x=False, page_size=page_size, dpi=dpi),
+                _convert_to_points(left, unit, is_x=True, page_size=page_size, dpi=dpi),
+                _convert_to_points(bottom, unit, is_x=False, page_size=page_size, dpi=dpi),
+                _convert_to_points(right, unit, is_x=True, page_size=page_size, dpi=dpi),
+            ]
 
     return table_options
 
@@ -249,11 +315,11 @@ def _setup_parser() -> argparse.ArgumentParser:
         help="Enable GPU acceleration (EasyOCR, PaddleOCR)",
     )
     parser.add_argument(
-        "--output-unit",
+        "--unit",
         type=str,
         choices=[u.value for u in CoordinateUnit],
         default="points",
-        help="Coordinate unit for output: points (default), pixels, inches, normalized",
+        help="Coordinate unit: points (default), pixels, inches, normalized",
     )
     parser.add_argument(
         "--character-merger",
@@ -268,26 +334,26 @@ def _setup_parser() -> argparse.ArgumentParser:
         help="Extract tables (PDF requires tabula-py; Azure/Google extract automatically)",
     )
     parser.add_argument(
-        "--table-lattice",
+        "--pdf-table-lattice",
         action="store_true",
         help="Use lattice mode for PDF tables (tables with visible cell borders)",
     )
     parser.add_argument(
-        "--table-stream",
+        "--pdf-table-stream",
         action="store_true",
         help="Use stream mode for PDF tables (tables without cell borders)",
     )
     parser.add_argument(
-        "--table-columns",
+        "--pdf-table-columns",
         type=str,
         default=None,
-        help="Column x-coordinates for PDF table splitting, comma-separated (e.g., '100,200,300')",
+        help="Column x-coordinates for PDF table splitting in --unit (e.g., '100,200,300')",
     )
     parser.add_argument(
-        "--table-area",
+        "--pdf-table-area",
         type=str,
         default=None,
-        help="Table area as top,left,bottom,right in points (e.g., '0,0,500,400')",
+        help="Table area as top,left,bottom,right in --unit coordinates (e.g., '0,0,500,400')",
     )
     parser.add_argument(
         "--workers",
@@ -397,7 +463,10 @@ def main() -> None:
         # Extract tables if requested
         if args.tables:
             if args.extractor == "pdf":
-                table_options = _build_table_options(args)
+                # Get page dimensions in points for coordinate conversion
+                # Use first page dimensions (typical for PDF documents)
+                page_width, page_height = extractor._pdf[0].get_size()
+                table_options = _build_table_options(args, page_width, page_height)
                 _extract_and_attach_tables(extractor, result, pages, table_options)
             elif args.extractor in ("azure-di", "google-docai"):
                 # Tables are extracted automatically by these extractors
