@@ -1,4 +1,14 @@
 repos:
+  # Mock quality fitness function - ensures mocks have behavioral verification
+  - repo: https://github.com/semgrep/semgrep
+    rev: v1.102.0
+    hooks:
+      - id: semgrep
+        name: semgrep mock-quality
+        args: ['--config', '.semgrep/', '--error']
+        types: [python]
+        files: ^tests/
+
   # Secret detection - pattern-based (catches known API key formats)
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.21.2

@@ -1,0 +1,46 @@
+rules:
+  # Rule 1: Detect Mock/MagicMock with return_value but no verification in same function
+  # Catches the anti-pattern: creating mock stubs just for coverage without behavioral testing
+  - id: mock-return-value-no-verification
+    patterns:
+      - pattern-either:
+          # Direct Mock(return_value=...) - the clearest anti-pattern
+          - pattern: $VAR = Mock(return_value=$VALUE, ...)
+          - pattern: $VAR = MagicMock(return_value=$VALUE, ...)
+      # Only flag if function has no assert_called* anywhere (simpler check)
+      - pattern-not-inside: |
+          def $FUNC(...):
+              ...
+              $X.assert_called(...)
+      - pattern-not-inside: |
+          def $FUNC(...):
+              ...
+              $X.assert_called_once(...)
+      - pattern-not-inside: |
+          def $FUNC(...):
+              ...
+              $X.assert_called_with(...)
+      - pattern-not-inside: |
+          def $FUNC(...):
+              ...
+              $X.assert_called_once_with(...)
+    message: |
+      Mock(return_value=...) used without behavioral verification.
+
+      Options:
+      1. Add assert_called*() to verify the mock was used correctly
+      2. Use an explicit stub class instead of Mock
+      3. Use VCR cassettes for external API calls
+
+      Examples: tests/ocr/test_azure_di_adapter.py (stub classes)
+                tests/llm/test_llm_vcr.py (VCR cassettes)
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - tests/
+      # Allowlist: Files with legitimate mock usage (all have proper assertions)
+      exclude:
+        - tests/llm/test_llm_factory.py    # Routing verification tests
+        - tests/base/test_optional_imports.py  # Import availability tests
+        - tests/base/test_cli.py           # CLI argv setup
