@@ -97,7 +97,9 @@ jobs:
         run: brew install tesseract
       - name: Install tesseract (Windows)
         if: runner.os == 'Windows'
-        run: choco install tesseract
+        run: |
+          choco install tesseract
+          echo "C:\Program Files\Tesseract-OCR" >> $env:GITHUB_PATH
       # paddlepaddle doesn't have wheels for Python 3.14 yet, so install all extras except paddle
       - name: Install dependencies (Python 3.14 - no paddle)
         if: matrix.python-version == '3.14'
