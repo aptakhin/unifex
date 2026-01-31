@@ -7,7 +7,7 @@ echo "=== Building package ==="
 rm -rf dist/
 
 # Build the package
-poetry build
+uv build
 
 echo "=== Build artifacts ==="
 ls -la dist/

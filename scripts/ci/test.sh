@@ -10,13 +10,13 @@ echo "Coverage minimum: ${COVERAGE_MIN}%"
 echo "Skip cloud tests: ${SKIP_CLOUD_TESTS}"
 
 if [ "$SKIP_CLOUD_TESTS" = "true" ]; then
-    poetry run pytest \
+    uv run pytest \
         -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf)" \
         --cov=xtra \
         --cov-report=term-missing \
         --cov-fail-under="${COVERAGE_MIN}"
 else
-    poetry run pytest \
+    uv run pytest \
         --cov=xtra \
         --cov-report=term-missing \
         --cov-fail-under="${COVERAGE_MIN}"

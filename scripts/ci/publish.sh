@@ -11,10 +11,7 @@ fi
 
 echo "=== Publishing to PyPI ==="
 
-# Configure poetry to use PyPI token
-poetry config pypi-token.pypi "$PYPI_TOKEN"
-
-# Publish
-poetry publish
+# Publish using uv with token
+uv publish --token "$PYPI_TOKEN"
 
 echo "=== Published successfully ==="
