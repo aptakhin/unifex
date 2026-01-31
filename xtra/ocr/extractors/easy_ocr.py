@@ -6,15 +6,16 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from xtra.extractors.base import BaseExtractor, PageExtractionResult
-from xtra.models import (
+from xtra.base import (
+    BaseExtractor,
     CoordinateUnit,
     ExtractorMetadata,
     ExtractorType,
+    ImageLoader,
     Page,
+    PageExtractionResult,
 )
 from xtra.ocr.adapters.easy_ocr import EasyOCRAdapter
-from xtra.utils.image_loader import ImageLoader
 
 if TYPE_CHECKING:
     import easyocr

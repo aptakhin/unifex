@@ -16,9 +16,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from xtra.extractors.base import ExecutorType
-from xtra.extractors.factory import CHARACTER_MERGER_CHOICES, create_extractor
-from xtra.models import CoordinateUnit, ExtractorType
+from xtra.base import CoordinateUnit, ExecutorType, ExtractorType
+from xtra.doc_factory import CHARACTER_MERGER_CHOICES, create_extractor
 
 # Extractors that support table extraction
 TABLE_SUPPORTED_EXTRACTORS = {"pdf", "azure-di", "google-docai", "paddle"}
@@ -252,7 +251,7 @@ def _extract_paddle_tables(
 def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
     """Run LLM-based extraction."""
     try:
-        from xtra.llm.factory import extract_structured
+        from xtra.llm_factory import extract_structured
     except ImportError as e:
         print(f"Error: LLM dependencies not installed: {e}", file=sys.stderr)
         sys.exit(1)

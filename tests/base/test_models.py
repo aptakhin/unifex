@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from xtra.models import (
+from xtra.base import (
     BBox,
     Document,
     ExtractorMetadata,

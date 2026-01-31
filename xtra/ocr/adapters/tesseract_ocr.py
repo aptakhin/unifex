@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, field_validator
 
-from xtra.models import BBox, TextBlock
+from xtra.base import BBox, TextBlock
 
 
 class TesseractDetection(BaseModel):

@@ -9,8 +9,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Self
 
-from xtra.coordinates import CoordinateConverter
-from xtra.models import CoordinateUnit, Document, ExtractorMetadata, Page
+from xtra.base.coordinates import CoordinateConverter
+from xtra.base.models import CoordinateUnit, Document, ExtractorMetadata, Page
 
 
 class ExecutorType(str, Enum):

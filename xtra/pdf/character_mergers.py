@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from xtra.models import BBox, FontInfo, TextBlock
+from xtra.base import BBox, FontInfo, TextBlock
 
 if TYPE_CHECKING:
     import pypdfium2 as pdfium

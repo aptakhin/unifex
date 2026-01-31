@@ -6,8 +6,8 @@ extractors which load ML models into memory.
 
 from pathlib import Path
 
-from xtra.extractors.factory import create_extractor
-from xtra.models import ExtractorType
+from xtra.base import ExtractorType
+from xtra.doc_factory import create_extractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, field_validator
 
-from xtra.models import TextBlock
-from xtra.utils.geometry import polygon_to_bbox_and_rotation
+from xtra.base import TextBlock, polygon_to_bbox_and_rotation
 
 POLYGON_POINTS = 4
 COORDINATES_PER_POINT = 2

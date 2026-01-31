@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from xtra.extractors import PdfExtractor
-from xtra.models import ExtractorType
+from xtra.base import ExtractorType
+from xtra.pdf import PdfExtractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 

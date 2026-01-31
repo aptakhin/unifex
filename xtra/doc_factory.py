@@ -1,17 +1,16 @@
-"""Factory for creating extractors by type."""
+"""Factory for creating document extractors by type."""
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
-from xtra.extractors.base import BaseExtractor
-from xtra.extractors.character_mergers import (
+from xtra.base import BaseExtractor, CoordinateUnit, ExtractorType
+from xtra.pdf import (
     BasicLineMerger,
     CharacterMerger,
     KeepCharacterMerger,
 )
-from xtra.models import CoordinateUnit, ExtractorType
 
 # Available character merger choices for PDF extractor
 CHARACTER_MERGER_CHOICES = {
@@ -100,7 +99,7 @@ def create_extractor(  # noqa: PLR0913
     languages = languages or ["en"]
 
     if extractor_type == ExtractorType.PDF:
-        from .pdf import PdfExtractor
+        from xtra.pdf import PdfExtractor
 
         merger = get_character_merger(character_merger) if character_merger else None
         return PdfExtractor(path, output_unit=output_unit, character_merger=merger)

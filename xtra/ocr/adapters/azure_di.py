@@ -4,8 +4,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from xtra.models import ExtractorMetadata, ExtractorType, Page, Table, TableCell, TextBlock
-from xtra.utils.geometry import polygon_to_bbox_and_rotation
+from xtra.base import (
+    ExtractorMetadata,
+    ExtractorType,
+    Page,
+    Table,
+    TableCell,
+    TextBlock,
+    polygon_to_bbox_and_rotation,
+)
 
 if TYPE_CHECKING:
     from azure.ai.documentintelligence.models import AnalyzeResult, DocumentPage

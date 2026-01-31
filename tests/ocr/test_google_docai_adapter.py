@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from xtra.models import ExtractorType
+from xtra.base import ExtractorType
 from xtra.ocr.adapters.google_docai import GoogleDocumentAIAdapter
 
 # Pydantic models representing Google Document AI response structure

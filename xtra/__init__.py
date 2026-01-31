@@ -1,19 +1,17 @@
-from xtra.extractors import (
+from xtra.base import (
     BaseExtractor,
-    ExtractionResult,
-    PdfExtractor,
-    create_extractor,
-)
-from xtra.models import (
     BBox,
     CoordinateUnit,
+    ExtractionResult,
     ExtractorMetadata,
     ExtractorType,
     FontInfo,
     Page,
     TextBlock,
 )
+from xtra.doc_factory import create_extractor
 from xtra.ocr.adapters import AzureDocumentIntelligenceAdapter
+from xtra.pdf import PdfExtractor
 
 __all__ = [
     # Adapters

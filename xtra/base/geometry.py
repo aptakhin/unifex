@@ -6,7 +6,7 @@ import math
 from collections.abc import Sequence
 from typing import Any
 
-from xtra.models import BBox
+from xtra.base.models import BBox
 
 # Type alias for points in different formats
 Point = tuple[float, float]

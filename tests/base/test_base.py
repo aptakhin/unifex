@@ -2,13 +2,16 @@ from pathlib import Path
 
 import pytest
 
-from xtra.extractors.base import (
+from xtra.base import (
     BaseExtractor,
+    Document,
     ExecutorType,
     ExtractionResult,
+    ExtractorMetadata,
+    ExtractorType,
+    Page,
     PageExtractionResult,
 )
-from xtra.models import Document, ExtractorMetadata, ExtractorType, Page
 
 
 class MockExtractor(BaseExtractor):

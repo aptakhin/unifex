@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from xtra.models import Table
+from xtra.base import Table
 
 # =============================================================================
 # Google Document AI Mock Models

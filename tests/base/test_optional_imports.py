@@ -24,19 +24,12 @@ class TestLazyImports:
         with pytest.raises(AttributeError, match="has no attribute"):
             _ = xtra.NonExistentClass
 
-    def test_extractors_getattr_returns_extractor(self):
-        """Test that extractors __getattr__ returns the correct extractor class."""
-        from xtra.extractors import PaddleOcrExtractor
+    def test_ocr_extractors_import(self):
+        """Test that OCR extractors can be imported."""
+        from xtra.ocr.extractors.paddle_ocr import PaddleOcrExtractor
 
         assert PaddleOcrExtractor is not None
         assert PaddleOcrExtractor.__name__ == "PaddleOcrExtractor"
-
-    def test_extractors_getattr_raises_attribute_error_for_unknown(self):
-        """Test that extractors __getattr__ raises AttributeError for unknown names."""
-        from xtra import extractors
-
-        with pytest.raises(AttributeError, match="has no attribute"):
-            _ = extractors.NonExistentClass
 
 
 class TestCheckFunctions:

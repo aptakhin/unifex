@@ -8,20 +8,21 @@ from typing import Any
 
 import pypdfium2 as pdfium
 
-from xtra.extractors.base import BaseExtractor, PageExtractionResult
-from xtra.extractors.character_mergers import (
-    BasicLineMerger,
-    CharacterMerger,
-    CharInfo,
-)
-from xtra.models import (
+from xtra.base import (
+    BaseExtractor,
     CoordinateUnit,
     ExtractorMetadata,
     ExtractorType,
     Page,
+    PageExtractionResult,
     Table,
     TableCell,
     TextBlock,
+)
+from xtra.pdf.character_mergers import (
+    BasicLineMerger,
+    CharacterMerger,
+    CharInfo,
 )
 
 logger = logging.getLogger(__name__)

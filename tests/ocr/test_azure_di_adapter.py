@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel
 
-from xtra.models import ExtractorType
+from xtra.base import ExtractorType
 from xtra.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
 
 

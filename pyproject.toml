@@ -138,7 +138,7 @@ ignore = [
 "**/__init__.py" = [
    "RUF022", # __all__ organized by category, not alphabetically
 ]
-"**/extractors/factory.py" = [
+"**/doc_factory.py" = [
    "TC001",   # BaseExtractor used at runtime (returned from factory)
 ]
 
@@ -179,31 +179,18 @@ name = "Core layered architecture"
 type = "layers"
 layers = [
     "xtra.cli",
-    "xtra.extractors.factory",
-    "xtra.extractors.base",
-    "xtra.coordinates",
-    "xtra.models",
+    "xtra.doc_factory",
+    "xtra.pdf",
+    "xtra.base",
 ]
 
 [[tool.importlinter.contracts]]
-name = "Models module has no internal dependencies"
+name = "Base module has no upward dependencies"
 type = "forbidden"
-source_modules = ["xtra.models"]
+source_modules = ["xtra.base"]
 forbidden_modules = [
-    "xtra.extractors",
-    "xtra.ocr",
-    "xtra.llm",
-    "xtra.utils",
-    "xtra.coordinates",
-    "xtra.cli",
-]
-
-[[tool.importlinter.contracts]]
-name = "Utils has no upward dependencies"
-type = "forbidden"
-source_modules = ["xtra.utils"]
-forbidden_modules = [
-    "xtra.extractors",
+    "xtra.pdf",
+    "xtra.doc_factory",
     "xtra.ocr",
     "xtra.llm",
     "xtra.cli",

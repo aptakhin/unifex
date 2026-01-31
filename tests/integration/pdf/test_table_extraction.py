@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from xtra.extractors import PdfExtractor
-from xtra.models import Table
+from xtra.base import Table
+from xtra.pdf import PdfExtractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 TABLE_PDF = TEST_DATA_DIR / "test_pdf_table.pdf"

@@ -6,8 +6,13 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from xtra.extractors.base import BaseExtractor, PageExtractionResult
-from xtra.models import CoordinateUnit, ExtractorMetadata, Page
+from xtra.base import (
+    BaseExtractor,
+    CoordinateUnit,
+    ExtractorMetadata,
+    Page,
+    PageExtractionResult,
+)
 from xtra.ocr.adapters.google_docai import GoogleDocumentAIAdapter
 
 if TYPE_CHECKING:

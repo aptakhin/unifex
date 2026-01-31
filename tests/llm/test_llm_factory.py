@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from xtra.llm.factory import _get_credential, _parse_model_string
 from xtra.llm.models import LLMExtractionResult, LLMProvider
+from xtra.llm_factory import _get_credential, _parse_model_string
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -94,7 +94,7 @@ class TestExtractStructuredRouting:
     @patch("xtra.llm.extractors.openai.extract_openai")
     def test_routes_to_openai(self, mock_extract_openai) -> None:
         """Test that OpenAI models route to extract_openai."""
-        from xtra.llm.factory import extract_structured
+        from xtra.llm_factory import extract_structured
 
         mock_result = LLMExtractionResult(
             data={"key": "value"}, model="gpt-4o", provider=LLMProvider.OPENAI
@@ -112,7 +112,7 @@ class TestExtractStructuredRouting:
     @patch("xtra.llm.extractors.anthropic.extract_anthropic")
     def test_routes_to_anthropic(self, mock_extract_anthropic) -> None:
         """Test that Anthropic models route to extract_anthropic."""
-        from xtra.llm.factory import extract_structured
+        from xtra.llm_factory import extract_structured
 
         mock_result = LLMExtractionResult(
             data={"key": "value"},
@@ -132,7 +132,7 @@ class TestExtractStructuredRouting:
     @patch("xtra.llm.extractors.google.extract_google")
     def test_routes_to_google(self, mock_extract_google) -> None:
         """Test that Google models route to extract_google."""
-        from xtra.llm.factory import extract_structured
+        from xtra.llm_factory import extract_structured
 
         mock_result = LLMExtractionResult(
             data={"key": "value"},
@@ -152,7 +152,7 @@ class TestExtractStructuredRouting:
     @patch("xtra.llm.extractors.azure_openai.extract_azure_openai")
     def test_routes_to_azure_openai(self, mock_extract_azure) -> None:
         """Test that Azure OpenAI models route to extract_azure_openai."""
-        from xtra.llm.factory import extract_structured
+        from xtra.llm_factory import extract_structured
 
         mock_result = LLMExtractionResult(
             data={"key": "value"},
@@ -174,7 +174,7 @@ class TestExtractStructuredRouting:
 
     def test_azure_openai_raises_without_endpoint(self, monkeypatch) -> None:
         """Test that Azure OpenAI raises error without endpoint."""
-        from xtra.llm.factory import extract_structured
+        from xtra.llm_factory import extract_structured
 
         # Clear any endpoint env vars that might be set
         monkeypatch.delenv("AZURE_OPENAI_ENDPOINT", raising=False)
@@ -189,7 +189,7 @@ class TestExtractStructuredRouting:
     @patch("xtra.llm.extractors.openai.extract_openai")
     def test_passes_base_url_to_openai(self, mock_extract_openai) -> None:
         """Test that base_url is passed to OpenAI extractor."""
-        from xtra.llm.factory import extract_structured
+        from xtra.llm_factory import extract_structured
 
         mock_result = LLMExtractionResult(data={}, model="gpt-4o", provider=LLMProvider.OPENAI)
         mock_extract_openai.return_value = mock_result

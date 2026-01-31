@@ -6,16 +6,17 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from xtra.extractors.base import BaseExtractor, PageExtractionResult
-from xtra.models import (
+from xtra.base import (
+    BaseExtractor,
     CoordinateUnit,
     ExtractorMetadata,
     ExtractorType,
+    ImageLoader,
     Page,
+    PageExtractionResult,
     Table,
 )
 from xtra.ocr.adapters.paddle_ocr import PaddleOCRAdapter
-from xtra.utils.image_loader import ImageLoader
 
 if TYPE_CHECKING:
     from paddleocr import PaddleOCR

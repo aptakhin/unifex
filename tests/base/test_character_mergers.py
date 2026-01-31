@@ -2,7 +2,7 @@
 
 import pytest
 
-from xtra.extractors.character_mergers import (
+from xtra.pdf import (
     BasicLineMerger,
     CharInfo,
     KeepCharacterMerger,

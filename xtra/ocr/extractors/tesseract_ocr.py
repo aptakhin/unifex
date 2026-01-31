@@ -5,15 +5,16 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from xtra.extractors.base import BaseExtractor, PageExtractionResult
-from xtra.models import (
+from xtra.base import (
+    BaseExtractor,
     CoordinateUnit,
     ExtractorMetadata,
     ExtractorType,
+    ImageLoader,
     Page,
+    PageExtractionResult,
 )
 from xtra.ocr.adapters.tesseract_ocr import TesseractAdapter
-from xtra.utils.image_loader import ImageLoader
 
 logger = logging.getLogger(__name__)
 

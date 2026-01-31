@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from xtra.models import BBox, CoordinateInfo, CoordinateUnit, Page, TextBlock
+from xtra.base.models import BBox, CoordinateInfo, CoordinateUnit, Page, TextBlock
 
 POINTS_PER_INCH = 72.0
 

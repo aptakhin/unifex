@@ -2,8 +2,8 @@
 
 import pytest
 
-from xtra.coordinates import POINTS_PER_INCH, CoordinateConverter
-from xtra.models import BBox, CoordinateUnit, Page, TextBlock
+from xtra.base import BBox, CoordinateUnit, Page, TextBlock
+from xtra.base.coordinates import POINTS_PER_INCH, CoordinateConverter
 
 
 class TestCoordinateConverter:

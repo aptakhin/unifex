@@ -1,6 +1,6 @@
 """Tests for geometry utilities."""
 
-from xtra.utils.geometry import polygon_to_bbox_and_rotation
+from xtra.base import polygon_to_bbox_and_rotation
 
 
 class TestPolygonToBboxAndRotation:
