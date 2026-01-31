@@ -42,109 +42,49 @@ class TestLazyImports:
 class TestCheckFunctions:
     """Test the _check_xxx_installed functions with mocked imports."""
 
-    def test_check_easyocr_installed_raises_when_missing(self):
-        """Test that _check_easyocr_installed raises ImportError when easyocr is missing."""
-        from xtra.ocr.extractors.easy_ocr import _check_easyocr_installed
+    @pytest.mark.parametrize(
+        "module_path,func_name,blocked_import,expected_extra",
+        [
+            ("xtra.ocr.extractors.easy_ocr", "_check_easyocr_installed", "easyocr", "easyocr"),
+            (
+                "xtra.ocr.extractors.tesseract_ocr",
+                "_check_pytesseract_installed",
+                "pytesseract",
+                "tesseract",
+            ),
+            ("xtra.ocr.extractors.paddle_ocr", "_check_paddleocr_installed", "paddleocr", "paddle"),
+            ("xtra.ocr.extractors.azure_di", "_check_azure_installed", "azure", "azure"),
+            (
+                "xtra.ocr.extractors.google_docai",
+                "_check_google_docai_installed",
+                "google",
+                "google",
+            ),
+        ],
+        ids=["easyocr", "tesseract", "paddleocr", "azure", "google"],
+    )
+    def test_check_installed_raises_when_missing(
+        self, module_path, func_name, blocked_import, expected_extra
+    ):
+        """Test that _check_xxx_installed raises ImportError when dependency is missing."""
+        import importlib
+
+        module = importlib.import_module(module_path)
+        check_func = getattr(module, func_name)
 
         original_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):
-            if "easyocr" in name:
-                raise ImportError("No module named easyocr")
+            if blocked_import in name:
+                raise ImportError(f"No module named {blocked_import}")
             return original_import(name, *args, **kwargs)
 
-        # Clear cached modules
-        saved = {k: v for k, v in sys.modules.items() if "easyocr" in k}
+        saved = {k: v for k, v in sys.modules.items() if blocked_import in k}
         for k in saved:
             del sys.modules[k]
 
         with patch.object(builtins, "__import__", mock_import):
-            with pytest.raises(ImportError, match="pip install xtra\\[easyocr\\]"):
-                _check_easyocr_installed()
-
-        # Restore modules
-        sys.modules.update(saved)
-
-    def test_check_pytesseract_installed_raises_when_missing(self):
-        """Test that _check_pytesseract_installed raises ImportError when pytesseract is missing."""
-        from xtra.ocr.extractors.tesseract_ocr import _check_pytesseract_installed
-
-        original_import = builtins.__import__
-
-        def mock_import(name, *args, **kwargs):
-            if "pytesseract" in name:
-                raise ImportError("No module named pytesseract")
-            return original_import(name, *args, **kwargs)
-
-        saved = {k: v for k, v in sys.modules.items() if "pytesseract" in k}
-        for k in saved:
-            del sys.modules[k]
-
-        with patch.object(builtins, "__import__", mock_import):
-            with pytest.raises(ImportError, match="pip install xtra\\[tesseract\\]"):
-                _check_pytesseract_installed()
-
-        sys.modules.update(saved)
-
-    def test_check_paddleocr_installed_raises_when_missing(self):
-        """Test that _check_paddleocr_installed raises ImportError when paddleocr is missing."""
-        from xtra.ocr.extractors.paddle_ocr import _check_paddleocr_installed
-
-        original_import = builtins.__import__
-
-        def mock_import(name, *args, **kwargs):
-            if "paddleocr" in name:
-                raise ImportError("No module named paddleocr")
-            return original_import(name, *args, **kwargs)
-
-        saved = {k: v for k, v in sys.modules.items() if "paddleocr" in k}
-        for k in saved:
-            del sys.modules[k]
-
-        with patch.object(builtins, "__import__", mock_import):
-            with pytest.raises(ImportError, match="pip install xtra\\[paddle\\]"):
-                _check_paddleocr_installed()
-
-        sys.modules.update(saved)
-
-    def test_check_azure_installed_raises_when_missing(self):
-        """Test that _check_azure_installed raises ImportError when azure SDK is missing."""
-        from xtra.ocr.extractors.azure_di import _check_azure_installed
-
-        original_import = builtins.__import__
-
-        def mock_import(name, *args, **kwargs):
-            if "azure" in name:
-                raise ImportError("No module named azure")
-            return original_import(name, *args, **kwargs)
-
-        saved = {k: v for k, v in sys.modules.items() if "azure" in k}
-        for k in saved:
-            del sys.modules[k]
-
-        with patch.object(builtins, "__import__", mock_import):
-            with pytest.raises(ImportError, match="pip install xtra\\[azure\\]"):
-                _check_azure_installed()
-
-        sys.modules.update(saved)
-
-    def test_check_google_docai_installed_raises_when_missing(self):
-        """Test that _check_google_docai_installed raises ImportError when google SDK is missing."""
-        from xtra.ocr.extractors.google_docai import _check_google_docai_installed
-
-        original_import = builtins.__import__
-
-        def mock_import(name, *args, **kwargs):
-            if "google" in name:
-                raise ImportError("No module named google")
-            return original_import(name, *args, **kwargs)
-
-        saved = {k: v for k, v in sys.modules.items() if "google" in k}
-        for k in saved:
-            del sys.modules[k]
-
-        with patch.object(builtins, "__import__", mock_import):
-            with pytest.raises(ImportError, match="pip install xtra\\[google\\]"):
-                _check_google_docai_installed()
+            with pytest.raises(ImportError, match=f"pip install xtra\\[{expected_extra}\\]"):
+                check_func()
 
         sys.modules.update(saved)
