@@ -1,8 +1,8 @@
 site_name: xtra
 site_description: A Python library for document text extraction with local and cloud OCR solutions
-site_url: https://yourorg.github.io/xtra/
-repo_url: https://github.com/yourorg/xtra
-repo_name: yourorg/xtra
+site_url: https://aptakhin.github.io/xtra/
+repo_url: https://github.com/aptakhin/xtra
+repo_name: aptakhin/xtra
 
 theme:
   name: material

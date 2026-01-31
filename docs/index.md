@@ -33,4 +33,4 @@ For broader document processing, check out [Docling](https://docling-project.git
 
 ## License
 
-BSD 3-Clause License. See [LICENSE](https://github.com/yourorg/xtra/blob/main/LICENSE) for details.
+BSD 3-Clause License. See [LICENSE](https://github.com/aptakhin/xtra/blob/main/LICENSE) for details.

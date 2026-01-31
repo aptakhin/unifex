@@ -13,7 +13,7 @@
     "PostToolUse": [
       {
         "matcher": "Task",
-        "command": "echo '⚠️  Remember: after the feature implementation look into README.md if changed things need to be updated!'"
+        "command": "echo '⚠️  Remember: after the feature implementation look into README.md and whole docs/ if changed things need to be updated!'"
       },
       {
         "matcher": "Task",

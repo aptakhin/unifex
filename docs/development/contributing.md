@@ -4,7 +4,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourorg/xtra.git
+git clone https://github.com/aptakhin/xtra.git
 cd xtra
 
 # Install dependencies
