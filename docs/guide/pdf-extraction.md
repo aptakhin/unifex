@@ -110,11 +110,12 @@ with PdfExtractor("table.pdf") as extractor:
 
 ### Table Options
 
-Pass tabula options to control extraction behavior:
+Pass tabula options to control extraction behavior. Coordinates in `area` and `columns`
+follow the extractor's `output_unit` setting (default: `POINTS`).
 
 <!-- skip: next -->
 ```python
-from xtra import PdfExtractor
+from xtra import PdfExtractor, CoordinateUnit
 
 with PdfExtractor("table.pdf") as extractor:
     # Lattice mode: for tables with visible borders
@@ -123,11 +124,21 @@ with PdfExtractor("table.pdf") as extractor:
     # Stream mode: for tables without visible borders
     result = extractor.extract(table_options={"stream": True})
 
-    # Extract from specific area (top, left, height, width in points)
-    result = extractor.extract(table_options={"area": [0, 0, 500, 500]})
+    # Extract from specific area (top, left, bottom, right in points - the default)
+    result = extractor.extract(table_options={
+        "area": (100, 50, 400, 500),
+        "columns": [100, 200, 350],  # column boundaries in points
+    })
 
     # Multiple tables per page
     result = extractor.extract(table_options={"multiple_tables": True})
+
+# Using inches instead of points
+with PdfExtractor("table.pdf", output_unit=CoordinateUnit.INCHES) as extractor:
+    result = extractor.extract(table_options={
+        "area": (1.0, 0.5, 5.0, 7.0),   # in inches
+        "columns": [1.5, 3.0, 5.5],      # in inches
+    })
 ```
 
 ## Path Objects

@@ -34,16 +34,19 @@ Pass these options via the `table_options` parameter to enable table extraction.
 
 ### Area Options
 
+Coordinates in `area` and `columns` follow the extractor's `output_unit` setting.
+The default unit is `POINTS` (1/72 inch).
+
 | Option | Type | Description |
 |--------|------|-------------|
-| `area` | `tuple[float, float, float, float]` | Extract area: (top, left, bottom, right) in points |
-| `columns` | `list[float]` | X-coordinates for column splitting |
+| `area` | `tuple[float, float, float, float]` | Extract area: (top, left, bottom, right) in output units |
+| `columns` | `list[float]` | X-coordinates for column splitting in output units |
 
 ### Example
 
 <!-- skip: next -->
 ```python
-from xtra import PdfExtractor
+from xtra import PdfExtractor, CoordinateUnit
 
 with PdfExtractor("table.pdf") as extractor:
     # Lattice mode for bordered tables
@@ -52,10 +55,19 @@ with PdfExtractor("table.pdf") as extractor:
     # Stream mode for borderless tables
     result = extractor.extract(table_options={"stream": True})
 
-    # Extract from specific area
+    # Extract from specific area (coordinates in points - the default)
     result = extractor.extract(table_options={
-        "area": (100, 50, 400, 500),  # top, left, bottom, right
+        "area": (100, 50, 400, 500),  # top, left, bottom, right in points
+        "columns": [100, 200, 350],   # column boundaries in points
         "lattice": True,
+    })
+
+# Using different coordinate units
+with PdfExtractor("table.pdf", output_unit=CoordinateUnit.INCHES) as extractor:
+    # Coordinates are now in inches
+    result = extractor.extract(table_options={
+        "area": (1.0, 0.5, 5.0, 7.0),  # top, left, bottom, right in inches
+        "columns": [1.5, 3.0, 5.5],    # column boundaries in inches
     })
 ```
 
