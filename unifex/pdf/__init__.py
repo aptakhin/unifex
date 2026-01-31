@@ -1,4 +1,4 @@
-"""PDF extraction module for xtra."""
+"""PDF extraction module for unifex."""
 
 from unifex.pdf.character_mergers import (
     BasicLineMerger,

@@ -1,4 +1,4 @@
-"""Base classes, models, and utilities for xtra extractors."""
+"""Base classes, models, and utilities for unifex extractors."""
 
 from unifex.base.base import (
     BaseExtractor,

@@ -1,6 +1,6 @@
 [project]
 name = "unifex"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unified extraction library for PDF, OCR, and LLM-based document processing"
 authors = [{ name = "SL team", email = "alex.ptakhin@prestatech.com" }]
 license = { text = "BSD-3-Clause" }
