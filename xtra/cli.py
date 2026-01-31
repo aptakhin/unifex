@@ -280,8 +280,8 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
         sys.exit(1)
 
 
-def _run_doc_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
-    """Run document extraction (OCR or PDF)."""
+def _run_text_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
+    """Run text extraction (OCR or PDF)."""
     languages = [lang.strip() for lang in args.lang.split(",")]
     extractor = _create_extractor(args, languages)
     executor_type = ExecutorType(args.executor)
@@ -304,11 +304,11 @@ def _run_doc_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
                 # PaddleOCR uses PPStructure for table extraction
                 _extract_paddle_tables(extractor, result, pages)
 
-    _print_doc_result(result.document, args.json)
+    _print_text_result(result.document, args.json)
 
 
-def _print_doc_result(doc: Any, as_json: bool) -> None:
-    """Print document extraction result."""
+def _print_text_result(doc: Any, as_json: bool) -> None:
+    """Print text extraction result."""
     if as_json:
         # pydantic v2 uses model_dump_json, v1 uses json
         if hasattr(doc, "model_dump_json"):
@@ -503,7 +503,7 @@ def main() -> None:
     if args.llm:
         _run_llm_extraction(args, pages)
     else:
-        _run_doc_extraction(args, pages)
+        _run_text_extraction(args, pages)
 
 
 if __name__ == "__main__":
