@@ -2,10 +2,10 @@
 
 ## Factory Interface (Recommended)
 
-The simplest way to use xtra is via the factory interface:
+The simplest way to use unifex is via the factory interface:
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 # PDF extraction (native text)
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
@@ -15,7 +15,7 @@ with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
 
 <!-- skip: next -->
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 # EasyOCR for images
 with create_extractor("image.png", ExtractorType.EASYOCR, languages=["en"]) as extractor:
@@ -28,7 +28,7 @@ with create_extractor("scanned.pdf", ExtractorType.EASYOCR, dpi=200) as extracto
 
 <!-- skip: next -->
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 # Azure Document Intelligence (credentials from env vars)
 with create_extractor("document.pdf", ExtractorType.AZURE_DI) as extractor:
@@ -40,7 +40,7 @@ with create_extractor("document.pdf", ExtractorType.AZURE_DI) as extractor:
 The `extract()` method returns an `ExtractionResult` containing the `Document` and per-page results:
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     result = extractor.extract()
@@ -68,7 +68,7 @@ if not result.success:
 You can also use extractors directly without the factory:
 
 ```python
-from xtra import PdfExtractor
+from unifex import PdfExtractor
 
 with PdfExtractor("document.pdf") as extractor:
     result = extractor.extract()

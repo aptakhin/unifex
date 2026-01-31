@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from xtra.base import Table
+from unifex.base import Table
 
 # =============================================================================
 # Google Document AI Mock Models
@@ -113,7 +113,7 @@ class AzureAnalyzeResult(BaseModel):
 class TestGoogleDocAITableExtraction:
     def test_convert_page_extracts_tables(self) -> None:
         """convert_page should extract tables from Google Document AI response."""
-        from xtra.ocr.adapters.google_docai import GoogleDocumentAIAdapter
+        from unifex.ocr.adapters.google_docai import GoogleDocumentAIAdapter
 
         # Text: "Header A" (0-8), "Header B" (8-16), "Row 1 A" (16-23), "Row 1 B" (23-30)
         document = GoogleDocument(
@@ -203,7 +203,7 @@ class TestGoogleDocAITableExtraction:
 
     def test_convert_page_no_tables(self) -> None:
         """convert_page should return empty tables list when no tables present."""
-        from xtra.ocr.adapters.google_docai import GoogleDocumentAIAdapter
+        from unifex.ocr.adapters.google_docai import GoogleDocumentAIAdapter
 
         document = GoogleDocument(
             text="Hello",
@@ -217,7 +217,7 @@ class TestGoogleDocAITableExtraction:
 
     def test_convert_page_table_with_empty_cells(self) -> None:
         """convert_page should handle tables with empty cells."""
-        from xtra.ocr.adapters.google_docai import GoogleDocumentAIAdapter
+        from unifex.ocr.adapters.google_docai import GoogleDocumentAIAdapter
 
         document = GoogleDocument(
             text="A",
@@ -268,7 +268,7 @@ class TestGoogleDocAITableExtraction:
 class TestAzureDocIntelligenceTableExtraction:
     def test_convert_page_extracts_tables(self) -> None:
         """convert_page should extract tables from Azure DI response."""
-        from xtra.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
+        from unifex.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
 
         result = AzureAnalyzeResult(
             pages=[AzurePage(page_number=1, width=8.5, height=11.0)],
@@ -303,7 +303,7 @@ class TestAzureDocIntelligenceTableExtraction:
 
     def test_convert_page_no_tables(self) -> None:
         """convert_page should return empty tables list when no tables present."""
-        from xtra.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
+        from unifex.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
 
         result = AzureAnalyzeResult(
             pages=[AzurePage(page_number=1, width=8.5, height=11.0)],
@@ -317,7 +317,7 @@ class TestAzureDocIntelligenceTableExtraction:
 
     def test_convert_page_multi_page_tables(self) -> None:
         """Tables should be assigned to correct pages."""
-        from xtra.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
+        from unifex.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
 
         result = AzureAnalyzeResult(
             pages=[
@@ -360,7 +360,7 @@ class TestAzureDocIntelligenceTableExtraction:
 class TestPaddleOCRTableExtraction:
     def test_convert_table_result_basic(self) -> None:
         """convert_table_result should convert PPStructure table output."""
-        from xtra.ocr.adapters.paddle_ocr import PaddleOCRAdapter
+        from unifex.ocr.adapters.paddle_ocr import PaddleOCRAdapter
 
         table_result = {
             "type": "table",
@@ -379,7 +379,7 @@ class TestPaddleOCRTableExtraction:
 
     def test_convert_table_result_empty_html(self) -> None:
         """convert_table_result should handle empty table HTML."""
-        from xtra.ocr.adapters.paddle_ocr import PaddleOCRAdapter
+        from unifex.ocr.adapters.paddle_ocr import PaddleOCRAdapter
 
         table_result = {"type": "table", "res": {"html": "<table></table>"}}
 
@@ -392,7 +392,7 @@ class TestPaddleOCRTableExtraction:
 
     def test_convert_table_result_with_rowspan_colspan(self) -> None:
         """convert_table_result should handle cells with rowspan/colspan."""
-        from xtra.ocr.adapters.paddle_ocr import PaddleOCRAdapter
+        from unifex.ocr.adapters.paddle_ocr import PaddleOCRAdapter
 
         html = '<table><tr><td colspan="2">Header</td></tr><tr><td>A</td><td>B</td></tr></table>'
         table_result = {"type": "table", "res": {"html": html}}

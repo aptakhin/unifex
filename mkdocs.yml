@@ -1,8 +1,8 @@
-site_name: xtra
+site_name: unifex
 site_description: A Python library for document text extraction with local and cloud OCR solutions
-site_url: https://aptakhin.github.io/xtra/
-repo_url: https://github.com/aptakhin/xtra
-repo_name: aptakhin/xtra
+site_url: https://aptakhin.name/unifex/
+repo_url: https://github.com/aptakhin/unifex
+repo_name: aptakhin/unifex
 
 theme:
   name: material

@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from xtra.ocr.adapters.easy_ocr import (
+from unifex.ocr.adapters.easy_ocr import (
     EasyOCRAdapter,
     EasyOCRDetection,
     EasyOCRResult,

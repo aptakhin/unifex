@@ -1,10 +1,10 @@
-# xtra
+# unifex
 
 A Python library for document text extraction with local and cloud OCR solutions.
 
 ## Overview
 
-**xtra** is built for tasks like fraud detection where precision matters. It provides a universal tool for both PDF and image processing with best-in-class OCR support through local engines and cloud services.
+**unifex** is built for tasks like fraud detection where precision matters. It provides a universal tool for both PDF and image processing with best-in-class OCR support through local engines and cloud services.
 
 ## Key Features
 
@@ -19,7 +19,7 @@ A Python library for document text extraction with local and cloud OCR solutions
 ## Quick Example
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 # PDF extraction (native text)
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
@@ -33,4 +33,4 @@ For broader document processing, check out [Docling](https://docling-project.git
 
 ## License
 
-BSD 3-Clause License. See [LICENSE](https://github.com/aptakhin/xtra/blob/main/LICENSE) for details.
+BSD 3-Clause License. See [LICENSE](https://github.com/aptakhin/unifex/blob/main/LICENSE) for details.

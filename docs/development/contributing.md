@@ -4,8 +4,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/aptakhin/xtra.git
-cd xtra
+git clone https://github.com/aptakhin/unifex.git
+cd unifex
 
 # Install dependencies
 uv sync

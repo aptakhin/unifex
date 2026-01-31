@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from xtra.base import (
+from unifex.base import (
     BBox,
     Document,
     ExtractorMetadata,

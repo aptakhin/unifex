@@ -4,7 +4,7 @@ import base64
 
 from PIL import Image
 
-from xtra.llm.adapters.image_encoder import ImageEncoder
+from unifex.llm.adapters.image_encoder import ImageEncoder
 
 
 def test_encode_png() -> None:

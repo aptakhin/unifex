@@ -9,8 +9,8 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
-from xtra.llm import extract_structured, extract_structured_async
-from xtra.llm.models import LLMProvider
+from unifex.llm import extract_structured, extract_structured_async
+from unifex.llm.models import LLMProvider
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 

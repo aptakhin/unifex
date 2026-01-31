@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel
 
-from xtra.base import ExtractorType
-from xtra.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
+from unifex.base import ExtractorType
+from unifex.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
 
 
 class DocumentWord(BaseModel):

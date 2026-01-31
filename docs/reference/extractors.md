@@ -6,7 +6,7 @@
 
 Native PDF text extraction using pypdfium2.
 
-::: xtra.pdf.PdfExtractor
+::: unifex.pdf.PdfExtractor
 
 ## Local OCR Extractors
 
@@ -14,19 +14,19 @@ Native PDF text extraction using pypdfium2.
 
 OCR using EasyOCR library.
 
-::: xtra.ocr.extractors.easy_ocr.EasyOcrExtractor
+::: unifex.ocr.extractors.easy_ocr.EasyOcrExtractor
 
 ### TesseractOcrExtractor
 
 OCR using Tesseract.
 
-::: xtra.ocr.extractors.tesseract_ocr.TesseractOcrExtractor
+::: unifex.ocr.extractors.tesseract_ocr.TesseractOcrExtractor
 
 ### PaddleOcrExtractor
 
 OCR using PaddleOCR.
 
-::: xtra.ocr.extractors.paddle_ocr.PaddleOcrExtractor
+::: unifex.ocr.extractors.paddle_ocr.PaddleOcrExtractor
 
 ## Cloud OCR Extractors
 
@@ -34,13 +34,13 @@ OCR using PaddleOCR.
 
 Azure Document Intelligence OCR.
 
-::: xtra.ocr.extractors.azure_di.AzureDocumentIntelligenceExtractor
+::: unifex.ocr.extractors.azure_di.AzureDocumentIntelligenceExtractor
 
 ### GoogleDocumentAIExtractor
 
 Google Document AI OCR.
 
-::: xtra.ocr.extractors.google_docai.GoogleDocumentAIExtractor
+::: unifex.ocr.extractors.google_docai.GoogleDocumentAIExtractor
 
 ## LLM Extractors
 
@@ -48,10 +48,10 @@ Google Document AI OCR.
 
 Synchronous LLM extraction function.
 
-::: xtra.llm_factory.extract_structured
+::: unifex.llm_factory.extract_structured
 
 ### extract_structured_async
 
 Asynchronous LLM extraction function.
 
-::: xtra.llm_factory.extract_structured_async
+::: unifex.llm_factory.extract_structured_async

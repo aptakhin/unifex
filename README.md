@@ -1,4 +1,4 @@
-# xtra
+# unifex
 
 A Python library for document text extraction with local and cloud OCR solutions.
 
@@ -22,17 +22,30 @@ For broader document processing, check out [Docling](https://docling-project.git
 ## Installation
 
 ```bash
-uv sync
+pip install unifex
+```
+
+Or with optional dependencies:
+
+```bash
+pip install unifex[pdf]       # PDF text extraction
+pip install unifex[easyocr]   # EasyOCR support
+pip install unifex[tesseract] # Tesseract OCR support
+pip install unifex[azure]     # Azure Document Intelligence
+pip install unifex[google]    # Google Document AI
+pip install unifex[llm-openai]     # OpenAI/GPT-4 extraction
+pip install unifex[llm-anthropic]  # Anthropic/Claude extraction
+pip install unifex[all]       # All dependencies
 ```
 
 ## Quick Start
 
 ### Factory Interface (Recommended)
 
-The simplest way to use xtra is via the factory interface. Both string paths and `Path` objects are accepted:
+The simplest way to use unifex is via the factory interface. Both string paths and `Path` objects are accepted:
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 # PDF extraction (native text) - string path
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
@@ -62,7 +75,7 @@ with create_extractor(Path("document.pdf"), ExtractorType.PDF) as extractor:
 The `extract()` method returns an `ExtractionResult` containing the `Document` and per-page results:
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     result = extractor.extract()
@@ -104,7 +117,7 @@ Page 2 (595x842):
 ### PDF Text Extraction
 
 ```python
-from xtra import PdfExtractor
+from unifex import PdfExtractor
 
 # String paths work directly
 with PdfExtractor("document.pdf") as extractor:
@@ -124,7 +137,7 @@ Extractors that require different formats (like Tesseract) convert internally.
 Extract multiple pages concurrently for faster processing:
 
 ```python
-from xtra import create_extractor, ExtractorType, ExecutorType
+from unifex import create_extractor, ExtractorType, ExecutorType
 
 # Thread-based parallelism (recommended for most cases)
 with create_extractor("large_document.pdf", ExtractorType.EASYOCR) as extractor:
@@ -152,7 +165,7 @@ For async applications, use the async API:
 
 ```python
 import asyncio
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 async def extract_document():
     with create_extractor("document.pdf", ExtractorType.EASYOCR) as extractor:
@@ -165,7 +178,7 @@ doc = asyncio.run(extract_document())
 ### OCR Extraction (Local - EasyOCR)
 
 ```python
-from xtra import EasyOcrExtractor
+from unifex import EasyOcrExtractor
 
 # For images
 with EasyOcrExtractor("image.png", languages=["en"]) as extractor:
@@ -184,7 +197,7 @@ Requires Tesseract to be installed on the system:
 - Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
 
 ```python
-from xtra import TesseractOcrExtractor
+from unifex import TesseractOcrExtractor
 
 # For images
 with TesseractOcrExtractor("image.png", languages=["en"]) as extractor:
@@ -200,7 +213,7 @@ with TesseractOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extracto
 PaddleOCR provides excellent accuracy for multiple languages, especially Chinese.
 
 ```python
-from xtra import PaddleOcrExtractor
+from unifex import PaddleOcrExtractor
 
 # For images
 with PaddleOcrExtractor("image.png", lang="en") as extractor:
@@ -218,7 +231,7 @@ with PaddleOcrExtractor("chinese_doc.png", lang="ch") as extractor:
 ### OCR Extraction (Cloud - Azure)
 
 ```python
-from xtra import AzureDocumentIntelligenceExtractor
+from unifex import AzureDocumentIntelligenceExtractor
 
 with AzureDocumentIntelligenceExtractor(
     "document.pdf",
@@ -231,7 +244,7 @@ with AzureDocumentIntelligenceExtractor(
 ### OCR Extraction (Cloud - Google Document AI)
 
 ```python
-from xtra import GoogleDocumentAIExtractor
+from unifex import GoogleDocumentAIExtractor
 
 with GoogleDocumentAIExtractor(
     "document.pdf",
@@ -246,7 +259,7 @@ with GoogleDocumentAIExtractor(
 Extract structured data from documents using vision-capable LLMs. Supports OpenAI, Anthropic, Google, and Azure OpenAI.
 
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 # Free-form extraction (returns dict)
 result = extract_structured(
@@ -269,7 +282,7 @@ Define a Pydantic model and get type-safe structured output:
 
 ```python
 from pydantic import BaseModel
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 class Invoice(BaseModel):
     invoice_number: str
@@ -291,7 +304,7 @@ print(f"Invoice {invoice.invoice_number}: ${invoice.total}")
 Use custom base URLs for self-hosted or alternative OpenAI-compatible APIs:
 
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 # vLLM server
 result = extract_structured(
@@ -321,7 +334,7 @@ result = extract_structured(
 Process multiple pages in parallel for faster extraction:
 
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 # Sequential: all pages sent in one request (default)
 result = extract_structured("document.pdf", model="openai/gpt-4o")
@@ -340,7 +353,7 @@ result = extract_structured(
 
 ```python
 import asyncio
-from xtra.llm import extract_structured_async
+from unifex.llm import extract_structured_async
 
 async def extract():
     result = await extract_structured_async(
@@ -357,66 +370,66 @@ data = asyncio.run(extract())
 
 ```bash
 # PDF extraction
-uv run python -m xtra.cli document.pdf --extractor pdf
+uv run python -m unifex.cli document.pdf --extractor pdf
 
 # EasyOCR extraction (works for both images and PDFs)
-uv run python -m xtra.cli image.png --extractor easyocr --lang en,it
-uv run python -m xtra.cli scanned.pdf --extractor easyocr --lang en
+uv run python -m unifex.cli image.png --extractor easyocr --lang en,it
+uv run python -m unifex.cli scanned.pdf --extractor easyocr --lang en
 
 # Parallel extraction with 4 workers
-uv run python -m xtra.cli large_document.pdf --extractor easyocr --workers 4
+uv run python -m unifex.cli large_document.pdf --extractor easyocr --workers 4
 
 # Use process executor instead of threads
-uv run python -m xtra.cli document.pdf --extractor easyocr --workers 4 --executor process
+uv run python -m unifex.cli document.pdf --extractor easyocr --workers 4 --executor process
 
 # Tesseract OCR
-uv run python -m xtra.cli document.pdf --extractor tesseract --lang eng
+uv run python -m unifex.cli document.pdf --extractor tesseract --lang eng
 
 # PaddleOCR
-uv run python -m xtra.cli document.pdf --extractor paddle --lang en
+uv run python -m unifex.cli document.pdf --extractor paddle --lang en
 
 # Azure Document Intelligence (credentials via CLI or env vars)
-uv run python -m xtra.cli document.pdf --extractor azure-di \
+uv run python -m unifex.cli document.pdf --extractor azure-di \
     --azure-endpoint https://your-resource.cognitiveservices.azure.com \
     --azure-key your-api-key
 
 # Or use environment variables
-export XTRA_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-export XTRA_AZURE_DI_KEY=your-api-key
-uv run python -m xtra.cli document.pdf --extractor azure-di
+export UNIFEX_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+export UNIFEX_AZURE_DI_KEY=your-api-key
+uv run python -m unifex.cli document.pdf --extractor azure-di
 
 # Google Document AI
-uv run python -m xtra.cli document.pdf --extractor google-docai \
+uv run python -m unifex.cli document.pdf --extractor google-docai \
     --google-processor-name projects/your-project/locations/us/processors/123 \
     --google-credentials-path /path/to/credentials.json
 
 # JSON output
-uv run python -m xtra.cli document.pdf --extractor pdf --json
+uv run python -m unifex.cli document.pdf --extractor pdf --json
 
 # Specific pages
-uv run python -m xtra.cli document.pdf --extractor pdf --pages 0,1,2
+uv run python -m unifex.cli document.pdf --extractor pdf --pages 0,1,2
 
 # LLM extraction (free-form)
-uv run python -m xtra.cli invoice.pdf --llm openai/gpt-4o
+uv run python -m unifex.cli invoice.pdf --llm openai/gpt-4o
 
 # LLM extraction with custom prompt
-uv run python -m xtra.cli receipt.png --llm anthropic/claude-sonnet-4-20250514 \
+uv run python -m unifex.cli receipt.png --llm anthropic/claude-sonnet-4-20250514 \
     --llm-prompt "Extract merchant name, date, and total"
 
 # LLM with parallel workers (each page processed separately)
-uv run python -m xtra.cli large_document.pdf --llm openai/gpt-4o --workers 4
+uv run python -m unifex.cli large_document.pdf --llm openai/gpt-4o --workers 4
 
 # LLM with OpenAI-compatible API (vLLM, Ollama, etc.)
-uv run python -m xtra.cli document.pdf --llm openai/llava \
+uv run python -m unifex.cli document.pdf --llm openai/llava \
     --llm-base-url http://localhost:11434/v1
 
 # LLM with custom headers
-uv run python -m xtra.cli document.pdf --llm openai/gpt-4o \
+uv run python -m unifex.cli document.pdf --llm openai/gpt-4o \
     --llm-base-url https://your-proxy.com/v1 \
     --llm-header "X-Custom-Auth=your-token"
 
 # LLM JSON output
-uv run python -m xtra.cli document.pdf --llm openai/gpt-4o --json
+uv run python -m unifex.cli document.pdf --llm openai/gpt-4o --json
 ```
 
 ## Environment Variables
@@ -427,11 +440,11 @@ Cloud extractors and LLM providers support configuration via environment variabl
 
 | Variable | Description |
 |----------|-------------|
-| `XTRA_AZURE_DI_ENDPOINT` | Azure Document Intelligence endpoint URL |
-| `XTRA_AZURE_DI_KEY` | Azure Document Intelligence API key |
-| `XTRA_AZURE_DI_MODEL` | Azure model ID (default: `prebuilt-read`) |
-| `XTRA_GOOGLE_DOCAI_PROCESSOR_NAME` | Google Document AI processor name |
-| `XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH` | Path to Google service account JSON |
+| `UNIFEX_AZURE_DI_ENDPOINT` | Azure Document Intelligence endpoint URL |
+| `UNIFEX_AZURE_DI_KEY` | Azure Document Intelligence API key |
+| `UNIFEX_AZURE_DI_MODEL` | Azure model ID (default: `prebuilt-read`) |
+| `UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME` | Google Document AI processor name |
+| `UNIFEX_GOOGLE_DOCAI_CREDENTIALS_PATH` | Path to Google service account JSON |
 
 **LLM Providers:**
 
@@ -469,7 +482,7 @@ uv run pytest tests/base tests/ocr
 uv run pytest tests/integration
 
 # Run with coverage
-uv run pytest --cov=xtra --cov-report=term-missing
+uv run pytest --cov=unifex --cov-report=term-missing
 ```
 
 ### Test Structure
@@ -511,8 +524,8 @@ Integration tests load real ML models and call real services. They are in `tests
 
 2. Edit `.env` with your Azure Document Intelligence credentials:
    ```
-   XTRA_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-   XTRA_AZURE_DI_KEY=your-api-key
+   UNIFEX_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+   UNIFEX_AZURE_DI_KEY=your-api-key
    ```
 
 3. Load environment variables before running tests:
@@ -536,8 +549,8 @@ Azure integration tests are automatically skipped if credentials are not configu
 
 5. Edit `.env` with your Google Document AI credentials:
    ```
-   XTRA_GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/your-processor-id
-   XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/your/service-account.json
+   UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/your-processor-id
+   UNIFEX_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/your/service-account.json
    ```
 
 Google Document AI integration tests are automatically skipped if credentials are not configured.
@@ -573,7 +586,7 @@ This runs:
 ## Architecture
 
 ```
-xtra/
+unifex/
 ├── cli.py              # Command-line interface
 ├── coordinates.py      # Coordinate unit conversions (POINTS, PIXELS, INCHES, NORMALIZED)
 ├── models.py           # Core data models (Document, Page, TextBlock, BBox)

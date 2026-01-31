@@ -6,8 +6,8 @@ extractors which load ML models into memory.
 
 from pathlib import Path
 
-from xtra.base import ExtractorType
-from xtra.text_factory import create_extractor
+from unifex.base import ExtractorType
+from unifex.text_factory import create_extractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 

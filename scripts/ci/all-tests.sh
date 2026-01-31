@@ -10,7 +10,7 @@ echo "=== Running all tests ==="
 echo "Coverage minimum: ${COVERAGE_MIN}%"
 
 uv run pytest \
-    --cov=xtra \
+    --cov=unifex \
     --cov-report=term-missing \
     --cov-fail-under="${COVERAGE_MIN}"
 

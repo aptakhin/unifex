@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from xtra.llm.extractors.openai import _build_prompt, _schema_to_field_description
+from unifex.llm.extractors.openai import _build_prompt, _schema_to_field_description
 
 
 class SimpleSchema(BaseModel):

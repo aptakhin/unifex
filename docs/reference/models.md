@@ -6,37 +6,37 @@
 
 The top-level container for extracted content.
 
-::: xtra.base.Document
+::: unifex.base.Document
 
 ### Page
 
 Represents a single page with text blocks and tables.
 
-::: xtra.base.Page
+::: unifex.base.Page
 
 ### TextBlock
 
 A text element with bounding box and confidence.
 
-::: xtra.base.TextBlock
+::: unifex.base.TextBlock
 
 ### BBox
 
 Bounding box coordinates.
 
-::: xtra.base.BBox
+::: unifex.base.BBox
 
 ### Table
 
 Extracted table with rows and cells.
 
-::: xtra.base.Table
+::: unifex.base.Table
 
 ### TableCell
 
 Individual cell within a table.
 
-::: xtra.base.TableCell
+::: unifex.base.TableCell
 
 ## Result Models
 
@@ -44,13 +44,13 @@ Individual cell within a table.
 
 Result of document extraction.
 
-::: xtra.base.ExtractionResult
+::: unifex.base.ExtractionResult
 
 ### PageExtractionResult
 
 Result of single page extraction.
 
-::: xtra.base.PageExtractionResult
+::: unifex.base.PageExtractionResult
 
 ## Metadata
 
@@ -58,4 +58,4 @@ Result of single page extraction.
 
 Metadata about the extractor used.
 
-::: xtra.base.ExtractorMetadata
+::: unifex.base.ExtractorMetadata

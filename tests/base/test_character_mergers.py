@@ -2,7 +2,7 @@
 
 import pytest
 
-from xtra.pdf import (
+from unifex.pdf import (
     BasicLineMerger,
     CharInfo,
     KeepCharacterMerger,

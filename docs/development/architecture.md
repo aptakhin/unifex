@@ -3,7 +3,7 @@
 ## Project Structure
 
 ```
-xtra/
+unifex/
 ├── cli.py              # Command-line interface
 ├── coordinates.py      # Coordinate unit conversions
 ├── models.py           # Core data models

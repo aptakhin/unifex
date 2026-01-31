@@ -1,7 +1,7 @@
 [project]
-name = "xtra"
+name = "unifex"
 version = "0.1.0"
-description = ""
+description = "Unified extraction library for PDF, OCR, and LLM-based document processing"
 authors = [{ name = "SL team", email = "alex.ptakhin@prestatech.com" }]
 license = { text = "BSD-3-Clause" }
 readme = "README.md"
@@ -12,6 +12,11 @@ dependencies = [
     "Pillow>=9.0",
     "numpy>=1.21",
 ]
+
+[project.urls]
+Homepage = "https://aptakhin.name/unifex/"
+Documentation = "https://aptakhin.name/unifex/"
+Repository = "https://github.com/aptakhin/unifex"
 
 [project.optional-dependencies]
 pdf = ["pypdfium2>=4.0"]
@@ -162,53 +167,53 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 omit = [
-    "xtra/cli.py",
+    "unifex/cli.py",
     # VCR tests pending - need working API keys to record cassettes
-    "xtra/llm/extractors/openai.py",
-    "xtra/llm/extractors/anthropic.py",
-    "xtra/llm/extractors/google.py",
+    "unifex/llm/extractors/openai.py",
+    "unifex/llm/extractors/anthropic.py",
+    "unifex/llm/extractors/google.py",
 ]
 
 # Architecture rules - enforced by `lint-imports`
 [tool.importlinter]
-root_package = "xtra"
+root_package = "unifex"
 
 [[tool.importlinter.contracts]]
 name = "OCR and LLM modules are independent"
 type = "independence"
-modules = ["xtra.ocr", "xtra.llm"]
+modules = ["unifex.ocr", "unifex.llm"]
 
 [[tool.importlinter.contracts]]
 name = "Core layered architecture"
 type = "layers"
 layers = [
-    "xtra.cli",
-    "xtra.text_factory",
-    "xtra.pdf",
-    "xtra.base",
+    "unifex.cli",
+    "unifex.text_factory",
+    "unifex.pdf",
+    "unifex.base",
 ]
 
 [[tool.importlinter.contracts]]
 name = "Base module has no upward dependencies"
 type = "forbidden"
-source_modules = ["xtra.base"]
+source_modules = ["unifex.base"]
 forbidden_modules = [
-    "xtra.pdf",
-    "xtra.text_factory",
-    "xtra.ocr",
-    "xtra.llm",
-    "xtra.cli",
+    "unifex.pdf",
+    "unifex.text_factory",
+    "unifex.ocr",
+    "unifex.llm",
+    "unifex.cli",
 ]
 
 [[tool.importlinter.contracts]]
 name = "OCR extractors are independent of each other"
 type = "independence"
 modules = [
-    "xtra.ocr.extractors.easy_ocr",
-    "xtra.ocr.extractors.tesseract_ocr",
-    "xtra.ocr.extractors.paddle_ocr",
-    "xtra.ocr.extractors.azure_di",
-    "xtra.ocr.extractors.google_docai",
+    "unifex.ocr.extractors.easy_ocr",
+    "unifex.ocr.extractors.tesseract_ocr",
+    "unifex.ocr.extractors.paddle_ocr",
+    "unifex.ocr.extractors.azure_di",
+    "unifex.ocr.extractors.google_docai",
 ]
 
 [build-system]

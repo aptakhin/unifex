@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from xtra.base import ExtractorType
-from xtra.text_factory import _get_credential, create_extractor
+from unifex.base import ExtractorType
+from unifex.text_factory import _get_credential, create_extractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -91,7 +91,7 @@ class TestCreateExtractorCredentialValidation:
     def test_raises_when_azure_credentials_missing(self) -> None:
         # Save and clear relevant env vars
         saved = {
-            k: os.environ.pop(k, None) for k in ["XTRA_AZURE_DI_ENDPOINT", "XTRA_AZURE_DI_KEY"]
+            k: os.environ.pop(k, None) for k in ["UNIFEX_AZURE_DI_ENDPOINT", "UNIFEX_AZURE_DI_KEY"]
         }
         try:
             with pytest.raises(ValueError, match="Azure credentials required"):
@@ -104,7 +104,7 @@ class TestCreateExtractorCredentialValidation:
     def test_raises_when_google_processor_name_missing(self) -> None:
         saved = {
             k: os.environ.pop(k, None)
-            for k in ["XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", "XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH"]
+            for k in ["UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME", "UNIFEX_GOOGLE_DOCAI_CREDENTIALS_PATH"]
         }
         try:
             with pytest.raises(ValueError, match="Google Document AI processor name required"):
@@ -117,16 +117,16 @@ class TestCreateExtractorCredentialValidation:
     def test_raises_when_google_credentials_path_missing(self) -> None:
         saved = {
             k: os.environ.pop(k, None)
-            for k in ["XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", "XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH"]
+            for k in ["UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME", "UNIFEX_GOOGLE_DOCAI_CREDENTIALS_PATH"]
         }
         try:
-            os.environ["XTRA_GOOGLE_DOCAI_PROCESSOR_NAME"] = (
+            os.environ["UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME"] = (
                 "projects/test/locations/us/processors/123"
             )
             with pytest.raises(ValueError, match="Google Document AI credentials path required"):
                 create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.GOOGLE_DOCAI)
         finally:
-            os.environ.pop("XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", None)
+            os.environ.pop("UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME", None)
             for k, v in saved.items():
                 if v is not None:
                     os.environ[k] = v

@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from xtra.base import CoordinateUnit, ExtractorType
-from xtra.cli import _build_table_options, main
+from unifex.base import CoordinateUnit, ExtractorType
+from unifex.cli import _build_table_options, main
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 

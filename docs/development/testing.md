@@ -13,7 +13,7 @@ uv run pytest tests/base tests/ocr
 uv run pytest tests/integration
 
 # Run with coverage
-uv run pytest --cov=xtra --cov-report=term-missing
+uv run pytest --cov=unifex --cov-report=term-missing
 ```
 
 ## Test Structure
@@ -61,8 +61,8 @@ Tests are automatically skipped if credentials are not configured.
 ```bash
 cp .env.example .env
 # Edit .env with your credentials:
-# XTRA_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-# XTRA_AZURE_DI_KEY=your-api-key
+# UNIFEX_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+# UNIFEX_AZURE_DI_KEY=your-api-key
 
 # Run tests
 export $(cat .env | xargs)
@@ -73,8 +73,8 @@ uv run pytest tests/integration -v
 
 ```bash
 # Edit .env:
-# XTRA_GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/123
-# XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/service-account.json
+# UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/123
+# UNIFEX_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/service-account.json
 
 export $(cat .env | xargs)
 uv run pytest tests/integration -v

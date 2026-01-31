@@ -1,12 +1,12 @@
 # Async API
 
-xtra provides native async/await support for integration with async applications.
+unifex provides native async/await support for integration with async applications.
 
 ## Basic Async Extraction
 
 ```python
 import asyncio
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 async def extract_document():
     with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
@@ -22,7 +22,7 @@ print(f"Extracted {len(doc.pages)} pages asynchronously")
 <!-- skip: next -->
 ```python
 import asyncio
-from xtra.llm import extract_structured_async
+from unifex.llm import extract_structured_async
 
 async def extract():
     result = await extract_structured_async(
@@ -40,7 +40,7 @@ data = asyncio.run(extract())
 <!-- skip: next -->
 ```python
 from fastapi import FastAPI, UploadFile
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 app = FastAPI()
 
@@ -64,7 +64,7 @@ Process multiple documents concurrently:
 
 ```python
 import asyncio
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 async def extract_one(path: str):
     with create_extractor(path, ExtractorType.PDF) as extractor:

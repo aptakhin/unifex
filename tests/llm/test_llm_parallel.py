@@ -7,8 +7,8 @@ from typing import Any
 
 import pytest
 
-from xtra.base import ExecutorType
-from xtra.llm.models import LLMExtractionResult, LLMProvider
+from unifex.base import ExecutorType
+from unifex.llm.models import LLMExtractionResult, LLMProvider
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -108,7 +108,7 @@ class TestExtractStructuredParallel:
 
     def test_single_worker_all_pages_in_one_request(self) -> None:
         """Test that single worker sends all pages in one request."""
-        from xtra.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured
 
         call_log: list[list[int] | None] = []
 
@@ -140,7 +140,7 @@ class TestExtractStructuredParallel:
 
     def test_multiple_workers_parallel_execution(self) -> None:
         """Test that multiple workers process pages in parallel."""
-        from xtra.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured
 
         fake = make_fake_extractor()
 
@@ -158,7 +158,7 @@ class TestExtractStructuredParallel:
 
     def test_preserves_page_order(self) -> None:
         """Test that results maintain original page order."""
-        from xtra.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured
 
         fake = make_fake_extractor()
 
@@ -180,7 +180,7 @@ class TestExtractStructuredParallel:
 
     def test_aggregates_usage(self) -> None:
         """Test that usage is aggregated across all pages."""
-        from xtra.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured
 
         fake = make_fake_extractor(usage={"prompt_tokens": 100, "completion_tokens": 50})
 
@@ -197,7 +197,7 @@ class TestExtractStructuredParallel:
 
     def test_raises_on_page_error(self) -> None:
         """Test that errors on individual pages raise ValueError."""
-        from xtra.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured
 
         fake = make_fake_extractor(error_pages={1})
 
@@ -212,7 +212,7 @@ class TestExtractStructuredParallel:
 
     def test_single_page_no_parallel(self) -> None:
         """Test that single page doesn't use parallel even with max_workers > 1."""
-        from xtra.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured
 
         call_log: list[list[int] | None] = []
 
@@ -244,7 +244,7 @@ class TestExtractStructuredParallel:
 
     def test_process_executor(self) -> None:
         """Test with process executor type."""
-        from xtra.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured
 
         # Note: ProcessPoolExecutor requires picklable functions
         # Using a simple lambda won't work, so we test that thread executor works
@@ -268,7 +268,7 @@ class TestExtractStructuredAsyncParallel:
     @pytest.mark.asyncio
     async def test_async_single_worker(self) -> None:
         """Test that single worker in async mode sends all pages in one request."""
-        from xtra.llm_factory import extract_structured_async
+        from unifex.llm_factory import extract_structured_async
 
         call_log: list[list[int] | None] = []
 
@@ -300,7 +300,7 @@ class TestExtractStructuredAsyncParallel:
     @pytest.mark.asyncio
     async def test_async_parallel_execution(self) -> None:
         """Test that async parallel extraction works."""
-        from xtra.llm_factory import extract_structured_async
+        from unifex.llm_factory import extract_structured_async
 
         async def fake_async(
             path: Path,
@@ -329,7 +329,7 @@ class TestExtractStructuredAsyncParallel:
     @pytest.mark.asyncio
     async def test_async_preserves_order(self) -> None:
         """Test that async parallel preserves page order."""
-        from xtra.llm_factory import extract_structured_async
+        from unifex.llm_factory import extract_structured_async
 
         async def fake_async(
             path: Path,

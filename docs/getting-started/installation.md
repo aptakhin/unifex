@@ -2,65 +2,71 @@
 
 ## Basic Installation
 
-Install xtra using uv:
+Install unifex using pip:
 
 ```bash
-uv sync
+pip install unifex
+```
+
+Or using uv:
+
+```bash
+uv add unifex
 ```
 
 ## Optional Dependencies
 
-xtra uses optional dependencies to keep the base installation lightweight. Install only what you need:
+unifex uses optional dependencies to keep the base installation lightweight. Install only what you need:
 
 ### PDF Extraction
 
 ```bash
-uv sync --extra pdf
+pip install unifex[pdf]
 ```
 
 ### Local OCR Engines
 
 ```bash
 # EasyOCR
-uv sync --extra easyocr
+pip install unifex[easyocr]
 
 # Tesseract (requires system Tesseract installation)
-uv sync --extra tesseract
+pip install unifex[tesseract]
 
 # PaddleOCR
-uv sync --extra paddle
+pip install unifex[paddle]
 ```
 
 ### Cloud OCR Services
 
 ```bash
 # Azure Document Intelligence
-uv sync --extra azure
+pip install unifex[azure]
 
 # Google Document AI
-uv sync --extra google
+pip install unifex[google]
 ```
 
 ### LLM Providers
 
 ```bash
 # OpenAI
-uv sync --extra llm-openai
+pip install unifex[llm-openai]
 
 # Anthropic
-uv sync --extra llm-anthropic
+pip install unifex[llm-anthropic]
 
 # Google Gemini
-uv sync --extra llm-google
+pip install unifex[llm-google]
 
 # All LLM providers
-uv sync --extra llm-all
+pip install unifex[llm-all]
 ```
 
 ### Everything
 
 ```bash
-uv sync --extra all
+pip install unifex[all]
 ```
 
 ## System Requirements

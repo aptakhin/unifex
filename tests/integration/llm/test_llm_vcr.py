@@ -53,7 +53,7 @@ class TestOpenAIVCR:
     @pytest.mark.vcr(cassette_library_dir=str(CASSETTE_DIR))
     def test_openai_with_schema(self) -> None:
         """Test OpenAI extraction with schema using recorded response."""
-        from xtra.llm.extractors.openai import extract_openai
+        from unifex.llm.extractors.openai import extract_openai
 
         api_key = get_api_key_or_check_cassette("OPENAI_API_KEY", "test_openai_with_schema")
 
@@ -71,7 +71,7 @@ class TestOpenAIVCR:
     @pytest.mark.vcr(cassette_library_dir=str(CASSETTE_DIR))
     def test_openai_without_schema(self) -> None:
         """Test OpenAI extraction without schema (JSON mode)."""
-        from xtra.llm.extractors.openai import extract_openai
+        from unifex.llm.extractors.openai import extract_openai
 
         api_key = get_api_key_or_check_cassette("OPENAI_API_KEY", "test_openai_without_schema")
 
@@ -93,7 +93,7 @@ class TestAnthropicVCR:
     @pytest.mark.vcr(cassette_library_dir=str(CASSETTE_DIR))
     def test_anthropic_with_schema(self) -> None:
         """Test Anthropic extraction with schema using recorded response."""
-        from xtra.llm.extractors.anthropic import extract_anthropic
+        from unifex.llm.extractors.anthropic import extract_anthropic
 
         api_key = get_api_key_or_check_cassette("ANTHROPIC_API_KEY", "test_anthropic_with_schema")
 
@@ -111,7 +111,7 @@ class TestAnthropicVCR:
     @pytest.mark.vcr(cassette_library_dir=str(CASSETTE_DIR))
     def test_anthropic_without_schema(self) -> None:
         """Test Anthropic extraction without schema."""
-        from xtra.llm.extractors.anthropic import extract_anthropic
+        from unifex.llm.extractors.anthropic import extract_anthropic
 
         api_key = get_api_key_or_check_cassette(
             "ANTHROPIC_API_KEY", "test_anthropic_without_schema"
@@ -135,7 +135,7 @@ class TestGoogleVCR:
     @pytest.mark.vcr(cassette_library_dir=str(CASSETTE_DIR))
     def test_google_with_schema(self) -> None:
         """Test Google Gemini extraction with schema using recorded response."""
-        from xtra.llm.extractors.google import extract_google
+        from unifex.llm.extractors.google import extract_google
 
         api_key = get_api_key_or_check_cassette("GOOGLE_API_KEY", "test_google_with_schema")
 
@@ -153,7 +153,7 @@ class TestGoogleVCR:
     @pytest.mark.vcr(cassette_library_dir=str(CASSETTE_DIR))
     def test_google_without_schema(self) -> None:
         """Test Google Gemini extraction without schema."""
-        from xtra.llm.extractors.google import extract_google
+        from unifex.llm.extractors.google import extract_google
 
         api_key = get_api_key_or_check_cassette("GOOGLE_API_KEY", "test_google_without_schema")
 

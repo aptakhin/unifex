@@ -5,7 +5,7 @@ Native PDF text extraction using pypdfium2, with optional table extraction via t
 ## Basic Usage
 
 ```python
-from xtra import PdfExtractor
+from unifex import PdfExtractor
 
 with PdfExtractor("document.pdf") as extractor:
     result = extractor.extract()
@@ -17,7 +17,7 @@ with PdfExtractor("document.pdf") as extractor:
 ## Using the Factory
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     result = extractor.extract()
@@ -27,7 +27,7 @@ with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
 ## Extracting Specific Pages
 
 ```python
-from xtra import PdfExtractor
+from unifex import PdfExtractor
 
 with PdfExtractor("document.pdf") as extractor:
     # Extract only page 0
@@ -40,7 +40,7 @@ with PdfExtractor("document.pdf") as extractor:
 Extract multiple pages concurrently for faster processing:
 
 ```python
-from xtra import PdfExtractor
+from unifex import PdfExtractor
 
 with PdfExtractor("document.pdf") as extractor:
     # Use 2 parallel workers
@@ -55,7 +55,7 @@ See [Parallel Processing](parallel-processing.md) for more details.
 Control the output coordinate system for bounding boxes:
 
 ```python
-from xtra import PdfExtractor, CoordinateUnit
+from unifex import PdfExtractor, CoordinateUnit
 
 # Points (default) - 1/72 inch, PDF native
 with PdfExtractor("document.pdf", output_unit=CoordinateUnit.POINTS) as extractor:
@@ -97,7 +97,7 @@ uv sync --extra tables
 
 <!-- skip: next -->
 ```python
-from xtra import PdfExtractor
+from unifex import PdfExtractor
 
 with PdfExtractor("table.pdf") as extractor:
     result = extractor.extract(table_options={})
@@ -115,7 +115,7 @@ follow the extractor's `output_unit` setting (default: `POINTS`).
 
 <!-- skip: next -->
 ```python
-from xtra import PdfExtractor, CoordinateUnit
+from unifex import PdfExtractor, CoordinateUnit
 
 with PdfExtractor("table.pdf") as extractor:
     # Lattice mode: for tables with visible borders
@@ -147,7 +147,7 @@ Both string paths and `Path` objects are supported:
 
 ```python
 from pathlib import Path
-from xtra import PdfExtractor
+from unifex import PdfExtractor
 
 with PdfExtractor(Path("document.pdf")) as extractor:
     result = extractor.extract()

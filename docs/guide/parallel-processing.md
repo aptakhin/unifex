@@ -5,7 +5,7 @@ Extract multiple pages concurrently for faster processing.
 ## Basic Parallel Extraction
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     result = extractor.extract(max_workers=2)
@@ -14,14 +14,14 @@ with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
 
 ## Executor Types
 
-xtra supports two executor types for parallel processing:
+unifex supports two executor types for parallel processing:
 
 ### Thread Executor (Default)
 
 Best for most OCR use cases. Threads share the model cache and have low overhead.
 
 ```python
-from xtra import create_extractor, ExtractorType, ExecutorType
+from unifex import create_extractor, ExtractorType, ExecutorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     result = extractor.extract(max_workers=2, executor=ExecutorType.THREAD)
@@ -33,7 +33,7 @@ with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
 Best for CPU-bound pure Python workloads. Models are duplicated per worker, resulting in higher memory usage.
 
 ```python
-from xtra import create_extractor, ExtractorType, ExecutorType
+from unifex import create_extractor, ExtractorType, ExecutorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     result = extractor.extract(max_workers=2, executor=ExecutorType.PROCESS)
@@ -50,7 +50,7 @@ with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
 ## Extracting Specific Pages in Parallel
 
 ```python
-from xtra import create_extractor, ExtractorType
+from unifex import create_extractor, ExtractorType
 
 with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     result = extractor.extract(pages=[0, 1], max_workers=2)
@@ -63,7 +63,7 @@ LLM extraction also supports parallel processing:
 
 <!-- skip: next -->
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 result = extract_structured(
     "document.pdf",

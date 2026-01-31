@@ -53,12 +53,12 @@ You're a development partner, not just a code executor. Your expertise matters!
 
 ## Python Import Style
 
-**Use absolute imports** starting with `xtra.` for all internal imports:
+**Use absolute imports** starting with `unifex.` for all internal imports:
 
 ```python
 # Good - absolute imports
-from xtra.models import BBox, TextBlock
-from xtra.extractors.base import BaseExtractor
+from unifex.models import BBox, TextBlock
+from unifex.extractors.base import BaseExtractor
 
 # Bad - relative imports
 from ..models import BBox
@@ -95,5 +95,5 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Good - just import directly
-from xtra.models import BBox
+from unifex.models import BBox
 ```

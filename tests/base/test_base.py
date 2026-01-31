@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from xtra.base import (
+from unifex.base import (
     BaseExtractor,
     Document,
     ExecutorType,

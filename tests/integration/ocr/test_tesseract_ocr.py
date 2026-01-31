@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from xtra.ocr.extractors.tesseract_ocr import TesseractOcrExtractor, _convert_lang_code
+from unifex.ocr.extractors.tesseract_ocr import TesseractOcrExtractor, _convert_lang_code
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 

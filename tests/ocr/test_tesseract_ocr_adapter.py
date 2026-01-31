@@ -2,7 +2,7 @@
 
 import pytest
 
-from xtra.ocr.adapters.tesseract_ocr import (
+from unifex.ocr.adapters.tesseract_ocr import (
     TesseractAdapter,
     TesseractDetection,
     TesseractResult,

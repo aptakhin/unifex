@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from xtra.ocr.extractors.easy_ocr import EasyOcrExtractor
+from unifex.ocr.extractors.easy_ocr import EasyOcrExtractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 

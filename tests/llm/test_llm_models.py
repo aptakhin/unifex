@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 
-from xtra.llm.models import (
+from unifex.llm.models import (
     LLMExtractionResult,
     LLMProvider,
     PageExtractionConfig,

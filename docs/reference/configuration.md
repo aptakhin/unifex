@@ -46,7 +46,7 @@ The default unit is `POINTS` (1/72 inch).
 
 <!-- skip: next -->
 ```python
-from xtra import PdfExtractor, CoordinateUnit
+from unifex import PdfExtractor, CoordinateUnit
 
 with PdfExtractor("table.pdf") as extractor:
     # Lattice mode for bordered tables
@@ -77,11 +77,11 @@ with PdfExtractor("table.pdf", output_unit=CoordinateUnit.INCHES) as extractor:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `XTRA_AZURE_DI_ENDPOINT` | Azure Document Intelligence endpoint URL | - |
-| `XTRA_AZURE_DI_KEY` | Azure Document Intelligence API key | - |
-| `XTRA_AZURE_DI_MODEL` | Azure model ID | `prebuilt-read` |
-| `XTRA_GOOGLE_DOCAI_PROCESSOR_NAME` | Google Document AI processor name | - |
-| `XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH` | Path to Google service account JSON | - |
+| `UNIFEX_AZURE_DI_ENDPOINT` | Azure Document Intelligence endpoint URL | - |
+| `UNIFEX_AZURE_DI_KEY` | Azure Document Intelligence API key | - |
+| `UNIFEX_AZURE_DI_MODEL` | Azure model ID | `prebuilt-read` |
+| `UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME` | Google Document AI processor name | - |
+| `UNIFEX_GOOGLE_DOCAI_CREDENTIALS_PATH` | Path to Google service account JSON | - |
 
 ### LLM Providers
 
@@ -142,7 +142,7 @@ Type of executor for parallel processing:
 - `ExecutorType.PROCESS` - Process pool executor
 
 ```python
-from xtra import ExecutorType
+from unifex import ExecutorType
 
 result = extractor.extract(max_workers=4, executor=ExecutorType.PROCESS)
 ```

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from xtra.base import ExtractorType
-from xtra.pdf import PdfExtractor
+from unifex.base import ExtractorType
+from unifex.pdf import PdfExtractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 

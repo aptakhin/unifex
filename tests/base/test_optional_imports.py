@@ -10,23 +10,23 @@ import pytest
 class TestLazyImports:
     """Test lazy import functionality in __init__.py modules."""
 
-    def test_xtra_getattr_returns_extractor(self):
+    def test_unifex_getattr_returns_extractor(self):
         """Test that __getattr__ returns the correct extractor class."""
-        from xtra import EasyOcrExtractor
+        from unifex import EasyOcrExtractor
 
         assert EasyOcrExtractor is not None
         assert EasyOcrExtractor.__name__ == "EasyOcrExtractor"
 
-    def test_xtra_getattr_raises_attribute_error_for_unknown(self):
+    def test_unifex_getattr_raises_attribute_error_for_unknown(self):
         """Test that __getattr__ raises AttributeError for unknown names."""
-        import xtra
+        import unifex
 
         with pytest.raises(AttributeError, match="has no attribute"):
-            _ = xtra.NonExistentClass
+            _ = unifex.NonExistentClass
 
     def test_ocr_extractors_import(self):
         """Test that OCR extractors can be imported."""
-        from xtra.ocr.extractors.paddle_ocr import PaddleOcrExtractor
+        from unifex.ocr.extractors.paddle_ocr import PaddleOcrExtractor
 
         assert PaddleOcrExtractor is not None
         assert PaddleOcrExtractor.__name__ == "PaddleOcrExtractor"
@@ -38,17 +38,22 @@ class TestCheckFunctions:
     @pytest.mark.parametrize(
         "module_path,func_name,blocked_import,expected_extra",
         [
-            ("xtra.ocr.extractors.easy_ocr", "_check_easyocr_installed", "easyocr", "easyocr"),
+            ("unifex.ocr.extractors.easy_ocr", "_check_easyocr_installed", "easyocr", "easyocr"),
             (
-                "xtra.ocr.extractors.tesseract_ocr",
+                "unifex.ocr.extractors.tesseract_ocr",
                 "_check_pytesseract_installed",
                 "pytesseract",
                 "tesseract",
             ),
-            ("xtra.ocr.extractors.paddle_ocr", "_check_paddleocr_installed", "paddleocr", "paddle"),
-            ("xtra.ocr.extractors.azure_di", "_check_azure_installed", "azure", "azure"),
             (
-                "xtra.ocr.extractors.google_docai",
+                "unifex.ocr.extractors.paddle_ocr",
+                "_check_paddleocr_installed",
+                "paddleocr",
+                "paddle",
+            ),
+            ("unifex.ocr.extractors.azure_di", "_check_azure_installed", "azure", "azure"),
+            (
+                "unifex.ocr.extractors.google_docai",
                 "_check_google_docai_installed",
                 "google",
                 "google",
@@ -77,7 +82,7 @@ class TestCheckFunctions:
             del sys.modules[k]
 
         with patch.object(builtins, "__import__", mock_import):
-            with pytest.raises(ImportError, match=f"pip install xtra\\[{expected_extra}\\]"):
+            with pytest.raises(ImportError, match=f"pip install unifex\\[{expected_extra}\\]"):
                 check_func()
 
         sys.modules.update(saved)

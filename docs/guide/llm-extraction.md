@@ -16,7 +16,7 @@ Extract structured data from documents using vision-capable LLMs.
 
 <!-- skip: next -->
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 result = extract_structured(
     "document.pdf",
@@ -29,7 +29,7 @@ print(result.data)
 
 <!-- skip: next -->
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 result = extract_structured(
     "image.png",
@@ -45,7 +45,7 @@ Define a Pydantic model for type-safe structured output:
 <!-- skip: next -->
 ```python
 from pydantic import BaseModel
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 class DocumentContent(BaseModel):
     title: str | None
@@ -66,7 +66,7 @@ Use custom base URLs for self-hosted or alternative APIs:
 
 <!-- skip: next -->
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 # vLLM server
 result = extract_structured(
@@ -97,7 +97,7 @@ Process multiple pages in parallel for faster extraction:
 
 <!-- skip: next -->
 ```python
-from xtra.llm import extract_structured
+from unifex.llm import extract_structured
 
 # Sequential: all pages sent in one request (default)
 result = extract_structured("document.pdf", model="openai/gpt-4o")
@@ -117,7 +117,7 @@ result = extract_structured(
 <!-- skip: next -->
 ```python
 import asyncio
-from xtra.llm import extract_structured_async
+from unifex.llm import extract_structured_async
 
 async def extract():
     result = await extract_structured_async(

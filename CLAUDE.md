@@ -16,7 +16,7 @@
 
 - Run all tests: `uv run pytest`
 - Run specific test: `uv run pytest tests/test_file.py::TestClass::test_method -v`
-- Run with coverage: `uv run pytest --cov=xtra`
+- Run with coverage: `uv run pytest --cov=unifex`
 
 ## Code Style
 

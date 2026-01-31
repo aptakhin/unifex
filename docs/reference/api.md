@@ -6,7 +6,7 @@
 
 The main entry point for creating extractors.
 
-::: xtra.create_extractor
+::: unifex.create_extractor
 
 ## Extractor Types
 
@@ -14,7 +14,7 @@ The main entry point for creating extractors.
 
 Enum for available extractor types.
 
-::: xtra.ExtractorType
+::: unifex.ExtractorType
 
 ## Coordinate Units
 
@@ -22,7 +22,7 @@ Enum for available extractor types.
 
 Enum for coordinate output units.
 
-::: xtra.CoordinateUnit
+::: unifex.CoordinateUnit
 
 ## Executor Types
 
@@ -30,4 +30,4 @@ Enum for coordinate output units.
 
 Enum for parallel execution modes.
 
-::: xtra.base.ExecutorType
+::: unifex.base.ExecutorType

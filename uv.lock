@@ -3772,6 +3772,158 @@ wheels = [
 ]
 
 [[package]]
+name = "unifex"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "pydantic" },
+]
+
+[package.optional-dependencies]
+all = [
+    { name = "anthropic" },
+    { name = "azure-ai-documentintelligence" },
+    { name = "easyocr" },
+    { name = "google-cloud-documentai" },
+    { name = "google-genai" },
+    { name = "instructor" },
+    { name = "jsonref" },
+    { name = "openai" },
+    { name = "paddleocr" },
+    { name = "paddlepaddle" },
+    { name = "pypdfium2" },
+    { name = "pytesseract" },
+    { name = "tabula-py" },
+]
+azure = [
+    { name = "azure-ai-documentintelligence" },
+]
+easyocr = [
+    { name = "easyocr" },
+]
+google = [
+    { name = "google-cloud-documentai" },
+]
+llm-all = [
+    { name = "anthropic" },
+    { name = "google-genai" },
+    { name = "instructor" },
+    { name = "jsonref" },
+    { name = "openai" },
+]
+llm-anthropic = [
+    { name = "anthropic" },
+    { name = "instructor" },
+]
+llm-google = [
+    { name = "google-genai" },
+    { name = "instructor" },
+    { name = "jsonref" },
+]
+llm-openai = [
+    { name = "instructor" },
+    { name = "openai" },
+]
+paddle = [
+    { name = "paddleocr" },
+    { name = "paddlepaddle" },
+]
+pdf = [
+    { name = "pypdfium2" },
+]
+tables = [
+    { name = "tabula-py" },
+]
+tesseract = [
+    { name = "pytesseract" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "google-api-core" },
+    { name = "grpcio" },
+    { name = "import-linter" },
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-timeout" },
+    { name = "pytest-vcr" },
+    { name = "reportlab" },
+    { name = "ruff" },
+    { name = "sybil" },
+    { name = "ty" },
+    { name = "vcrpy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anthropic", marker = "extra == 'all'", specifier = ">=0.20" },
+    { name = "anthropic", marker = "extra == 'llm-all'", specifier = ">=0.20" },
+    { name = "anthropic", marker = "extra == 'llm-anthropic'", specifier = ">=0.20" },
+    { name = "azure-ai-documentintelligence", marker = "extra == 'all'", specifier = ">=1.0" },
+    { name = "azure-ai-documentintelligence", marker = "extra == 'azure'", specifier = ">=1.0" },
+    { name = "easyocr", marker = "extra == 'all'", specifier = ">=1.4" },
+    { name = "easyocr", marker = "extra == 'easyocr'", specifier = ">=1.4" },
+    { name = "google-cloud-documentai", marker = "extra == 'all'", specifier = ">=3.0" },
+    { name = "google-cloud-documentai", marker = "extra == 'google'", specifier = ">=3.0" },
+    { name = "google-genai", marker = "extra == 'all'", specifier = ">=1.0" },
+    { name = "google-genai", marker = "extra == 'llm-all'", specifier = ">=1.0" },
+    { name = "google-genai", marker = "extra == 'llm-google'", specifier = ">=1.0" },
+    { name = "instructor", marker = "extra == 'all'", specifier = ">=1.0" },
+    { name = "instructor", marker = "extra == 'llm-all'", specifier = ">=1.0" },
+    { name = "instructor", marker = "extra == 'llm-anthropic'", specifier = ">=1.0" },
+    { name = "instructor", marker = "extra == 'llm-google'", specifier = ">=1.0" },
+    { name = "instructor", marker = "extra == 'llm-openai'", specifier = ">=1.0" },
+    { name = "jsonref", marker = "extra == 'all'", specifier = ">=1.1.0" },
+    { name = "jsonref", marker = "extra == 'llm-all'", specifier = ">=1.1.0" },
+    { name = "jsonref", marker = "extra == 'llm-google'", specifier = ">=1.1.0" },
+    { name = "numpy", specifier = ">=1.21" },
+    { name = "openai", marker = "extra == 'all'", specifier = ">=1.0" },
+    { name = "openai", marker = "extra == 'llm-all'", specifier = ">=1.0" },
+    { name = "openai", marker = "extra == 'llm-openai'", specifier = ">=1.0" },
+    { name = "paddleocr", marker = "extra == 'all'", specifier = ">=2.9" },
+    { name = "paddleocr", marker = "extra == 'paddle'", specifier = ">=2.9" },
+    { name = "paddlepaddle", marker = "extra == 'all'", specifier = ">=2.6" },
+    { name = "paddlepaddle", marker = "extra == 'paddle'", specifier = ">=2.6" },
+    { name = "pillow", specifier = ">=9.0" },
+    { name = "pydantic", specifier = ">=1.0" },
+    { name = "pypdfium2", marker = "extra == 'all'", specifier = ">=4.0" },
+    { name = "pypdfium2", marker = "extra == 'pdf'", specifier = ">=4.0" },
+    { name = "pytesseract", marker = "extra == 'all'", specifier = ">=0.3.8" },
+    { name = "pytesseract", marker = "extra == 'tesseract'", specifier = ">=0.3.8" },
+    { name = "tabula-py", marker = "extra == 'all'", specifier = ">=2.0" },
+    { name = "tabula-py", marker = "extra == 'tables'", specifier = ">=2.0" },
+]
+provides-extras = ["pdf", "tables", "easyocr", "tesseract", "paddle", "azure", "google", "llm-openai", "llm-anthropic", "llm-google", "llm-all", "all"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "google-api-core", specifier = ">=2.29.0" },
+    { name = "grpcio", specifier = ">=1.76.0" },
+    { name = "import-linter", specifier = ">=2.0" },
+    { name = "mkdocs", specifier = ">=1.6" },
+    { name = "mkdocs-material", specifier = ">=9.5" },
+    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.27" },
+    { name = "pre-commit", specifier = ">=4.0" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-asyncio", specifier = ">=1.0.0" },
+    { name = "pytest-cov", specifier = ">=7.0.0" },
+    { name = "pytest-timeout", specifier = ">=2.0" },
+    { name = "pytest-vcr", specifier = ">=1.0" },
+    { name = "reportlab", specifier = ">=4.4.7" },
+    { name = "ruff", specifier = ">=0.14.11" },
+    { name = "sybil", specifier = ">=8.0" },
+    { name = "ty", specifier = ">=0.0.11" },
+    { name = "vcrpy", specifier = ">=7.0" },
+]
+
+[[package]]
 name = "urllib3"
 version = "2.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -3964,158 +4116,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/01/3a/07cd60a9d26fe73efead61c7830af975dfdba8537632d410462672e4432b/wrapt-2.0.1-cp314-cp314t-win_amd64.whl", hash = "sha256:61c4956171c7434634401db448371277d07032a81cc21c599c22953374781395", size = 64038 },
     { url = "https://files.pythonhosted.org/packages/41/99/8a06b8e17dddbf321325ae4eb12465804120f699cd1b8a355718300c62da/wrapt-2.0.1-cp314-cp314t-win_arm64.whl", hash = "sha256:35cdbd478607036fee40273be8ed54a451f5f23121bd9d4be515158f9498f7ad", size = 60634 },
     { url = "https://files.pythonhosted.org/packages/15/d1/b51471c11592ff9c012bd3e2f7334a6ff2f42a7aed2caffcf0bdddc9cb89/wrapt-2.0.1-py3-none-any.whl", hash = "sha256:4d2ce1bf1a48c5277d7969259232b57645aae5686dba1eaeade39442277afbca", size = 44046 },
-]
-
-[[package]]
-name = "xtra"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "pydantic" },
-]
-
-[package.optional-dependencies]
-all = [
-    { name = "anthropic" },
-    { name = "azure-ai-documentintelligence" },
-    { name = "easyocr" },
-    { name = "google-cloud-documentai" },
-    { name = "google-genai" },
-    { name = "instructor" },
-    { name = "jsonref" },
-    { name = "openai" },
-    { name = "paddleocr" },
-    { name = "paddlepaddle" },
-    { name = "pypdfium2" },
-    { name = "pytesseract" },
-    { name = "tabula-py" },
-]
-azure = [
-    { name = "azure-ai-documentintelligence" },
-]
-easyocr = [
-    { name = "easyocr" },
-]
-google = [
-    { name = "google-cloud-documentai" },
-]
-llm-all = [
-    { name = "anthropic" },
-    { name = "google-genai" },
-    { name = "instructor" },
-    { name = "jsonref" },
-    { name = "openai" },
-]
-llm-anthropic = [
-    { name = "anthropic" },
-    { name = "instructor" },
-]
-llm-google = [
-    { name = "google-genai" },
-    { name = "instructor" },
-    { name = "jsonref" },
-]
-llm-openai = [
-    { name = "instructor" },
-    { name = "openai" },
-]
-paddle = [
-    { name = "paddleocr" },
-    { name = "paddlepaddle" },
-]
-pdf = [
-    { name = "pypdfium2" },
-]
-tables = [
-    { name = "tabula-py" },
-]
-tesseract = [
-    { name = "pytesseract" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "google-api-core" },
-    { name = "grpcio" },
-    { name = "import-linter" },
-    { name = "mkdocs" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pytest-timeout" },
-    { name = "pytest-vcr" },
-    { name = "reportlab" },
-    { name = "ruff" },
-    { name = "sybil" },
-    { name = "ty" },
-    { name = "vcrpy" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "anthropic", marker = "extra == 'all'", specifier = ">=0.20" },
-    { name = "anthropic", marker = "extra == 'llm-all'", specifier = ">=0.20" },
-    { name = "anthropic", marker = "extra == 'llm-anthropic'", specifier = ">=0.20" },
-    { name = "azure-ai-documentintelligence", marker = "extra == 'all'", specifier = ">=1.0" },
-    { name = "azure-ai-documentintelligence", marker = "extra == 'azure'", specifier = ">=1.0" },
-    { name = "easyocr", marker = "extra == 'all'", specifier = ">=1.4" },
-    { name = "easyocr", marker = "extra == 'easyocr'", specifier = ">=1.4" },
-    { name = "google-cloud-documentai", marker = "extra == 'all'", specifier = ">=3.0" },
-    { name = "google-cloud-documentai", marker = "extra == 'google'", specifier = ">=3.0" },
-    { name = "google-genai", marker = "extra == 'all'", specifier = ">=1.0" },
-    { name = "google-genai", marker = "extra == 'llm-all'", specifier = ">=1.0" },
-    { name = "google-genai", marker = "extra == 'llm-google'", specifier = ">=1.0" },
-    { name = "instructor", marker = "extra == 'all'", specifier = ">=1.0" },
-    { name = "instructor", marker = "extra == 'llm-all'", specifier = ">=1.0" },
-    { name = "instructor", marker = "extra == 'llm-anthropic'", specifier = ">=1.0" },
-    { name = "instructor", marker = "extra == 'llm-google'", specifier = ">=1.0" },
-    { name = "instructor", marker = "extra == 'llm-openai'", specifier = ">=1.0" },
-    { name = "jsonref", marker = "extra == 'all'", specifier = ">=1.1.0" },
-    { name = "jsonref", marker = "extra == 'llm-all'", specifier = ">=1.1.0" },
-    { name = "jsonref", marker = "extra == 'llm-google'", specifier = ">=1.1.0" },
-    { name = "numpy", specifier = ">=1.21" },
-    { name = "openai", marker = "extra == 'all'", specifier = ">=1.0" },
-    { name = "openai", marker = "extra == 'llm-all'", specifier = ">=1.0" },
-    { name = "openai", marker = "extra == 'llm-openai'", specifier = ">=1.0" },
-    { name = "paddleocr", marker = "extra == 'all'", specifier = ">=2.9" },
-    { name = "paddleocr", marker = "extra == 'paddle'", specifier = ">=2.9" },
-    { name = "paddlepaddle", marker = "extra == 'all'", specifier = ">=2.6" },
-    { name = "paddlepaddle", marker = "extra == 'paddle'", specifier = ">=2.6" },
-    { name = "pillow", specifier = ">=9.0" },
-    { name = "pydantic", specifier = ">=1.0" },
-    { name = "pypdfium2", marker = "extra == 'all'", specifier = ">=4.0" },
-    { name = "pypdfium2", marker = "extra == 'pdf'", specifier = ">=4.0" },
-    { name = "pytesseract", marker = "extra == 'all'", specifier = ">=0.3.8" },
-    { name = "pytesseract", marker = "extra == 'tesseract'", specifier = ">=0.3.8" },
-    { name = "tabula-py", marker = "extra == 'all'", specifier = ">=2.0" },
-    { name = "tabula-py", marker = "extra == 'tables'", specifier = ">=2.0" },
-]
-provides-extras = ["pdf", "tables", "easyocr", "tesseract", "paddle", "azure", "google", "llm-openai", "llm-anthropic", "llm-google", "llm-all", "all"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "google-api-core", specifier = ">=2.29.0" },
-    { name = "grpcio", specifier = ">=1.76.0" },
-    { name = "import-linter", specifier = ">=2.0" },
-    { name = "mkdocs", specifier = ">=1.6" },
-    { name = "mkdocs-material", specifier = ">=9.5" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.27" },
-    { name = "pre-commit", specifier = ">=4.0" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "pytest-asyncio", specifier = ">=1.0.0" },
-    { name = "pytest-cov", specifier = ">=7.0.0" },
-    { name = "pytest-timeout", specifier = ">=2.0" },
-    { name = "pytest-vcr", specifier = ">=1.0" },
-    { name = "reportlab", specifier = ">=4.4.7" },
-    { name = "ruff", specifier = ">=0.14.11" },
-    { name = "sybil", specifier = ">=8.0" },
-    { name = "ty", specifier = ">=0.0.11" },
-    { name = "vcrpy", specifier = ">=7.0" },
 ]
 
 [[package]]

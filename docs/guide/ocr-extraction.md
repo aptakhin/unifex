@@ -1,6 +1,6 @@
 # OCR Extraction
 
-xtra supports multiple OCR backends for extracting text from images and scanned PDFs.
+unifex supports multiple OCR backends for extracting text from images and scanned PDFs.
 
 ## Language Codes
 
@@ -13,7 +13,7 @@ Extractors that require different formats (like Tesseract) convert internally.
 
 <!-- skip: next -->
 ```python
-from xtra import EasyOcrExtractor
+from unifex import EasyOcrExtractor
 
 # For images
 with EasyOcrExtractor("image.png", languages=["en"]) as extractor:
@@ -34,7 +34,7 @@ Requires Tesseract to be installed on the system:
 
 <!-- skip: next -->
 ```python
-from xtra import TesseractOcrExtractor
+from unifex import TesseractOcrExtractor
 
 # For images
 with TesseractOcrExtractor("image.png", languages=["en"]) as extractor:
@@ -51,7 +51,7 @@ Excellent accuracy for multiple languages, especially Chinese.
 
 <!-- skip: next -->
 ```python
-from xtra import PaddleOcrExtractor
+from unifex import PaddleOcrExtractor
 
 # For images
 with PaddleOcrExtractor("image.png", lang="en") as extractor:
@@ -72,7 +72,7 @@ with PaddleOcrExtractor("chinese_doc.png", lang="ch") as extractor:
 
 <!-- skip: next -->
 ```python
-from xtra import AzureDocumentIntelligenceExtractor
+from unifex import AzureDocumentIntelligenceExtractor
 
 with AzureDocumentIntelligenceExtractor(
     "document.pdf",
@@ -85,15 +85,15 @@ with AzureDocumentIntelligenceExtractor(
 Or use environment variables:
 
 ```bash
-export XTRA_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-export XTRA_AZURE_DI_KEY=your-api-key
+export UNIFEX_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+export UNIFEX_AZURE_DI_KEY=your-api-key
 ```
 
 ### Google Document AI
 
 <!-- skip: next -->
 ```python
-from xtra import GoogleDocumentAIExtractor
+from unifex import GoogleDocumentAIExtractor
 
 with GoogleDocumentAIExtractor(
     "document.pdf",
@@ -106,8 +106,8 @@ with GoogleDocumentAIExtractor(
 Or use environment variables:
 
 ```bash
-export XTRA_GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/123
-export XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/credentials.json
+export UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME=projects/your-project/locations/us/processors/123
+export UNIFEX_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/credentials.json
 ```
 
 ## Parallel Extraction
@@ -116,7 +116,7 @@ All OCR extractors support parallel page extraction:
 
 <!-- skip: next -->
 ```python
-from xtra import EasyOcrExtractor
+from unifex import EasyOcrExtractor
 
 with EasyOcrExtractor("scanned.pdf", languages=["en"]) as extractor:
     result = extractor.extract(max_workers=4)
@@ -130,7 +130,7 @@ Control the output coordinate system:
 
 <!-- skip: next -->
 ```python
-from xtra import EasyOcrExtractor, CoordinateUnit
+from unifex import EasyOcrExtractor, CoordinateUnit
 
 # Pixels (default for OCR, uses DPI for conversion)
 with EasyOcrExtractor("image.png", languages=["en"],
