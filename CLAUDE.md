@@ -4,9 +4,9 @@
 
 ## Build & Test Commands
 
-- Run all tests: `poetry run pytest`
-- Run specific test: `poetry run pytest tests/test_file.py::TestClass::test_method -v`
-- Run with coverage: `poetry run pytest --cov=xtra`
+- Run all tests: `uv run pytest`
+- Run specific test: `uv run pytest tests/test_file.py::TestClass::test_method -v`
+- Run with coverage: `uv run pytest --cov=xtra`
 
 ## Code Style
 

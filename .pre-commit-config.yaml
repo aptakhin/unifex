@@ -13,33 +13,33 @@ repos:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
 
-  # Ruff linter and formatter (using local install for consistency with poetry)
+  # Ruff linter and formatter (using local install for consistency with uv)
   - repo: local
     hooks:
       - id: ruff-format
         name: ruff format
-        entry: poetry run ruff format
+        entry: uv run ruff format
         language: system
         types: [python]
         pass_filenames: false
 
       - id: ruff-check
         name: ruff check
-        entry: poetry run ruff check --fix
+        entry: uv run ruff check --fix
         language: system
         types: [python]
         pass_filenames: false
 
       - id: ty-check
         name: ty type check
-        entry: poetry run ty check
+        entry: uv run ty check
         language: system
         types: [python]
         pass_filenames: false
 
       - id: pytest-fast
         name: pytest (fast tests)
-        entry: poetry run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf) and not test_llm_vcr" --cov=xtra --cov-report=term-missing --cov-fail-under=78
+        entry: uv run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf) and not test_llm_vcr" --cov=xtra --cov-report=term-missing --cov-fail-under=78
         language: system
         pass_filenames: false
         always_run: true

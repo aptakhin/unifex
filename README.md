@@ -21,7 +21,7 @@ For broader document processing, check out [Docling](https://docling-project.git
 ## Installation
 
 ```bash
-poetry install
+uv sync
 ```
 
 ## Quick Start
@@ -244,44 +244,44 @@ with GoogleDocumentAIExtractor(
 
 ```bash
 # PDF extraction
-poetry run python -m xtra.cli document.pdf --extractor pdf
+uv run python -m xtra.cli document.pdf --extractor pdf
 
 # EasyOCR extraction (works for both images and PDFs)
-poetry run python -m xtra.cli image.png --extractor easyocr --lang en,it
-poetry run python -m xtra.cli scanned.pdf --extractor easyocr --lang en
+uv run python -m xtra.cli image.png --extractor easyocr --lang en,it
+uv run python -m xtra.cli scanned.pdf --extractor easyocr --lang en
 
 # Parallel extraction with 4 workers
-poetry run python -m xtra.cli large_document.pdf --extractor easyocr --workers 4
+uv run python -m xtra.cli large_document.pdf --extractor easyocr --workers 4
 
 # Use process executor instead of threads
-poetry run python -m xtra.cli document.pdf --extractor easyocr --workers 4 --executor process
+uv run python -m xtra.cli document.pdf --extractor easyocr --workers 4 --executor process
 
 # Tesseract OCR
-poetry run python -m xtra.cli document.pdf --extractor tesseract --lang eng
+uv run python -m xtra.cli document.pdf --extractor tesseract --lang eng
 
 # PaddleOCR
-poetry run python -m xtra.cli document.pdf --extractor paddle --lang en
+uv run python -m xtra.cli document.pdf --extractor paddle --lang en
 
 # Azure Document Intelligence (credentials via CLI or env vars)
-poetry run python -m xtra.cli document.pdf --extractor azure-di \
+uv run python -m xtra.cli document.pdf --extractor azure-di \
     --azure-endpoint https://your-resource.cognitiveservices.azure.com \
     --azure-key your-api-key
 
 # Or use environment variables
 export XTRA_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
 export XTRA_AZURE_DI_KEY=your-api-key
-poetry run python -m xtra.cli document.pdf --extractor azure-di
+uv run python -m xtra.cli document.pdf --extractor azure-di
 
 # Google Document AI
-poetry run python -m xtra.cli document.pdf --extractor google-docai \
+uv run python -m xtra.cli document.pdf --extractor google-docai \
     --google-processor-name projects/your-project/locations/us/processors/123 \
     --google-credentials-path /path/to/credentials.json
 
 # JSON output
-poetry run python -m xtra.cli document.pdf --extractor pdf --json
+uv run python -m xtra.cli document.pdf --extractor pdf --json
 
 # Specific pages
-poetry run python -m xtra.cli document.pdf --extractor pdf --pages 0,1,2
+uv run python -m xtra.cli document.pdf --extractor pdf --pages 0,1,2
 ```
 
 ## Environment Variables
@@ -302,7 +302,7 @@ Cloud extractors support configuration via environment variables:
 
 ```bash
 # Install dependencies
-poetry install
+uv sync
 
 # Install git pre-commit hook
 ./scripts/install-hooks.sh
@@ -312,16 +312,16 @@ poetry install
 
 ```bash
 # Run all tests
-poetry run pytest -v
+uv run pytest -v
 
 # Run with coverage
-poetry run pytest --cov=xtra --cov-report=term-missing
+uv run pytest --cov=xtra --cov-report=term-missing
 
 # Run specific test file
-poetry run pytest tests/test_azure_di.py -v
+uv run pytest tests/test_azure_di.py -v
 
 # Run integration tests only
-poetry run pytest tests/test_integration.py -v
+uv run pytest tests/test_integration.py -v
 ```
 
 ### Integration Tests
@@ -355,10 +355,10 @@ Integration tests run against real files and services without mocking. They are 
    ```bash
    # Option 1: Source the .env file
    export $(cat .env | xargs)
-   poetry run pytest tests/test_integration.py -v
+   uv run pytest tests/test_integration.py -v
 
    # Option 2: Use env command
-   env $(cat .env | xargs) poetry run pytest tests/test_integration.py -v
+   env $(cat .env | xargs) uv run pytest tests/test_integration.py -v
    ```
 
 Azure integration tests are automatically skipped if credentials are not configured.

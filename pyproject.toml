@@ -1,60 +1,58 @@
-[tool.poetry]
+[project]
 name = "xtra"
 version = "0.1.0"
 description = ""
-authors = ["SL team <alex.ptakhin@prestatech.com>"]
-license = "BSD-3-Clause"
+authors = [{ name = "SL team", email = "alex.ptakhin@prestatech.com" }]
+license = { text = "BSD-3-Clause" }
 readme = "README.md"
+requires-python = ">=3.10,<4"
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4"
-pydantic = ">=1.0"
-Pillow = ">=9.0"
-numpy = ">=1.21"
+dependencies = [
+    "pydantic>=1.0",
+    "Pillow>=9.0",
+    "numpy>=1.21",
+]
 
-# Optional PDF dependency
-pypdfium2 = { version = ">=4.0", optional = true }
+[project.optional-dependencies]
+pdf = ["pypdfium2>=4.0"]
+easyocr = ["easyocr>=1.4"]
+tesseract = ["pytesseract>=0.3.8"]
+paddle = ["paddleocr>=2.9", "paddlepaddle>=2.6"]
+azure = ["azure-ai-documentintelligence>=1.0"]
+google = ["google-cloud-documentai>=3.0"]
+llm-openai = ["instructor>=1.0", "openai>=1.0"]
+llm-anthropic = ["instructor>=1.0", "anthropic>=0.20"]
+llm-google = ["instructor>=1.0", "google-genai>=1.0", "jsonref>=1.1.0"]
+llm-all = ["instructor>=1.0", "openai>=1.0", "anthropic>=0.20", "google-genai>=1.0", "jsonref>=1.1.0"]
+all = [
+    "pypdfium2>=4.0",
+    "easyocr>=1.4",
+    "pytesseract>=0.3.8",
+    "paddleocr>=2.9",
+    "paddlepaddle>=2.6",
+    "azure-ai-documentintelligence>=1.0",
+    "google-cloud-documentai>=3.0",
+    "instructor>=1.0",
+    "openai>=1.0",
+    "anthropic>=0.20",
+    "google-genai>=1.0",
+    "jsonref>=1.1.0",
+]
 
-# Optional OCR dependencies (flexible version ranges for user compatibility)
-easyocr = { version = ">=1.4", optional = true }
-pytesseract = { version = ">=0.3.8", optional = true }
-paddleocr = { version = ">=2.9", optional = true }
-paddlepaddle = { version = ">=2.6", optional = true }
-azure-ai-documentintelligence = { version = ">=1.0", optional = true }
-google-cloud-documentai = { version = ">=3.0", optional = true }
-
-# Optional LLM dependencies
-instructor = { version = ">=1.0", optional = true }
-openai = { version = ">=1.0", optional = true }
-anthropic = { version = ">=0.20", optional = true }
-google-genai = { version = ">=1.0", optional = true }
-jsonref = {version = "^1.1.0", optional = true}
-
-[tool.poetry.extras]
-pdf = ["pypdfium2"]
-easyocr = ["easyocr"]
-tesseract = ["pytesseract"]
-paddle = ["paddleocr", "paddlepaddle"]
-azure = ["azure-ai-documentintelligence"]
-google = ["google-cloud-documentai"]
-llm-openai = ["instructor", "openai"]
-llm-anthropic = ["instructor", "anthropic"]
-llm-google = ["instructor", "google-genai", "jsonref"]
-llm-all = ["instructor", "openai", "anthropic", "google-genai", "jsonref"]
-all = ["pypdfium2", "easyocr", "pytesseract", "paddleocr", "paddlepaddle", "azure-ai-documentintelligence", "google-cloud-documentai", "instructor", "openai", "anthropic", "google-genai", "jsonref"]
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^9.0.2"
-pytest-cov = "^7.0.0"
-pytest-asyncio = "^1.0.0"
-pytest-vcr = "^1.0"
-vcrpy = "^7.0"
-ruff = "^0.14.11"
-ty = "^0.0.11"
-pre-commit = "^4.0"
-reportlab = "^4.4.7"
-google-api-core = "^2.29.0"
-grpcio = "^1.76.0"
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-asyncio>=1.0.0",
+    "pytest-vcr>=1.0",
+    "vcrpy>=7.0",
+    "ruff>=0.14.11",
+    "ty>=0.0.11",
+    "pre-commit>=4.0",
+    "reportlab>=4.4.7",
+    "google-api-core>=2.29.0",
+    "grpcio>=1.76.0",
+]
 
 [tool.ruff]
 line-length = 100
@@ -160,5 +158,5 @@ omit = [
 ]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

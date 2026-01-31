@@ -87,7 +87,7 @@ from .base import BaseExtractor
 
 ## Testing: No sys.path Manipulation
 
-**Never use `sys.path.insert` in tests.** Poetry handles the Python path correctly.
+**Never use `sys.path.insert` in tests.** uv handles the Python path correctly.
 
 ```python
 # Bad - don't do this

@@ -4,7 +4,7 @@ set -e
 
 # Run all pre-commit hooks (gitleaks, ruff, ty, pytest)
 echo "Running pre-commit hooks..."
-poetry run pre-commit run --all-files
+uv run pre-commit run --all-files
 
 # Re-add any files modified by formatting
 git add -u
