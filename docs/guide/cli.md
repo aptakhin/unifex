@@ -42,10 +42,10 @@ uv run python -m unifex.cli document.pdf --extractor google-docai \
 
 ```bash
 # Use 4 parallel workers
-uv run python -m unifex.cli document.pdf --extractor pdf --workers 4
+uv run python -m unifex.cli document.pdf --extractor pdf --max-workers 4
 
 # Use process executor instead of threads
-uv run python -m unifex.cli document.pdf --extractor pdf --workers 4 --executor process
+uv run python -m unifex.cli document.pdf --extractor pdf --max-workers 4 --executor process
 ```
 
 ## Output Formats
@@ -69,7 +69,7 @@ uv run python -m unifex.cli image.png --llm anthropic/claude-sonnet-4-20250514 \
     --llm-prompt "Extract all text from this image"
 
 # With parallel workers
-uv run python -m unifex.cli document.pdf --llm openai/gpt-4o --workers 4
+uv run python -m unifex.cli document.pdf --llm openai/gpt-4o --max-workers 4
 
 # With OpenAI-compatible API
 uv run python -m unifex.cli document.pdf --llm openai/llava \

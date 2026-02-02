@@ -262,14 +262,14 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
     executor_type = ExecutorType(args.executor)
 
     try:
-        if args.workers > 1:
+        if args.max_workers > 1:
             # Parallel extraction: one page per request
             result = extract_structured_parallel(
                 path=args.input,
                 model=args.llm,
                 prompt=args.llm_prompt,
                 pages=pages_list,
-                max_workers=args.workers,
+                max_workers=args.max_workers,
                 executor=executor_type,
                 dpi=args.dpi,
                 credentials=credentials,
@@ -307,7 +307,9 @@ def _run_text_extraction(args: argparse.Namespace, pages: Sequence[int] | None) 
     executor_type = ExecutorType(args.executor)
 
     with extractor:
-        result = extractor.extract(pages=pages, max_workers=args.workers, executor=executor_type)
+        result = extractor.extract(
+            pages=pages, max_workers=args.max_workers, executor=executor_type
+        )
 
         # Extract tables if requested
         if args.tables:
@@ -428,7 +430,7 @@ def _setup_parser() -> argparse.ArgumentParser:
         help="Table area as top,left,bottom,right in --unit coordinates (e.g., '0,0,500,400')",
     )
     parser.add_argument(
-        "--workers",
+        "--max-workers",
         type=int,
         default=1,
         help="Number of parallel workers for page extraction (default: 1, sequential)",

@@ -11,6 +11,8 @@ A Python library for document text extraction with local and cloud OCR solutions
 - **Multiple OCR Backends**: Local (EasyOCR, Tesseract, PaddleOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
 - **PDF Text Extraction**: Native PDF text extraction using pypdfium2
 - **LLM Extraction**: Extract structured data using GPT-4o, Claude, Gemini, or OpenAI-compatible APIs
+- **Unified Coordinates**: Seamless conversion between POINTS, PIXELS, INCHES, and NORMALIZED coordinate systems
+- **Table Extraction**: Extract tables from PDFs using lattice or stream modes via tabula
 - **Parallel Extraction**: Process multiple pages concurrently with thread or process executors
 - **Async Support**: Native async/await API for integration with async applications
 - **Unified Extractors**: Each OCR extractor auto-detects file type (PDF vs image) and handles conversion internally
@@ -381,10 +383,10 @@ uv run python -m unifex.cli image.png --extractor easyocr --lang en,it
 uv run python -m unifex.cli scanned.pdf --extractor easyocr --lang en
 
 # Parallel extraction with 4 workers
-uv run python -m unifex.cli large_document.pdf --extractor easyocr --workers 4
+uv run python -m unifex.cli large_document.pdf --extractor easyocr --max-workers 4
 
 # Use process executor instead of threads
-uv run python -m unifex.cli document.pdf --extractor easyocr --workers 4 --executor process
+uv run python -m unifex.cli document.pdf --extractor easyocr --max-workers 4 --executor process
 
 # Tesseract OCR
 uv run python -m unifex.cli document.pdf --extractor tesseract --lang eng
@@ -421,7 +423,7 @@ uv run python -m unifex.cli receipt.png --llm anthropic/claude-sonnet-4-20250514
     --llm-prompt "Extract merchant name, date, and total"
 
 # LLM with parallel workers (each page processed separately)
-uv run python -m unifex.cli large_document.pdf --llm openai/gpt-4o --workers 4
+uv run python -m unifex.cli large_document.pdf --llm openai/gpt-4o --max-workers 4
 
 # LLM with OpenAI-compatible API (vLLM, Ollama, etc.)
 uv run python -m unifex.cli document.pdf --llm openai/llava \
