@@ -12,7 +12,7 @@ A Python library for document text extraction with local and cloud OCR solutions
 - **PDF Text Extraction**: Native PDF text extraction using pypdfium2
 - **LLM Extraction**: Extract structured data using GPT-4o, Claude, Gemini, or OpenAI-compatible APIs
 - **Unified Coordinates**: Seamless conversion between POINTS, PIXELS, INCHES, and NORMALIZED coordinate systems
-- **Table Extraction**: Extract tables from PDFs using lattice or stream modes via tabula
+- **Table Extraction**: PDF (tabula), PaddleOCR (PPStructure), and cloud OCR (Azure DI, Google DocAI)
 - **Parallel Extraction**: Process multiple pages concurrently with thread or process executors
 - **Async Support**: Native async/await API for integration with async applications
 - **Unified Extractors**: Each OCR extractor auto-detects file type (PDF vs image) and handles conversion internally
