@@ -251,7 +251,7 @@ def _extract_paddle_tables(
 def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
     """Run LLM-based extraction."""
     try:
-        from unifex.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured, extract_structured_parallel
     except ImportError as e:
         print(f"Error: LLM dependencies not installed: {e}", file=sys.stderr)
         sys.exit(1)
@@ -262,19 +262,39 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
     executor_type = ExecutorType(args.executor)
 
     try:
-        result = extract_structured(
-            path=args.input,
-            model=args.llm,
-            prompt=args.llm_prompt,
-            pages=pages_list,
-            max_workers=args.workers,
-            executor=executor_type,
-            dpi=args.dpi,
-            credentials=credentials,
-            base_url=args.llm_base_url,
-            headers=headers,
-        )
-        _print_llm_result(result.data, args.json)
+        if args.workers > 1:
+            # Parallel extraction: one page per request
+            result = extract_structured_parallel(
+                path=args.input,
+                model=args.llm,
+                prompt=args.llm_prompt,
+                pages=pages_list,
+                max_workers=args.workers,
+                executor=executor_type,
+                dpi=args.dpi,
+                credentials=credentials,
+                base_url=args.llm_base_url,
+                headers=headers,
+            )
+            # Print each page result
+            for page_result in result.results:
+                if page_result.error:
+                    print(f"Page {page_result.page}: Error - {page_result.error}", file=sys.stderr)
+                else:
+                    _print_llm_result(page_result.data, args.json)
+        else:
+            # Single extraction: all pages in one request
+            result = extract_structured(
+                path=args.input,
+                model=args.llm,
+                prompt=args.llm_prompt,
+                pages=pages_list,
+                dpi=args.dpi,
+                credentials=credentials,
+                base_url=args.llm_base_url,
+                headers=headers,
+            )
+            _print_llm_result(result.data, args.json)
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)

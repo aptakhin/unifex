@@ -1,4 +1,4 @@
-"""Tests for parallel LLM extraction with max_workers."""
+"""Tests for parallel LLM extraction functions."""
 
 from __future__ import annotations
 
@@ -8,7 +8,12 @@ from typing import Any
 import pytest
 
 from unifex.base import ExecutorType
-from unifex.llm.models import LLMExtractionResult, LLMProvider
+from unifex.llm.models import (
+    LLMBatchExtractionResult,
+    LLMExtractionResult,
+    LLMProvider,
+    PageExtractionResult,
+)
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -65,7 +70,7 @@ def make_fake_extractor(
     return fake_extractor
 
 
-async def make_fake_async_extractor(
+def make_fake_async_extractor(
     responses: dict[tuple[int, ...], dict[str, Any]] | None = None,
     error_pages: set[int] | None = None,
     usage: dict[str, int] | None = None,
@@ -103,11 +108,28 @@ async def make_fake_async_extractor(
     return fake_async_extractor
 
 
-class TestExtractStructuredParallel:
-    """Tests for extract_structured with max_workers > 1."""
+class TestExtractStructuredSingle:
+    """Tests for extract_structured (single extraction, no max_workers)."""
 
-    def test_single_worker_all_pages_in_one_request(self) -> None:
-        """Test that single worker sends all pages in one request."""
+    def test_returns_single_result(self) -> None:
+        """Test that extract_structured returns LLMExtractionResult."""
+        from unifex.llm_factory import extract_structured
+
+        fake = make_fake_extractor()
+
+        result = extract_structured(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+            model="openai/gpt-4o",
+            pages=[0, 1, 2],
+            _extractor=fake,
+        )
+
+        # Returns LLMExtractionResult, not batch result
+        assert isinstance(result, LLMExtractionResult)
+        assert result.data == {"pages": [0, 1, 2]}
+
+    def test_all_pages_in_one_request(self) -> None:
+        """Test that all pages are sent in one request."""
         from unifex.llm_factory import extract_structured
 
         call_log: list[list[int] | None] = []
@@ -126,43 +148,65 @@ class TestExtractStructuredParallel:
                 data={"pages": pages}, model="gpt-4o", provider=LLMProvider.OPENAI
             )
 
-        result = extract_structured(
+        extract_structured(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
             pages=[0, 1, 2],
-            max_workers=1,
             _extractor=tracking_extractor,
         )
 
         assert len(call_log) == 1
         assert call_log[0] == [0, 1, 2]
-        assert result.data == {"pages": [0, 1, 2]}
 
-    def test_multiple_workers_parallel_execution(self) -> None:
-        """Test that multiple workers process pages in parallel."""
-        from unifex.llm_factory import extract_structured
+
+class TestExtractStructuredParallel:
+    """Tests for extract_structured_parallel."""
+
+    def test_returns_batch_result(self) -> None:
+        """Test that extract_structured_parallel returns LLMBatchExtractionResult."""
+        from unifex.llm_factory import extract_structured_parallel
 
         fake = make_fake_extractor()
 
-        result = extract_structured(
+        result = extract_structured_parallel(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
-            pages=[0, 1, 2, 3],
+            pages=[0, 1, 2],
             max_workers=2,
             _extractor=fake,
         )
 
-        # Result data should be a list of per-page results
-        assert isinstance(result.data, list)
-        assert len(result.data) == 4
+        # Returns LLMBatchExtractionResult
+        assert isinstance(result, LLMBatchExtractionResult)
+        assert len(result.results) == 3
 
-    def test_preserves_page_order(self) -> None:
-        """Test that results maintain original page order."""
-        from unifex.llm_factory import extract_structured
+    def test_page_results_have_correct_structure(self) -> None:
+        """Test that each page result has correct structure."""
+        from unifex.llm_factory import extract_structured_parallel
 
         fake = make_fake_extractor()
 
-        result = extract_structured(
+        result = extract_structured_parallel(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+            model="openai/gpt-4o",
+            pages=[0, 1],
+            max_workers=2,
+            _extractor=fake,
+        )
+
+        # Each result is PageExtractionResult
+        for page_result in result.results:
+            assert isinstance(page_result, PageExtractionResult)
+            assert page_result.page is not None
+            assert page_result.data is not None
+
+    def test_preserves_page_order(self) -> None:
+        """Test that results maintain original page order."""
+        from unifex.llm_factory import extract_structured_parallel
+
+        fake = make_fake_extractor()
+
+        result = extract_structured_parallel(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
             pages=[0, 1, 2, 3],
@@ -171,20 +215,22 @@ class TestExtractStructuredParallel:
         )
 
         # Results should be in original page order
-        data = result.data
-        assert isinstance(data, list)
-        assert data[0]["pages"] == [0]
-        assert data[1]["pages"] == [1]
-        assert data[2]["pages"] == [2]
-        assert data[3]["pages"] == [3]
+        assert result.results[0].page == 0
+        assert result.results[0].data is not None
+        assert result.results[0].data["pages"] == [0]
+        assert result.results[1].page == 1
+        assert result.results[1].data is not None
+        assert result.results[1].data["pages"] == [1]
+        assert result.results[2].page == 2
+        assert result.results[3].page == 3
 
     def test_aggregates_usage(self) -> None:
         """Test that usage is aggregated across all pages."""
-        from unifex.llm_factory import extract_structured
+        from unifex.llm_factory import extract_structured_parallel
 
         fake = make_fake_extractor(usage={"prompt_tokens": 100, "completion_tokens": 50})
 
-        result = extract_structured(
+        result = extract_structured_parallel(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
             pages=[0, 1],
@@ -192,65 +238,47 @@ class TestExtractStructuredParallel:
             _extractor=fake,
         )
 
-        # Usage should be aggregated (2 pages * 100 = 200, 2 * 50 = 100)
-        assert result.usage == {"prompt_tokens": 200, "completion_tokens": 100}
+        # Total usage should be aggregated
+        assert result.total_usage == {"prompt_tokens": 200, "completion_tokens": 100}
 
-    def test_raises_on_page_error(self) -> None:
-        """Test that errors on individual pages raise ValueError."""
-        from unifex.llm_factory import extract_structured
+        # Individual page usage should also be present
+        assert result.results[0].usage == {"prompt_tokens": 100, "completion_tokens": 50}
+        assert result.results[1].usage == {"prompt_tokens": 100, "completion_tokens": 50}
+
+    def test_captures_page_errors(self) -> None:
+        """Test that errors on individual pages are captured, not raised."""
+        from unifex.llm_factory import extract_structured_parallel
 
         fake = make_fake_extractor(error_pages={1})
 
-        with pytest.raises(ValueError, match="Extraction failed for page 1"):
-            extract_structured(
-                TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-                model="openai/gpt-4o",
-                pages=[0, 1, 2],
-                max_workers=2,
-                _extractor=fake,
-            )
-
-    def test_single_page_no_parallel(self) -> None:
-        """Test that single page doesn't use parallel even with max_workers > 1."""
-        from unifex.llm_factory import extract_structured
-
-        call_log: list[list[int] | None] = []
-
-        def tracking_extractor(
-            path: Path,
-            model: str,
-            schema: Any,
-            prompt: str | None,
-            pages: list[int] | None,
-            *args: Any,
-            **kwargs: Any,
-        ) -> LLMExtractionResult[dict[str, Any]]:
-            call_log.append(pages)
-            return LLMExtractionResult(
-                data={"key": "value"}, model="gpt-4o", provider=LLMProvider.OPENAI
-            )
-
-        result = extract_structured(
+        result = extract_structured_parallel(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
-            pages=[0],
-            max_workers=4,
-            _extractor=tracking_extractor,
+            pages=[0, 1, 2],
+            max_workers=2,
+            _extractor=fake,
         )
 
-        # Should call directly, not create a list
-        assert len(call_log) == 1
-        assert result.data == {"key": "value"}
+        # Page 0 succeeded
+        assert result.results[0].data is not None
+        assert result.results[0].error is None
 
-    def test_process_executor(self) -> None:
-        """Test with process executor type."""
-        from unifex.llm_factory import extract_structured
+        # Page 1 failed - error captured
+        assert result.results[1].data is None
+        assert result.results[1].error is not None
+        assert "API error for page 1" in result.results[1].error
 
-        # Note: ProcessPoolExecutor requires picklable functions
-        # Using a simple lambda won't work, so we test that thread executor works
+        # Page 2 succeeded
+        assert result.results[2].data is not None
+        assert result.results[2].error is None
+
+    def test_thread_executor(self) -> None:
+        """Test with thread executor type."""
+        from unifex.llm_factory import extract_structured_parallel
+
         fake = make_fake_extractor()
 
-        result = extract_structured(
+        result = extract_structured_parallel(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
             pages=[0, 1],
@@ -259,63 +287,20 @@ class TestExtractStructuredParallel:
             _extractor=fake,
         )
 
-        assert len(result.data) == 2
+        assert len(result.results) == 2
 
 
-class TestExtractStructuredAsyncParallel:
-    """Tests for extract_structured_async with max_workers > 1."""
-
-    @pytest.mark.asyncio
-    async def test_async_single_worker(self) -> None:
-        """Test that single worker in async mode sends all pages in one request."""
-        from unifex.llm_factory import extract_structured_async
-
-        call_log: list[list[int] | None] = []
-
-        async def tracking_extractor(
-            path: Path,
-            model: str,
-            schema: Any,
-            prompt: str | None,
-            pages: list[int] | None,
-            *args: Any,
-            **kwargs: Any,
-        ) -> LLMExtractionResult[dict[str, Any]]:
-            call_log.append(pages)
-            return LLMExtractionResult(
-                data={"pages": pages}, model="gpt-4o", provider=LLMProvider.OPENAI
-            )
-
-        result = await extract_structured_async(
-            TEST_DATA_DIR / "test_pdf_2p_text.pdf",
-            model="openai/gpt-4o",
-            pages=[0, 1],
-            max_workers=1,
-            _extractor=tracking_extractor,
-        )
-
-        assert len(call_log) == 1
-        assert result.data == {"pages": [0, 1]}
+class TestExtractStructuredParallelAsync:
+    """Tests for extract_structured_parallel_async."""
 
     @pytest.mark.asyncio
-    async def test_async_parallel_execution(self) -> None:
-        """Test that async parallel extraction works."""
-        from unifex.llm_factory import extract_structured_async
+    async def test_returns_batch_result(self) -> None:
+        """Test that async parallel returns LLMBatchExtractionResult."""
+        from unifex.llm_factory import extract_structured_parallel_async
 
-        async def fake_async(
-            path: Path,
-            model: str,
-            schema: Any,
-            prompt: str | None,
-            pages: list[int] | None,
-            *args: Any,
-            **kwargs: Any,
-        ) -> LLMExtractionResult[dict[str, Any]]:
-            return LLMExtractionResult(
-                data={"pages": pages}, model="gpt-4o", provider=LLMProvider.OPENAI
-            )
+        fake_async = make_fake_async_extractor()
 
-        result = await extract_structured_async(
+        result = await extract_structured_parallel_async(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
             pages=[0, 1, 2],
@@ -323,30 +308,17 @@ class TestExtractStructuredAsyncParallel:
             _extractor=fake_async,
         )
 
-        assert isinstance(result.data, list)
-        assert len(result.data) == 3
+        assert isinstance(result, LLMBatchExtractionResult)
+        assert len(result.results) == 3
 
     @pytest.mark.asyncio
-    async def test_async_preserves_order(self) -> None:
+    async def test_preserves_order(self) -> None:
         """Test that async parallel preserves page order."""
-        from unifex.llm_factory import extract_structured_async
+        from unifex.llm_factory import extract_structured_parallel_async
 
-        async def fake_async(
-            path: Path,
-            model: str,
-            schema: Any,
-            prompt: str | None,
-            pages: list[int] | None,
-            *args: Any,
-            **kwargs: Any,
-        ) -> LLMExtractionResult[dict[str, Any]]:
-            return LLMExtractionResult(
-                data={"page": pages[0] if pages else None},
-                model="gpt-4o",
-                provider=LLMProvider.OPENAI,
-            )
+        fake_async = make_fake_async_extractor()
 
-        result = await extract_structured_async(
+        result = await extract_structured_parallel_async(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             model="openai/gpt-4o",
             pages=[0, 1, 2, 3],
@@ -354,9 +326,66 @@ class TestExtractStructuredAsyncParallel:
             _extractor=fake_async,
         )
 
-        data = result.data
-        assert isinstance(data, list)
-        assert data[0]["page"] == 0
-        assert data[1]["page"] == 1
-        assert data[2]["page"] == 2
-        assert data[3]["page"] == 3
+        assert result.results[0].page == 0
+        assert result.results[1].page == 1
+        assert result.results[2].page == 2
+        assert result.results[3].page == 3
+
+    @pytest.mark.asyncio
+    async def test_captures_errors(self) -> None:
+        """Test that async parallel captures errors."""
+        from unifex.llm_factory import extract_structured_parallel_async
+
+        fake_async = make_fake_async_extractor(error_pages={1})
+
+        result = await extract_structured_parallel_async(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+            model="openai/gpt-4o",
+            pages=[0, 1, 2],
+            max_workers=2,
+            _extractor=fake_async,
+        )
+
+        assert result.results[0].error is None
+        assert result.results[1].error is not None
+        assert result.results[2].error is None
+
+    @pytest.mark.asyncio
+    async def test_aggregates_usage(self) -> None:
+        """Test that async parallel aggregates usage."""
+        from unifex.llm_factory import extract_structured_parallel_async
+
+        fake_async = make_fake_async_extractor(
+            usage={"prompt_tokens": 100, "completion_tokens": 50}
+        )
+
+        result = await extract_structured_parallel_async(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+            model="openai/gpt-4o",
+            pages=[0, 1],
+            max_workers=2,
+            _extractor=fake_async,
+        )
+
+        assert result.total_usage == {"prompt_tokens": 200, "completion_tokens": 100}
+
+
+class TestExtractStructuredAsyncSingle:
+    """Tests for extract_structured_async (single extraction, no max_workers)."""
+
+    @pytest.mark.asyncio
+    async def test_returns_single_result(self) -> None:
+        """Test that extract_structured_async returns LLMExtractionResult."""
+        from unifex.llm_factory import extract_structured_async
+
+        fake_async = make_fake_async_extractor()
+
+        result = await extract_structured_async(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+            model="openai/gpt-4o",
+            pages=[0, 1],
+            _extractor=fake_async,
+        )
+
+        assert isinstance(result, LLMExtractionResult)
+        assert result.data == {"pages": [0, 1]}
