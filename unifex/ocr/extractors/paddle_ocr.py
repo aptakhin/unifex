@@ -233,6 +233,16 @@ class PaddleOcrExtractor(BaseExtractor):
             extra=extra,
         )
 
+    def get_init_params(self) -> dict[str, Any]:
+        """Return parameters for recreating this extractor in a worker process."""
+        return {
+            "path": self.path,
+            "lang": self.lang,
+            "use_gpu": self.use_gpu,
+            "dpi": self.dpi,
+            "output_unit": self.output_unit,
+        }
+
     def close(self) -> None:
         """Release resources."""
         self._images.close()

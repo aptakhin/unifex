@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from unifex.base import (
     BaseExtractor,
@@ -161,6 +162,15 @@ class TesseractOcrExtractor(BaseExtractor):
             extractor_type=ExtractorType.TESSERACT,
             extra=extra,
         )
+
+    def get_init_params(self) -> dict[str, Any]:
+        """Return parameters for recreating this extractor in a worker process."""
+        return {
+            "path": self.path,
+            "languages": self.languages,
+            "dpi": self.dpi,
+            "output_unit": self.output_unit,
+        }
 
     def close(self) -> None:
         """Release resources."""

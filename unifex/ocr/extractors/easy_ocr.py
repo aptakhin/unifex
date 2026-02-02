@@ -125,6 +125,16 @@ class EasyOcrExtractor(BaseExtractor):
             extra=extra,
         )
 
+    def get_init_params(self) -> dict[str, Any]:
+        """Return parameters for recreating this extractor in a worker process."""
+        return {
+            "path": self.path,
+            "languages": self.languages,
+            "gpu": self.gpu,
+            "dpi": self.dpi,
+            "output_unit": self.output_unit,
+        }
+
     def close(self) -> None:
         """Release resources."""
         self._images.close()

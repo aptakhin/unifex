@@ -6,11 +6,32 @@ from collections.abc import Sequence
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import partial
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
 from unifex.base.coordinates import CoordinateConverter
 from unifex.base.models import CoordinateUnit, Document, ExtractorMetadata, Page
+
+# Worker state for process-based parallelism (initialized per worker process)
+_worker_state: dict[str, Any] = {}
+
+
+def _init_worker(extractor_class: type, init_params: dict[str, Any]) -> None:
+    """Initialize a worker process with its own extractor instance."""
+    _worker_state["extractor"] = extractor_class(**init_params)
+
+
+def _extract_page_worker(page: int) -> PageExtractionResult:
+    """Extract a single page using the worker's extractor instance."""
+    extractor = _worker_state.get("extractor")
+    if extractor is None:
+        return PageExtractionResult(
+            page=Page(page=page, width=0, height=0, texts=[]),
+            success=False,
+            error="Worker extractor not initialized",
+        )
+    return extractor.extract_page(page)
 
 
 class ExecutorType(str, Enum):
@@ -82,6 +103,24 @@ class BaseExtractor(ABC):
         """Return metadata about the extractor and processing."""
         ...
 
+    def get_init_params(self) -> dict[str, Any]:
+        """Return parameters needed to recreate this extractor.
+
+        Override this method to enable process-based parallel extraction.
+        The returned dict should contain all kwargs needed to create a new
+        instance of this extractor class.
+
+        Returns:
+            Dict of keyword arguments for __init__.
+
+        Raises:
+            NotImplementedError: If process executor is not supported.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not support process-based parallel extraction. "
+            "Use executor=ExecutorType.THREAD instead."
+        )
+
     def _extract_pages(
         self,
         pages: Sequence[int] | None = None,
@@ -109,25 +148,44 @@ class BaseExtractor(ABC):
         if max_workers <= 1 or len(pages_list) <= 1:
             return [self.extract_page(n) for n in pages_list]
 
-        # Select executor class
-        executor_class = (
-            ProcessPoolExecutor if executor == ExecutorType.PROCESS else ThreadPoolExecutor
-        )
-
         # Parallel execution with ordering preserved
         results: list[PageExtractionResult | None] = [None] * len(pages_list)
-        with executor_class(max_workers=max_workers) as pool:
-            future_to_idx = {pool.submit(self.extract_page, p): i for i, p in enumerate(pages_list)}
-            for future in as_completed(future_to_idx):
-                idx = future_to_idx[future]
-                try:
-                    results[idx] = future.result()
-                except Exception as e:
-                    results[idx] = PageExtractionResult(
-                        page=Page(page=pages_list[idx], width=0, height=0, texts=[]),
-                        success=False,
-                        error=str(e),
-                    )
+
+        if executor == ExecutorType.PROCESS:
+            # Process executor: initialize fresh extractor in each worker
+            init_params = self.get_init_params()
+            initializer = partial(_init_worker, type(self), init_params)
+            with ProcessPoolExecutor(max_workers=max_workers, initializer=initializer) as pool:
+                future_to_idx = {
+                    pool.submit(_extract_page_worker, p): i for i, p in enumerate(pages_list)
+                }
+                for future in as_completed(future_to_idx):
+                    idx = future_to_idx[future]
+                    try:
+                        results[idx] = future.result()
+                    except Exception as e:
+                        results[idx] = PageExtractionResult(
+                            page=Page(page=pages_list[idx], width=0, height=0, texts=[]),
+                            success=False,
+                            error=str(e),
+                        )
+        else:
+            # Thread executor: share extractor instance
+            with ThreadPoolExecutor(max_workers=max_workers) as pool:
+                future_to_idx = {
+                    pool.submit(self.extract_page, p): i for i, p in enumerate(pages_list)
+                }
+                for future in as_completed(future_to_idx):
+                    idx = future_to_idx[future]
+                    try:
+                        results[idx] = future.result()
+                    except Exception as e:
+                        results[idx] = PageExtractionResult(
+                            page=Page(page=pages_list[idx], width=0, height=0, texts=[]),
+                            success=False,
+                            error=str(e),
+                        )
+
         return results  # type: ignore[return-value]
 
     def extract(

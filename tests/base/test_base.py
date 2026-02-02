@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -38,6 +39,9 @@ class MockExtractor(BaseExtractor):
 
     def get_extractor_metadata(self) -> ExtractorMetadata:
         return ExtractorMetadata(extractor_type=ExtractorType.PDF)
+
+    def get_init_params(self) -> dict[str, Any]:
+        return {"path": self.path, "page_count": self._page_count}
 
 
 # PageExtractionResult tests
