@@ -53,6 +53,7 @@ dev = [
     "pytest-asyncio>=1.0.0",
     "pytest-vcr>=1.0",
     "pytest-timeout>=2.0",
+    "pytest-codspeed>=3.0",
     "vcrpy>=7.0",
     "ruff>=0.14.11",
     "ty>=0.0.11",
