@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 try:
     from pydantic import BaseModel, ConfigDict, Field
@@ -78,6 +81,34 @@ class Table(BaseModel):
     row_count: int = 0
     col_count: int = 0
     bbox: BBox | None = None  # Table bbox if available
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Convert table to pandas DataFrame.
+
+        Returns:
+            DataFrame with all rows as data. Columns are numbered 0, 1, 2, ...
+            Missing cells are filled with empty strings.
+
+        Raises:
+            ImportError: If pandas is not installed.
+        """
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                "pandas is required for to_dataframe(). Install with: pip install unifex[tables]"
+            ) from None
+
+        # Build 2D grid from sparse cell list
+        grid: dict[tuple[int, int], str] = {(cell.row, cell.col): cell.text for cell in self.cells}
+
+        # Create rows as lists
+        data = []
+        for row_idx in range(self.row_count):
+            row = [grid.get((row_idx, col_idx), "") for col_idx in range(self.col_count)]
+            data.append(row)
+
+        return pd.DataFrame(data)
 
 
 class Page(BaseModel):

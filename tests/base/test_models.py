@@ -7,6 +7,8 @@ from unifex.base import (
     ExtractorType,
     FontInfo,
     Page,
+    Table,
+    TableCell,
     TextBlock,
 )
 
@@ -105,3 +107,48 @@ def test_extractor_type_enum() -> None:
     assert ExtractorType.PADDLE == "paddle"
     assert ExtractorType.AZURE_DI == "azure-di"
     assert ExtractorType.GOOGLE_DOCAI == "google-docai"
+
+
+class TestTableToDataframe:
+    def test_basic_table(self) -> None:
+        """Test converting a basic table to DataFrame."""
+        table = Table(
+            page=0,
+            cells=[
+                TableCell(text="Name", row=0, col=0),
+                TableCell(text="Age", row=0, col=1),
+                TableCell(text="Alice", row=1, col=0),
+                TableCell(text="30", row=1, col=1),
+            ],
+            row_count=2,
+            col_count=2,
+        )
+        df = table.to_dataframe()
+        assert len(df) == 2
+        assert df.iloc[0, 0] == "Name"
+        assert df.iloc[0, 1] == "Age"
+        assert df.iloc[1, 0] == "Alice"
+        assert df.iloc[1, 1] == "30"
+
+    def test_empty_table(self) -> None:
+        """Test converting an empty table."""
+        table = Table(page=0, row_count=0, col_count=0)
+        df = table.to_dataframe()
+        assert df.empty
+
+    def test_missing_cells(self) -> None:
+        """Test table with missing cells fills with empty strings."""
+        table = Table(
+            page=0,
+            cells=[
+                TableCell(text="A", row=0, col=0),
+                TableCell(text="C", row=0, col=2),  # col 1 missing
+            ],
+            row_count=1,
+            col_count=3,
+        )
+        df = table.to_dataframe()
+        assert len(df) == 1
+        assert df.iloc[0, 0] == "A"
+        assert df.iloc[0, 1] == ""  # Missing cell filled with empty string
+        assert df.iloc[0, 2] == "C"
