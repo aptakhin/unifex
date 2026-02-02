@@ -326,6 +326,13 @@ def _run_text_extraction(args: argparse.Namespace, pages: Sequence[int] | None) 
                 # PaddleOCR uses PPStructure for table extraction
                 _extract_paddle_tables(extractor, result, pages)
 
+    # Report errors if any pages failed
+    if not result.success:
+        for page_num, error in result.errors:
+            print(f"Page {page_num}: Error - {error}", file=sys.stderr)
+        if not result.document.pages:
+            sys.exit(1)
+
     _print_text_result(result.document, args.json)
 
 
