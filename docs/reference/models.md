@@ -59,3 +59,29 @@ Result of single page extraction.
 Metadata about the extractor used.
 
 ::: unifex.base.ExtractorMetadata
+
+## LLM Models
+
+### LLMExtractionResult
+
+Result of single LLM extraction request.
+
+::: unifex.llm.models.LLMExtractionResult
+
+### LLMBatchExtractionResult
+
+Result of parallel LLM extraction across multiple pages.
+
+::: unifex.llm.models.LLMBatchExtractionResult
+
+### PageExtractionResult (LLM)
+
+Result for a single page in batch LLM processing.
+
+::: unifex.llm.models.PageExtractionResult
+
+### LLMProvider
+
+Supported LLM providers.
+
+::: unifex.llm.models.LLMProvider

@@ -93,39 +93,58 @@ result = extract_structured(
 
 ## Parallel Extraction
 
-Process multiple pages in parallel for faster extraction:
+Process multiple pages in parallel for faster extraction using
+[`extract_structured_parallel`][unifex.llm_factory.extract_structured_parallel]:
 
 <!-- skip: next -->
 ```python
-from unifex.llm import extract_structured
+from unifex.llm import extract_structured, extract_structured_parallel
 
-# Sequential: all pages sent in one request (default)
+# Sequential: all pages sent in one request
 result = extract_structured("document.pdf", model="openai/gpt-4o")
+# result.data is the extracted data
 
 # Parallel: each page processed separately with 4 concurrent workers
-result = extract_structured(
+batch_result = extract_structured_parallel(
     "document.pdf",
     model="openai/gpt-4o",
     max_workers=4,
 )
-# result.data is a list of per-page results
-# result.usage contains aggregated token usage
+# batch_result.results is a list of PageExtractionResult
+# batch_result.total_usage contains aggregated token usage
+
+for page_result in batch_result.results:
+    if page_result.error:
+        print(f"Page {page_result.page} failed: {page_result.error}")
+    else:
+        print(f"Page {page_result.page}: {page_result.data}")
 ```
+
+Results are guaranteed to be in the same order as input pages.
 
 ## Async API
 
 <!-- skip: next -->
 ```python
 import asyncio
-from unifex.llm import extract_structured_async
+from unifex.llm import extract_structured_async, extract_structured_parallel_async
 
 async def extract():
+    # Single request
     result = await extract_structured_async(
+        "document.pdf",
+        model="openai/gpt-4o",
+    )
+    return result.data
+
+async def extract_parallel():
+    # Parallel requests
+    batch_result = await extract_structured_parallel_async(
         "document.pdf",
         model="openai/gpt-4o",
         max_workers=4,
     )
-    return result.data
+    return batch_result.results
 
 data = asyncio.run(extract())
 ```
