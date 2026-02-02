@@ -5,7 +5,7 @@ from pathlib import Path
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 
 def generate_benchmark_pdf(output_path: Path, num_pages: int = 40) -> None:
@@ -47,6 +47,10 @@ def generate_benchmark_pdf(output_path: Path, num_pages: int = 40) -> None:
             )
             elements.append(table)
             elements.append(Spacer(1, 24))
+
+        # Add page break after each page except the last
+        if page_num < num_pages - 1:
+            elements.append(PageBreak())
 
     doc.build(elements)
 
