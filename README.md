@@ -376,7 +376,7 @@ Integration tests load real ML models and call real services. They are in `tests
 
 3. Load environment variables and run tests:
    ```bash
-   set -a; source .env; set +a
+   set -a; source .env; set +a;
    uv run pytest tests/test_integration.py -v
    ```
 
