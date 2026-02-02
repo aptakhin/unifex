@@ -43,7 +43,11 @@ class PageExtractionResult(BaseModel, Generic[T]):
 
 
 class LLMBatchExtractionResult(BaseModel, Generic[T]):
-    """Result of parallel LLM extraction across multiple pages."""
+    """Result of parallel LLM extraction across multiple pages.
+
+    Results are guaranteed to be in the same order as the input pages,
+    i.e., results[i] corresponds to pages[i] passed to the extraction function.
+    """
 
     model_config = {"arbitrary_types_allowed": True}
 

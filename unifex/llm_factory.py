@@ -562,6 +562,8 @@ def extract_structured_parallel(  # noqa: PLR0913
 
     Returns:
         LLMBatchExtractionResult containing per-page results with data or errors.
+        Results are guaranteed to be in the same order as the input pages,
+        i.e., result.results[i] corresponds to pages[i].
     """
     from concurrent.futures import ProcessPoolExecutor
 
@@ -705,6 +707,8 @@ async def extract_structured_parallel_async(  # noqa: PLR0913
 
     Returns:
         LLMBatchExtractionResult containing per-page results with data or errors.
+        Results are guaranteed to be in the same order as the input pages,
+        i.e., result.results[i] corresponds to pages[i].
     """
     path = Path(path) if isinstance(path, str) else path
     provider, model_name = _parse_model_string(model)
