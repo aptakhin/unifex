@@ -181,261 +181,101 @@ async def extract_document():
 doc = asyncio.run(extract_document())
 ```
 
-### OCR Extraction (Local - EasyOCR)
+### OCR Extraction
+
+Local OCR engines (EasyOCR, Tesseract, PaddleOCR) and cloud services (Azure Document Intelligence, Google Document AI). All extractors auto-detect file type (PDF vs image) and handle conversion internally.
 
 ```python
-from unifex import EasyOcrExtractor
+from unifex import (
+    EasyOcrExtractor, TesseractOcrExtractor, PaddleOcrExtractor,
+    AzureDocumentIntelligenceExtractor, GoogleDocumentAIExtractor,
+)
 
-# For images
-with EasyOcrExtractor("image.png", languages=["en"]) as extractor:
-    result = extractor.extract()
-
-# For PDFs (auto-converts to images)
+# Local OCR (works for both images and PDFs)
 with EasyOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extractor:
     result = extractor.extract()
-```
 
-### OCR Extraction (Local - Tesseract)
-
-Requires Tesseract to be installed on the system:
-- macOS: `brew install tesseract`
-- Ubuntu: `apt-get install tesseract-ocr`
-- Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
-
-```python
-from unifex import TesseractOcrExtractor
-
-# For images
+# Tesseract (requires system install: brew install tesseract)
 with TesseractOcrExtractor("image.png", languages=["en"]) as extractor:
     result = extractor.extract()
 
-# For PDFs (auto-converts to images)
-with TesseractOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extractor:
-    result = extractor.extract()
-```
-
-### OCR Extraction (Local - PaddleOCR)
-
-PaddleOCR provides excellent accuracy for multiple languages, especially Chinese.
-
-```python
-from unifex import PaddleOcrExtractor
-
-# For images
-with PaddleOcrExtractor("image.png", lang="en") as extractor:
-    result = extractor.extract()
-
-# For PDFs (auto-converts to images)
-with PaddleOcrExtractor("scanned.pdf", lang="en", dpi=200) as extractor:
-    result = extractor.extract()
-
-# For Chinese text
+# PaddleOCR (excellent for Chinese)
 with PaddleOcrExtractor("chinese_doc.png", lang="ch") as extractor:
     result = extractor.extract()
-```
 
-### OCR Extraction (Cloud - Azure)
-
-```python
-from unifex import AzureDocumentIntelligenceExtractor
-
+# Cloud: Azure Document Intelligence
 with AzureDocumentIntelligenceExtractor(
     "document.pdf",
     endpoint="https://your-resource.cognitiveservices.azure.com",
     key="your-api-key",
 ) as extractor:
     result = extractor.extract()
-```
 
-### OCR Extraction (Cloud - Google Document AI)
-
-```python
-from unifex import GoogleDocumentAIExtractor
-
+# Cloud: Google Document AI
 with GoogleDocumentAIExtractor(
     "document.pdf",
-    processor_name="projects/your-project/locations/us/processors/your-processor-id",
-    credentials_path="/path/to/service-account.json",
+    processor_name="projects/your-project/locations/us/processors/id",
+    credentials_path="/path/to/credentials.json",
 ) as extractor:
     result = extractor.extract()
 ```
 
 ### LLM Extraction
 
-Extract structured data from documents using vision-capable LLMs. Supports OpenAI, Anthropic, Google, and Azure OpenAI.
-
-```python
-from unifex.llm import extract_structured
-
-# Free-form extraction (returns dict)
-result = extract_structured(
-    "invoice.pdf",
-    model="openai/gpt-4o",
-)
-print(result.data)  # {"invoice_number": "INV-001", "total": 150.00, ...}
-
-# With custom prompt
-result = extract_structured(
-    "receipt.png",
-    model="anthropic/claude-sonnet-4-20250514",
-    prompt="Extract the merchant name, date, and total amount",
-)
-```
-
-#### Structured Extraction with Pydantic Schema
-
-Define a Pydantic model and get type-safe structured output:
+Extract structured data using vision-capable LLMs (OpenAI, Anthropic, Google, Azure OpenAI). Supports custom prompts, Pydantic schemas, parallel extraction, async API, and OpenAI-compatible endpoints (vLLM, Ollama).
 
 ```python
 from pydantic import BaseModel
-from unifex.llm import extract_structured
+from unifex.llm import extract_structured, extract_structured_async
 
 class Invoice(BaseModel):
     invoice_number: str
     date: str
     total: float
-    items: list[dict]
 
+# Basic extraction with Pydantic schema
+result = extract_structured("invoice.pdf", model="openai/gpt-4o", schema=Invoice)
+invoice: Invoice = result.data
+
+# With custom prompt and parallel workers
 result = extract_structured(
-    "invoice.pdf",
-    model="openai/gpt-4o",
-    schema=Invoice,
-)
-invoice: Invoice = result.data  # Typed as Invoice
-print(f"Invoice {invoice.invoice_number}: ${invoice.total}")
-```
-
-#### OpenAI-Compatible APIs (vLLM, Ollama, etc.)
-
-Use custom base URLs for self-hosted or alternative OpenAI-compatible APIs:
-
-```python
-from unifex.llm import extract_structured
-
-# vLLM server
-result = extract_structured(
-    "document.pdf",
-    model="openai/meta-llama/Llama-3.2-90B-Vision-Instruct",
-    base_url="http://localhost:8000/v1",
+    "large_doc.pdf",
+    model="anthropic/claude-sonnet-4-20250514",
+    prompt="Extract invoice details",
+    max_workers=4,  # Process pages in parallel
 )
 
-# Ollama
+# OpenAI-compatible APIs (vLLM, Ollama) with custom headers
 result = extract_structured(
     "document.pdf",
     model="openai/llava",
     base_url="http://localhost:11434/v1",
+    headers={"X-Custom-Auth": "token"},
 )
 
-# With custom headers
-result = extract_structured(
-    "document.pdf",
-    model="openai/gpt-4o",
-    base_url="https://your-proxy.com/v1",
-    headers={"X-Custom-Auth": "your-token"},
-)
-```
-
-#### Parallel Extraction
-
-Process multiple pages in parallel for faster extraction:
-
-```python
-from unifex.llm import extract_structured
-
-# Sequential: all pages sent in one request (default)
-result = extract_structured("document.pdf", model="openai/gpt-4o")
-
-# Parallel: each page processed separately with 4 concurrent workers
-result = extract_structured(
-    "large_document.pdf",
-    model="openai/gpt-4o",
-    max_workers=4,
-)
-# result.data is a list of per-page results
-# result.usage contains aggregated token usage
-```
-
-#### Async API
-
-```python
-import asyncio
-from unifex.llm import extract_structured_async
-
-async def extract():
-    result = await extract_structured_async(
-        "document.pdf",
-        model="openai/gpt-4o",
-        max_workers=4,  # Concurrent requests limited by semaphore
-    )
-    return result.data
-
-data = asyncio.run(extract())
+# Async API
+result = await extract_structured_async("doc.pdf", model="openai/gpt-4o", max_workers=4)
 ```
 
 ## CLI Usage
 
 ```bash
-# PDF extraction
-uv run python -m unifex.cli document.pdf --extractor pdf
+# OCR extractors: pdf, easyocr, tesseract, paddle, azure-di, google-docai
+uv run python -m unifex.cli document.pdf --extractor easyocr --lang en
 
-# EasyOCR extraction (works for both images and PDFs)
-uv run python -m unifex.cli image.png --extractor easyocr --lang en,it
-uv run python -m unifex.cli scanned.pdf --extractor easyocr --lang en
+# Parallel extraction with process executor
+uv run python -m unifex.cli large_doc.pdf --extractor easyocr --max-workers 4 --executor process
 
-# Parallel extraction with 4 workers
-uv run python -m unifex.cli large_document.pdf --extractor easyocr --max-workers 4
-
-# Use process executor instead of threads
-uv run python -m unifex.cli document.pdf --extractor easyocr --max-workers 4 --executor process
-
-# Tesseract OCR
-uv run python -m unifex.cli document.pdf --extractor tesseract --lang eng
-
-# PaddleOCR
-uv run python -m unifex.cli document.pdf --extractor paddle --lang en
-
-# Azure Document Intelligence (credentials via CLI or env vars)
+# Cloud OCR (credentials via CLI or env vars)
 uv run python -m unifex.cli document.pdf --extractor azure-di \
-    --azure-endpoint https://your-resource.cognitiveservices.azure.com \
-    --azure-key your-api-key
+    --azure-endpoint https://your-resource.cognitiveservices.azure.com --azure-key your-key
 
-# Or use environment variables
-export UNIFEX_AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-export UNIFEX_AZURE_DI_KEY=your-api-key
-uv run python -m unifex.cli document.pdf --extractor azure-di
+# LLM extraction with parallel workers and custom endpoint
+uv run python -m unifex.cli document.pdf --llm openai/gpt-4o --max-workers 4 \
+    --llm-base-url https://your-proxy.com/v1 --llm-header "X-Auth=token"
 
-# Google Document AI
-uv run python -m unifex.cli document.pdf --extractor google-docai \
-    --google-processor-name projects/your-project/locations/us/processors/123 \
-    --google-credentials-path /path/to/credentials.json
-
-# JSON output
-uv run python -m unifex.cli document.pdf --extractor pdf --json
-
-# Specific pages
-uv run python -m unifex.cli document.pdf --extractor pdf --pages 0,1,2
-
-# LLM extraction (free-form)
-uv run python -m unifex.cli invoice.pdf --llm openai/gpt-4o
-
-# LLM extraction with custom prompt
-uv run python -m unifex.cli receipt.png --llm anthropic/claude-sonnet-4-20250514 \
-    --llm-prompt "Extract merchant name, date, and total"
-
-# LLM with parallel workers (each page processed separately)
-uv run python -m unifex.cli large_document.pdf --llm openai/gpt-4o --max-workers 4
-
-# LLM with OpenAI-compatible API (vLLM, Ollama, etc.)
-uv run python -m unifex.cli document.pdf --llm openai/llava \
-    --llm-base-url http://localhost:11434/v1
-
-# LLM with custom headers
-uv run python -m unifex.cli document.pdf --llm openai/gpt-4o \
-    --llm-base-url https://your-proxy.com/v1 \
-    --llm-header "X-Custom-Auth=your-token"
-
-# LLM JSON output
-uv run python -m unifex.cli document.pdf --llm openai/gpt-4o --json
+# JSON output, specific pages
+uv run python -m unifex.cli document.pdf --extractor pdf --pages 0,1,2 --json
 ```
 
 ## Environment Variables
@@ -534,14 +374,10 @@ Integration tests load real ML models and call real services. They are in `tests
    UNIFEX_AZURE_DI_KEY=your-api-key
    ```
 
-3. Load environment variables before running tests:
+3. Load environment variables and run tests:
    ```bash
-   # Option 1: Source the .env file
-   export $(cat .env | xargs)
+   set -a; source .env; set +a
    uv run pytest tests/test_integration.py -v
-
-   # Option 2: Use env command
-   env $(cat .env | xargs) uv run pytest tests/test_integration.py -v
    ```
 
 Azure integration tests are automatically skipped if credentials are not configured.
@@ -588,97 +424,6 @@ This runs:
 - `ruff check --fix` - Linting with auto-fix
 - `ty check` - Type checking
 - `pytest` - Test suite
-
-## Architecture
-
-```
-unifex/
-├── cli.py              # Command-line interface
-├── coordinates.py      # Coordinate unit conversions (POINTS, PIXELS, INCHES, NORMALIZED)
-├── models.py           # Core data models (Document, Page, TextBlock, BBox)
-├── extractors/         # PDF text extraction
-│   ├── base.py         # Base extractor class
-│   ├── factory.py      # Unified factory interface
-│   ├── pdf.py          # Native PDF extraction via pypdfium2
-│   └── character_mergers.py  # Text merging strategies
-├── ocr/                # OCR extraction
-│   ├── adapters/       # External API → internal models
-│   │   ├── azure_di.py
-│   │   ├── google_docai.py
-│   │   ├── easy_ocr.py
-│   │   ├── paddle_ocr.py
-│   │   └── tesseract_ocr.py
-│   └── extractors/     # OCR extractor implementations
-│       ├── azure_di.py
-│       ├── google_docai.py
-│       ├── easy_ocr.py
-│       ├── paddle_ocr.py
-│       └── tesseract_ocr.py
-├── llm/                # LLM-based extraction
-│   ├── factory.py      # LLM extractor factory
-│   ├── models.py       # LLM-specific models
-│   ├── adapters/
-│   │   └── image_encoder.py  # Image encoding for LLM input
-│   └── extractors/     # LLM provider implementations
-│       ├── anthropic.py
-│       ├── openai.py
-│       ├── azure_openai.py
-│       └── google.py
-└── utils/              # Shared utilities
-    ├── geometry.py     # Geometric calculations
-    └── image_loader.py # Image loading utilities
-```
-
-### Extractors
-
-**PDF Extraction:**
-- `PdfExtractor` - Native PDF text extraction via pypdfium2
-
-**OCR Extraction:**
-- `EasyOcrExtractor` - Image/PDF OCR via EasyOCR
-- `TesseractOcrExtractor` - Image/PDF OCR via Tesseract
-- `PaddleOcrExtractor` - Image/PDF OCR via PaddleOCR
-- `AzureDocumentIntelligenceExtractor` - Azure cloud OCR
-- `GoogleDocumentAIExtractor` - Google Cloud Document AI
-
-**LLM Extraction:**
-- `AnthropicExtractor` - Claude-based text extraction
-- `OpenAIExtractor` - GPT-based text extraction
-- `AzureOpenAIExtractor` - Azure OpenAI text extraction
-- `GoogleExtractor` - Gemini-based text extraction
-
-### Adapters
-
-Schema transformation from external APIs to internal models:
-- **OCR adapters** - Convert Azure, Google, EasyOCR, PaddleOCR, Tesseract results to `Page`/`TextBlock`
-- **LLM adapters** - Handle image encoding for LLM input
-
-### Models
-
-Pydantic models for type-safe document representation:
-- `Document` - Full document with pages and metadata
-- `Page` - Single page with text blocks and tables
-- `TextBlock` - Text with bounding box and confidence
-- `Table` - Extracted table with rows and columns
-- `BBox` - Bounding box coordinates
-- `ExtractorMetadata` - Extractor type and processing details
-
-## Work test times
-
-Please keep in mind EasyOCR solution performance slows downs with bigger images and scale. The current overview for small PDF and images with dpi=100 (lower faster).
-
-```bash
-11.84s call     tests/test_integration.py::test_ocr_extract_pdf[easyocr]
-4.79s call     tests/test_integration.py::test_ocr_extract_pdf[google]
-3.64s call     tests/test_integration.py::test_ocr_extract_pdf[azure]
-3.58s call     tests/test_integration.py::test_ocr_extract_image[easyocr]
-3.01s call     tests/test_integration.py::test_ocr_extract_pdf[paddle]
-1.20s call     tests/test_integration.py::test_ocr_extract_image[paddle]
-0.94s call     tests/test_factory.py::TestCreateExtractorWithRealFiles::test_creates_paddle_with_gpu_flag
-0.94s call     tests/test_factory.py::TestCreateExtractorWithRealFiles::test_creates_paddle_extractor
-0.48s call     tests/test_integration.py::test_ocr_extract_pdf[tesseract]
-0.15s call     tests/test_integration.py::test_ocr_extract_image[tesseract]
-```
 
 ## License
 
