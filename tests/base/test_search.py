@@ -209,6 +209,52 @@ class TestMergedTextSearch:
         assert len(results) == 0
 
 
+class TestLineGapCoordinateConversion:
+    """Tests for automatic line_gap conversion based on coordinate units."""
+
+    def test_line_gap_default_with_points(self) -> None:
+        """Default line_gap uses 5.0 when coordinate_info is POINTS."""
+        from unifex.base import CoordinateInfo, CoordinateUnit
+
+        blocks = [
+            TextBlock(text="First", bbox=BBox(x0=0, y0=0, x1=40, y1=20)),
+            TextBlock(text="page", bbox=BBox(x0=50, y0=0, x1=90, y1=20)),
+        ]
+        page = Page(
+            page=0,
+            width=595.0,
+            height=842.0,
+            texts=blocks,
+            coordinate_info=CoordinateInfo(unit=CoordinateUnit.POINTS),
+        )
+        doc = Document(path=Path("/tmp/test.pdf"), pages=[page])
+        # Should work with default line_gap (5.0 points)
+        results = doc.search("First page", merge_gap=15.0)
+        assert len(results) == 1
+
+    def test_line_gap_default_with_normalized(self) -> None:
+        """Default line_gap converts from points to normalized coordinates."""
+        from unifex.base import CoordinateInfo, CoordinateUnit
+
+        # In normalized coords (0-1), blocks at y=0 with very small gap
+        blocks = [
+            TextBlock(text="First", bbox=BBox(x0=0, y0=0, x1=0.1, y1=0.02)),
+            TextBlock(text="page", bbox=BBox(x0=0.12, y0=0, x1=0.2, y1=0.02)),
+        ]
+        page = Page(
+            page=0,
+            width=1.0,
+            height=1.0,
+            texts=blocks,
+            coordinate_info=CoordinateInfo(unit=CoordinateUnit.NORMALIZED),
+        )
+        doc = Document(path=Path("/tmp/test.pdf"), pages=[page])
+        # Default line_gap is 5 points / 842 height ≈ 0.006 in normalized
+        # Blocks on same line (y=0), gap of 0.02 between them
+        results = doc.search("First page", merge_gap=0.05)
+        assert len(results) == 1
+
+
 class TestPageSearch:
     """Tests for Page.search() method."""
 

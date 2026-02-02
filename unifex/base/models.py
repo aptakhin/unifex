@@ -266,6 +266,31 @@ def _blocks_overlap(a: TextBlock, b: TextBlock) -> bool:
     return not (a.bbox.x1 < b.bbox.x0 or a.bbox.x0 > b.bbox.x1)
 
 
+# Default merging thresholds in points (PDF native unit)
+_DEFAULT_LINE_GAP_POINTS = 5.0
+_POINTS_PER_INCH = 72.0
+
+
+def _convert_points_to_unit(
+    points: float,
+    unit: CoordinateUnit,
+    page_height: float,
+    dpi: float | None,
+) -> float:
+    """Convert a value from points to the specified coordinate unit."""
+    if unit == CoordinateUnit.POINTS:
+        return points
+    elif unit == CoordinateUnit.PIXELS:
+        if dpi is None:
+            return points  # Fall back to points if no DPI
+        return points * (dpi / _POINTS_PER_INCH)
+    elif unit == CoordinateUnit.INCHES:
+        return points / _POINTS_PER_INCH
+    elif unit == CoordinateUnit.NORMALIZED:
+        return points / page_height if page_height > 0 else points
+    return points
+
+
 class _DocumentSearchMixin:
     """Mixin providing search functionality for Document."""
 
@@ -278,7 +303,7 @@ class _DocumentSearchMixin:
         case_sensitive: bool = True,
         pages: int | list[int] | None = None,
         merge_gap: float | None = None,
-        line_gap: float = 5.0,
+        line_gap: float | None = None,
     ) -> list[SearchResult]:
         """Search for text blocks matching a pattern.
 
@@ -289,10 +314,12 @@ class _DocumentSearchMixin:
             pages: Page number(s) to search. None searches all pages.
                   Can be a single int or list of ints (0-indexed).
             merge_gap: If set, merge horizontally adjacent blocks within this
-                      gap (in coordinate units) before searching. Useful for
-                      word-level OCR output when searching for phrases.
+                      gap before searching. Useful for word-level OCR output
+                      when searching for phrases. Units must match the
+                      document's coordinate system (from extraction).
             line_gap: Vertical tolerance for grouping blocks into lines
-                     when merge_gap is used (default 5.0 points).
+                     when merge_gap is used. If None, defaults to 5.0 points
+                     converted to the document's coordinate units.
 
         Returns:
             List of SearchResult objects.
@@ -310,7 +337,24 @@ class _DocumentSearchMixin:
             if target_pages is not None and page.page not in target_pages:
                 continue
 
-            matches = _search_blocks(page.texts, pattern, case_sensitive, merge_gap, line_gap)
+            # Compute effective line_gap for this page
+            effective_line_gap = line_gap
+            if effective_line_gap is None and merge_gap is not None:
+                # Convert default from points to page's coordinate unit
+                if page.coordinate_info is not None:
+                    effective_line_gap = _convert_points_to_unit(
+                        _DEFAULT_LINE_GAP_POINTS,
+                        page.coordinate_info.unit,
+                        page.height,
+                        page.coordinate_info.dpi,
+                    )
+                else:
+                    # Assume points if no coordinate info
+                    effective_line_gap = _DEFAULT_LINE_GAP_POINTS
+
+            matches = _search_blocks(
+                page.texts, pattern, case_sensitive, merge_gap, effective_line_gap or 0.0
+            )
             for matched_block, originals in matches:
                 results.append(
                     SearchResult(
