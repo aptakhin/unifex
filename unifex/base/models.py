@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -119,6 +120,30 @@ class Page(BaseModel):
     tables: list[Table] = Field(default_factory=list)
     coordinate_info: CoordinateInfo | None = None
 
+    def search(
+        self,
+        pattern: str | re.Pattern[str],
+        *,
+        case_sensitive: bool = True,
+    ) -> list[TextBlock]:
+        """Search for text blocks matching a pattern.
+
+        Args:
+            pattern: String for substring search, or compiled regex pattern.
+            case_sensitive: Whether search is case-sensitive (default True).
+                           Ignored if pattern is already a compiled regex.
+
+        Returns:
+            List of matching TextBlock objects.
+        """
+        if isinstance(pattern, re.Pattern):
+            compiled = pattern
+        else:
+            flags = 0 if case_sensitive else re.IGNORECASE
+            compiled = re.compile(re.escape(pattern), flags)
+
+        return [block for block in self.texts if compiled.search(block.text)]
+
 
 class ExtractorMetadata(BaseModel):
     extractor_type: ExtractorType
@@ -131,9 +156,176 @@ class ExtractorMetadata(BaseModel):
     extra: dict[str, Any] = Field(default_factory=dict)
 
 
+class SearchResult(BaseModel):
+    """A search result containing matched text and its location."""
+
+    page: int
+    block: TextBlock
+    original_blocks: list[TextBlock] = Field(default_factory=list)
+
+
+def _merge_blocks_by_gap(blocks: list[TextBlock], gap: float) -> list[TextBlock]:
+    """Merge horizontally adjacent TextBlocks within gap threshold.
+
+    Args:
+        blocks: TextBlocks sorted by x0 position (assumed same line).
+        gap: Maximum horizontal gap between blocks to merge.
+
+    Returns:
+        List of merged TextBlocks.
+    """
+    if not blocks:
+        return []
+
+    # Sort by x0 to ensure left-to-right order
+    sorted_blocks = sorted(blocks, key=lambda b: b.bbox.x0)
+    merged: list[TextBlock] = []
+    current_group: list[TextBlock] = [sorted_blocks[0]]
+
+    for block in sorted_blocks[1:]:
+        prev = current_group[-1]
+        # Check horizontal gap (block.x0 - prev.x1)
+        if block.bbox.x0 - prev.bbox.x1 <= gap:
+            current_group.append(block)
+        else:
+            # Finalize current group
+            merged.append(_create_merged_block(current_group))
+            current_group = [block]
+
+    # Finalize last group
+    merged.append(_create_merged_block(current_group))
+    return merged
+
+
+def _create_merged_block(blocks: list[TextBlock]) -> TextBlock:
+    """Create a single TextBlock from a list of adjacent blocks."""
+    if len(blocks) == 1:
+        return blocks[0]
+
+    text = " ".join(b.text for b in blocks)
+    x0 = min(b.bbox.x0 for b in blocks)
+    y0 = min(b.bbox.y0 for b in blocks)
+    x1 = max(b.bbox.x1 for b in blocks)
+    y1 = max(b.bbox.y1 for b in blocks)
+
+    return TextBlock(
+        text=text,
+        bbox=BBox(x0=x0, y0=y0, x1=x1, y1=y1),
+        rotation=blocks[0].rotation,
+        confidence=None,  # Can't combine confidences meaningfully
+    )
+
+
+def _search_blocks(
+    blocks: list[TextBlock],
+    pattern: str | re.Pattern[str],
+    case_sensitive: bool,
+    merge_gap: float | None,
+    line_gap: float,
+) -> list[tuple[TextBlock, list[TextBlock]]]:
+    """Search blocks for pattern, optionally merging adjacent blocks first.
+
+    Returns:
+        List of (matched_block, original_blocks) tuples.
+    """
+    if isinstance(pattern, re.Pattern):
+        compiled = pattern
+    else:
+        flags = 0 if case_sensitive else re.IGNORECASE
+        compiled = re.compile(re.escape(pattern), flags)
+
+    if merge_gap is not None:
+        # Group blocks by approximate y position (same line)
+        line_groups: dict[int, list[TextBlock]] = {}
+        for block in blocks:
+            # Round y0 using line_gap tolerance
+            line_key = int(block.bbox.y0 / line_gap) if line_gap > 0 else 0
+            if line_key not in line_groups:
+                line_groups[line_key] = []
+            line_groups[line_key].append(block)
+
+        # Merge each line and search
+        results: list[tuple[TextBlock, list[TextBlock]]] = []
+        for line_blocks in line_groups.values():
+            sorted_line = sorted(line_blocks, key=lambda b: b.bbox.x0)
+            merged = _merge_blocks_by_gap(sorted_line, merge_gap)
+
+            for merged_block in merged:
+                if compiled.search(merged_block.text):
+                    # Find which original blocks contributed
+                    originals = [b for b in sorted_line if _blocks_overlap(b, merged_block)]
+                    results.append((merged_block, originals))
+        return results
+    else:
+        # No merging, search individual blocks
+        return [(block, [block]) for block in blocks if compiled.search(block.text)]
+
+
+def _blocks_overlap(a: TextBlock, b: TextBlock) -> bool:
+    """Check if block a overlaps with block b horizontally."""
+    return not (a.bbox.x1 < b.bbox.x0 or a.bbox.x0 > b.bbox.x1)
+
+
+class _DocumentSearchMixin:
+    """Mixin providing search functionality for Document."""
+
+    pages: list[Page]
+
+    def search(
+        self,
+        pattern: str | re.Pattern[str],
+        *,
+        case_sensitive: bool = True,
+        pages: int | list[int] | None = None,
+        merge_gap: float | None = None,
+        line_gap: float = 5.0,
+    ) -> list[SearchResult]:
+        """Search for text blocks matching a pattern.
+
+        Args:
+            pattern: String for substring search, or compiled regex pattern.
+            case_sensitive: Whether search is case-sensitive (default True).
+                           Ignored if pattern is already a compiled regex.
+            pages: Page number(s) to search. None searches all pages.
+                  Can be a single int or list of ints (0-indexed).
+            merge_gap: If set, merge horizontally adjacent blocks within this
+                      gap (in coordinate units) before searching. Useful for
+                      word-level OCR output when searching for phrases.
+            line_gap: Vertical tolerance for grouping blocks into lines
+                     when merge_gap is used (default 5.0 points).
+
+        Returns:
+            List of SearchResult objects.
+        """
+        # Normalize pages parameter
+        if pages is None:
+            target_pages = None
+        elif isinstance(pages, int):
+            target_pages = {pages}
+        else:
+            target_pages = set(pages)
+
+        results: list[SearchResult] = []
+        for page in self.pages:
+            if target_pages is not None and page.page not in target_pages:
+                continue
+
+            matches = _search_blocks(page.texts, pattern, case_sensitive, merge_gap, line_gap)
+            for matched_block, originals in matches:
+                results.append(
+                    SearchResult(
+                        page=page.page,
+                        block=matched_block,
+                        original_blocks=originals,
+                    )
+                )
+
+        return results
+
+
 if PYDANTIC_V2:
 
-    class Document(BaseModel):
+    class Document(_DocumentSearchMixin, BaseModel):
         model_config = ConfigDict(arbitrary_types_allowed=True)
 
         path: Path
@@ -141,7 +333,7 @@ if PYDANTIC_V2:
         metadata: ExtractorMetadata | None = None
 else:
 
-    class Document(BaseModel):
+    class Document(_DocumentSearchMixin, BaseModel):
         path: Path
         pages: list[Page] = Field(default_factory=list)
         metadata: ExtractorMetadata | None = None
